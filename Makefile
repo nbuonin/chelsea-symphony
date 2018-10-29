@@ -6,3 +6,6 @@ migrate:
 
 makemigrations:
 	pipenv run ./manage.py makemigrations
+
+superuser:
+	pipenv run ./manage.py createsuperuser
