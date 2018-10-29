@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'wagtail.admin',
     'wagtail.core',
 
+    'wagtailautocomplete',
+
     'modelcluster',
     'taggit',
 
@@ -96,6 +98,17 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+    # 'default': {
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': 'chelseasymphony',
+        # 'USER': 'nick',
+        # 'PASSWORD': '',
+        # 'HOST': '127.0.0.1',
+        # 'PORT': '5432',
+    # }
+# }
 
 
 # Password validation

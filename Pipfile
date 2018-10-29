@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 wagtail = "*"
+"psycopg2" = "*"
+wagtail-autocomplete = "*"
 
 [dev-packages]
 
