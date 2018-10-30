@@ -25,8 +25,8 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 
 INSTALLED_APPS = [
     # 'home',
-    'search',
-    'chelseasymphony',
+    'chelseasymphony.search',
+    'chelseasymphony.main',
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
@@ -66,7 +66,7 @@ MIDDLEWARE = [
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
-ROOT_URLCONF = 'chelseasymphony.urls'
+ROOT_URLCONF = 'chelseasymphony.main.urls'
 
 TEMPLATES = [
     {

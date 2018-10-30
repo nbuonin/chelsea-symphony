@@ -33,8 +33,8 @@ class Home(Page):
     ]
 
     subpage_types = [
-        'chelseasymphony.ConcertIndex',
-        'chelseasymphony.PersonIndex'
+        'ConcertIndex',
+        'PersonIndex'
     ]
 
 
@@ -63,8 +63,8 @@ class PerformanceDate(models.Model):
 
 
 class ConcertIndex(Page):
-    parent_page_types = ['chelseasymphony.Home']
-    subpage_types = ['chelseasymphony.Concert']
+    parent_page_types = ['Home']
+    subpage_types = ['Concert']
 
 
 class Concert(Page):
@@ -89,19 +89,19 @@ class Concert(Page):
         InlinePanel('performance_date', label="Performance Dates"),
     ]
 
-    parent_page_types = ['chelseasymphony.ConcertIndex']
+    parent_page_types = ['ConcertIndex']
 
 
 class Performance(Page):
     composition = models.ForeignKey(
-        'chelseasymphony.Composition',
+        'Composition',
         null=False,
         blank=False,
         on_delete=models.PROTECT,
         related_name='+'
     )
     conductor = models.ForeignKey(
-        'chelseasymphony.Person',
+        'Person',
         null=False,
         blank=False,
         on_delete=models.PROTECT,
@@ -114,7 +114,7 @@ class Performance(Page):
         SnippetChooserPanel('conductor')
     ]
 
-    parent_page_types = ['chelseasymphony.Concert']
+    parent_page_types = ['Concert']
     subpage_types = []
 
 
@@ -123,19 +123,19 @@ class Performer(models.Model):
     This is a performer in the sense of an instance of a performance.
     """
     performance = ParentalKey(
-        'chelseasymphony.Performance',
+        'Performance',
         on_delete=models.CASCADE,
         related_name='performer'
     )
     person = models.ForeignKey(
-        'chelseasymphony.Person',
+        'Person',
         null=False,
         blank=False,
         on_delete=models.PROTECT,
         related_name='+'
     )
     instrument = models.ForeignKey(
-        'chelseasymphony.InstrumentModel',
+        'InstrumentModel',
         null=False,
         blank=False,
         on_delete=models.PROTECT,
@@ -152,7 +152,7 @@ class Performer(models.Model):
 class Composition(models.Model):
     title = RichTextField()
     composer = models.ForeignKey(
-        'chelseasymphony.Person',
+        'Person',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -177,7 +177,7 @@ class Person(Page):
         related_name='+'
     )
     instrument = ParentalManyToManyField(
-        'chelseasymphony.InstrumentModel',
+        'InstrumentModel',
         related_name='+'
     )
 
@@ -191,12 +191,12 @@ class Person(Page):
         SnippetChooserPanel('instrument')
     ]
 
-    parent_page_types = ['chelseasymphony.PersonIndex']
+    parent_page_types = ['PersonIndex']
 
 
 class PersonIndex(Page):
     # The roster page will go here
-    subpage_types = ['chelseasymphony.Person']
+    subpage_types = ['Person']
 
 
 @register_snippet
