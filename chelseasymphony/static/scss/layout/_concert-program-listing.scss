@@ -1,0 +1,16 @@
+.concert-program-listing {
+  .concert-program-piece { }
+  .concert-program-piece-composer {
+    font-weight: 500;
+  }
+  .concert-program-piece-soloist {
+    padding-left: 3em;
+    a {
+      color: $link-color; // set this as a default in base.scss
+    }
+  }
+  .instrument {
+    font-style: italic;
+    text-transform: lowercase;
+  }
+}// end of .concert-program-listing

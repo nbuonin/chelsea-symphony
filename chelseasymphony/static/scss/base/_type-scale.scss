@@ -1,0 +1,29 @@
+// Type scale small screen
+
+$base-size: 16px;
+$base-line-height: 1.236em;
+$tscale: 1.4;
+$small: $base-size * .9;
+$small1: $base-size / $tscale;
+$small2: $small1 / $tscale;
+$small3: $small2 / $tscale;
+$big: $base-size / .9;
+$big1: $base-size * $tscale;
+$big2: $big1 * $tscale;
+$big3: $big2 * $tscale;
+$big4: $big3 * $tscale;
+
+// Type scale big screen
+
+$xbase-size: 18px;
+$xbase-line-height: 1.236em;
+$xtscale: 1.5;
+$xsmall: $xbase-size * .9;
+$xsmall1: $xbase-size / $xtscale;
+$xsmall2: $xsmall1 / $xtscale;
+$xsmall3: $xsmall2 / $xtscale;
+$xbig: $xbase-size / .9;
+$xbig1: $xbase-size * $xtscale;
+$xbig2: $xbig1 * $xtscale;
+$xbig3: $xbig2 * $xtscale;
+$xbig4: $xbig3 * $xtscale;

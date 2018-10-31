@@ -1,0 +1,30 @@
+.block-paypal-donations {
+  //margin-bottom: 1em;
+  // reset for the form
+  ul {
+    list-style: none;
+
+    li {
+      margin-left: 0;
+    }
+  }
+}
+
+#block-paypal-donations-paypal-donations-single, #block-paypal-donations-paypal-donations-recurring {
+  @include respond-to(medium-plus) {
+    width: 45%;
+    display: inline-block;
+  }
+}
+
+body.page-node-7 main > div.container {
+   #node-7 {
+    margin-bottom: 1.5em;
+   }
+}
+
+.donation-submit-button {
+  display: inline-block;
+}
+
+

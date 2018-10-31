@@ -1,0 +1,86 @@
+#profile {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+
+  > * {
+    margin-bottom: 1em;
+  }
+
+  @include respond-to(medium-plus) {
+    flex-flow: row wrap;
+    align-items: stretch;
+  }
+}
+
+#profile .profile-headshot {
+  @include respond-to(medium-plus) {
+    //flex: 1 1 33%;
+
+    @include col(1,3);
+  }
+}
+
+#profile .profile-info {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  .profile-info-container {
+    .name {
+      @extend %serif-display;
+      @extend %big3;
+      margin: 0 0 $small1 0;
+    }
+    .position {
+      @extend %sans-light;
+      margin-bottom: $big1;
+      font-style: italic;
+      color: $tag-color;
+    }
+    .instrument {
+      @extend %caps-sans;
+      margin-bottom: $small1;
+      &:before {
+        content: "— ";
+      }
+      &:after {
+        content: " —";
+      }
+    }
+    .profile-bio > p {
+      @extend %copy;
+    }
+    
+  }
+  @include respond-to(medium-plus) {
+    //flex: 2 2 66%;
+    @include col(2,3);
+    align-items: flex-start;
+
+    > * {
+      margin: $big3;
+    }
+
+    > .profile-info-container {
+
+      flex: 1;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+
+    }
+  }
+
+  @include respond-to(wide-plus) {
+    > .profile-info-container {
+      justify-content: flex-start;
+    }
+  }
+}
+
+ #profile .contact {
+   margin-top: $big2;
+//   @include respond-to(medium) {
+//     //flex: 2 2 66%;
+//   }
+ }

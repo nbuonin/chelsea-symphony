@@ -1,0 +1,241 @@
+#concert {
+  h2 {
+    @extend %small-heading;
+    margin-bottom: 1em;
+  }
+  .concert-tag {
+    @extend %section-tag;
+    position: absolute;
+    padding: 5px 10px;
+    color: white;
+  }
+  .concert-image {
+    margin-bottom: 1em;
+  }
+}
+#concert .concert-title-info {
+  display: flex;
+  flex-flow: column nowrap;
+  margin-bottom: 1em;
+
+  @include respond-to(medium-plus) {
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .concert-name {
+    @extend %serif-display;
+    @extend %big3;
+    line-height: 1em;
+    padding-right: 1em;
+    margin-bottom: 0;
+  }
+}
+
+#concert .concert-copy-container {
+  display: flex;
+  flex-flow: column nowrap;
+	@extend %border-bottom;
+
+  @include respond-to(medium-plus) {
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
+  .concert-date-location {
+    @include small;
+	 min-width: 14em;
+    .concert-date {
+    }
+    .concert-location{
+      font-style: italic;
+    }
+    @include respond-to(medium-plus) {
+      margin-right: $big3;
+    }
+  }
+  .concert-conductors {
+    @include small;
+    font-style: italic;
+    a {
+      color: $link-color; // set this as a default in base.scss
+    }
+    > span {
+      :after {
+        color: #000000;
+        content: ", ";
+      }
+    }
+    > span:last-of-type {
+      :after {
+        content: "";
+      }
+    }
+  }
+	.concert-copy p {
+     @extend %copy;
+	}
+}
+
+#concert .concert-program {
+	@extend %border-bottom;
+
+  .concert-program-piece-composer::after {
+	 content: ":  ";
+  }
+  .concert-program-piece-soloist {
+	 padding-left: 1em;
+  }
+
+  .concert-program-listing {
+      margin-bottom: .5em;
+  }
+  @include respond-to(medium-plus) {
+	  .concert-program-listing {
+		  width: 100%;
+		  .concert-program-piece {
+			 .concert-program-piece-composer {
+                @include smcaps;
+				display: inline-block;
+				text-align: right;
+				width: 30%;
+				padding-right: $big2;
+			 }
+			 .concert-program-piece-composer::after {
+            content: "";
+           }
+			 .concert-program-piece-title {
+				display: inline-block;
+				text-align: left;
+				width: 50%;
+			 }
+		  }
+		  .concert-program-piece-soloist {
+				width: 100%;
+				padding-left: 36%;
+        :nth-child(2) {
+          font-style: italic;
+        }
+		  }
+		}
+	 }
+  }
+
+#concert .concert-soloists {
+  margin-bottom: 1em;
+  display: flex;
+  flex-flow: column nowrap;
+
+  @include respond-to(medium-plus) {
+    flex-flow: row wrap;
+    justify-content: space-between;
+  }
+
+  h2 {
+    width: 100%;
+  }
+}
+
+#concert .concert-soloists .concert-soloist {
+  display: flex;
+  flex-flow: column nowrap;
+  align-content: flex-start;
+  margin-bottom: 2em; //adds margin for small width
+  //font-style: italic;
+
+  .concert-program-piece-soloist {
+    font-style: italic;
+    a {
+      @extend %light-sans-caps;
+      font-style: normal;
+    }
+  }
+
+  .concert-soloist-bio {
+			@extend %copy;
+	}
+
+  @include respond-to(medium) {
+    flex-flow: row wrap;
+    @include col(1,2,$container-width: $max-container-width,$gutter:36px);
+    // &:nth-of-type(3n+2):last-of-type {// hackety hack hack
+    //   margin-left: (36px / $max-container-width) * 100%;
+    //   // $default-gutter needs to match $gutter you pass in above,
+    //   // as well as $max-container-width
+    //   // like col(1,3,$container-width: $max-container-width,$gutter:$default-gutter)
+    //   margin-right: auto;
+    // }
+  }
+
+  @include respond-to(wide-plus) {
+    flex-flow: row wrap;
+    @include col(1,3,$container-width: $max-container-width,$gutter:36px);
+    &:nth-of-type(3n+2):last-of-type {// hackety hack hack
+      margin-left: (36px / $max-container-width) * 100%;
+      // $default-gutter needs to match $gutter you pass in above,
+      // as well as $max-container-width
+      // like col(1,3,$container-width: $max-container-width,$gutter:$default-gutter)
+      margin-right: auto;
+    }
+  }
+
+  .concert-program-listing {
+     margin-bottom: 1em;
+    .concert-program-piece-soloist {
+        padding-left: 0;
+        // @extend %light-sans;
+        @extend %sans-light;
+        margin-bottom: .5em;
+        @extend %base;
+      > .instrument {
+        letter-spacing: 0;
+        text-transform: lowercase;
+      }
+    }
+    p.concert-program-piece, p.concert-program-date {
+        display: inline;
+        @extend %sans-light;
+       // @extend %small;
+      @extend %small-sans-sizing;
+        text-transform: none;
+        letter-spacing: 0;
+       // font-size: $small;
+    }
+    p.concert-program-date::after {
+        content: "  |  ";
+    }
+  }
+
+  .concert-soloist-image {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+#concert div:last-of-type {
+  border-bottom: none;
+}
+
+.past-seasons:hover {
+    position: relative;
+  .view-tcs2-concert-season-list {
+    display: block;
+    width: 170px;
+  }
+}
+
+.view-tcs2-concert-season-list {
+  display: none;
+  background-color: rgba(255, 255, 255, .7);
+  padding: 0 1em 0.5em;
+  position: absolute;
+  right: 0;
+
+  .view-content {
+    column-count: 2;
+
+    a:hover {
+      color: $tag-color;
+      }
+  }
+}

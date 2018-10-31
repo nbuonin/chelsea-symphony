@@ -1,0 +1,234 @@
+%open-type-on {
+  font-variant-numeric: oldstyle-nums;
+  font-variant-ligatures: common-ligatures contextual;
+  font-kerning: normal;
+  font-feature-settings: "onum", "kern", "liga", "clig", "calt";
+}
+  $light: 400;
+  $normal: 500;
+  $heavy: 800;
+
+%base {
+  font-size: $base-size;
+  @include respond-to(medium-plus) {
+    font-size: $xbase-size;
+  }
+}
+// replaces %small
+@mixin small {
+  font-size: $small;
+  @include respond-to(medium-plus) {
+    font-size: $xsmall;
+  }
+}
+%small1 {
+  font-size: $small1;
+  @include respond-to(medium-plus) {
+    font-size: $xsmall1;
+  }
+}
+%small2 {
+  font-size: $small2;
+  @include respond-to(medium-plus) {
+    font-size: $xsmall2;
+  }
+}
+
+%big {
+  font-size: $big;
+  @include respond-to(medium-plus) {
+    font-size: $xbig;
+  }
+}
+
+@mixin big {
+  font-size: $big;
+  @include respond-to(medium-plus) {
+    font-size: $xbig;
+  }
+}
+%big1 {
+  font-size: $big1;
+  @include respond-to(medium-plus) {
+    font-size: $xbig1;
+  }
+}
+%big2 {
+  font-size: $big2;
+  line-height: 1.1em;
+  @include respond-to(medium-plus) {
+    font-size: $xbig2;
+  }
+}
+%big3 {
+  font-size: $big3;
+  line-height: 1em;
+  @include respond-to(medium-plus) {
+    font-size: $xbig3;
+  }
+}
+
+$sans: "azo-sans-web", "Helvetica Neue", sans-serif;
+%sans {
+  font-family: "azo-sans-web", "azo sans", "Helvetica Neue", sans-serif;
+}
+%sans-light {
+  @extend %sans;
+  font-weight: 400;
+}
+%sans-reg {
+  @extend %sans;
+  font-weight: 500;
+}
+%sans-heavy {
+  @extend %sans;
+  font-weight: 900;
+}
+
+$serif-display: "kepler-std-condensed-display", serif;
+%serif-display {
+  @extend %big2;
+  font-family: "kepler-std-condensed-display", serif;
+  font-weight: 600;
+  font-stretch: extra-condensed;
+  letter-spacing: 0;
+  text-transform: none;
+  @extend %open-type-on;
+}
+
+%serif {
+  font-family: "kepler-std", "kepler std", "adobe-caslon-pro", serif;
+}
+
+%caps {
+    text-transform: uppercase;
+    letter-spacing: .1em;
+}
+
+@mixin smcaps {
+    font-feature-settings: "c2sc", "smcp";
+}
+
+html {
+  @extend %base;
+  @extend %open-type-on;
+  @extend %serif;
+  text-transform: none;
+}
+
+p {
+  line-height: 21px;
+  @include respond-to(medium-plus) {
+    line-height: 23px;
+    margin-bottom: 0;
+  }
+}
+%copy {
+    @extend %base;
+ 	 padding-bottom: $small1;
+    color: $text-color;
+    a {
+      color: $body-link-color;
+      &:hover {
+        color: $link-color;
+        text-decoration: none;
+      }
+    }
+    @include respond-to(medium-plus) {
+      padding-bottom: $xsmall1;
+    }
+    &:last-child {
+      padding-bottom:0;
+    }
+}
+
+%caps-sans {
+    @extend %small1;
+    @extend %sans-heavy;
+    @extend %caps;
+ 	 margin-bottom: $small1;
+    @include respond-to(medium-plus) {
+      margin-bottom: $xsmall1;
+    }
+}
+
+%light-sans-caps {
+    @extend %sans-light;
+    @extend %caps;
+}
+%sans-light-caps {
+    @extend %sans-light;
+    @extend %caps;
+}
+%small-heading {
+  @extend %base;
+  @extend %sans-heavy;
+  @extend %caps;
+}
+
+%caps-serif-display {
+    @extend %big2;
+    @extend %serif-display;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+%section-tag {
+  @include small;
+  @extend %serif;
+  font-style: italic;
+  letter-spacing: .02em;
+  color: $tag-color;
+  margin-bottom: 0;
+}
+
+.smcaps {
+    @include smcaps;
+}
+
+h1 {
+  @extend %light-sans-caps;
+  //@extend %big1;
+  margin-bottom: 1em;
+}
+
+h2 {
+  @extend %big2;
+  @extend %serif-display;
+  font-weight: $normal;
+}
+
+h3 {
+  @extend %small1;
+  @extend %caps-sans;
+}
+
+%subhead {
+  @extend %small1;
+  @extend %sans;
+  line-height: 1em;
+}
+
+button, .btn, .button {
+ }
+
+input {
+  @extend %sans;
+}
+
+i, cite, em, var, address, dfn {
+  font-style: italic;
+}
+
+%list-header {
+  @extend %sans-light;
+  color: $tag-color;
+  padding: 3px 0px;
+}
+
+%small-sans-sizing {
+  font-size: 14px;
+  @include respond-to(medium-plus) {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,59 @@
+.earth-day-program {
+    a {
+        text-decoration: underline;
+    }
+}
+
+.tcs-col2 {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+
+    .tcs-col2-1, .tcs-col2-2 {
+        margin: 0 auto;
+    }
+    img {
+        width: auto;
+        height: 150px;
+    }
+
+    @include respond-to(medium-plus) {
+        flex-flow: row nowrap;
+        justify-content: space-around;
+        .tcs-col2-1, .tcs-col2-2 {
+            margin: 0;
+            max-width: 45%;
+        }
+    }
+}
+
+.tcs-col2-sguests {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+
+    img {
+        width: auto;
+        height: 250px;
+    }
+
+    @include respond-to(medium-plus) {
+        flex-flow: row nowrap;
+        justify-content: space-around;
+        .tcs-col2-1, .tcs-col2-2 {
+            margin: 0;
+            max-width: 45%;
+        }
+    }
+}
+
+img.tcs2-responsive {
+    max-width: 250px;
+    margin-bottom: 1em;
+    display: block;
+
+    @include respond-to(medium-plus) {
+        float: right;
+        margin: 0 0 1em 1em;
+    }
+}

@@ -1,0 +1,64 @@
+body > footer > .container {
+  	border-top: $border;
+	padding-top: $big2;
+	display: flex;
+	flex-flow: column nowrap;
+	@extend %sans;
+	padding-bottom: 3em;
+	border-bottom: none;
+	margin-bottom: 1em;
+
+	@include respond-to(medium-plus) {
+		flex-flow: row nowrap;
+	}
+
+	nav.navbar-collapse {
+		flex: 2;
+		columns: 1;
+
+		@include respond-to(medium-plus) {
+			columns: 2;
+		}
+
+		> ul > li {
+			margin-bottom: 1em;
+			&:first-of-type {
+				margin-bottom: 0;
+			}
+		}
+
+		ul > li > a.nolink {
+        @extend %list-header;
+        @extend %caps-sans;
+		}
+	}
+
+	div.contact {
+		flex: 1;
+
+		div.icon {
+			display: inline-block;
+			width: $big1;
+			margin-right: 7px;
+
+			i {
+				float: right;
+			}
+		}
+	}
+
+	div.subscribe {
+		flex: 1;
+	}
+
+	.button {
+		padding: 1.5em;
+		background-color: #080808;
+		color: #ffffff;
+		border: none;
+	}
+    p, li, a {
+            @extend %small-sans-sizing;
+            letter-spacing: 0;
+        }
+}

@@ -1,0 +1,280 @@
+// base extensions - not media query specific
+%hp-section-name {
+  @extend %serif-display;
+  text-transform: capitalize;
+  text-align: center;
+  //width: 100%; was causing issue with elements running outside their parent - wasn't in prototype, so maybe there was a reason this was added to the Drupal site?
+  a:hover {
+    text-decoration: none;
+    color: $link-color;
+  }
+}
+
+@mixin hp-section-date {
+  @extend %caps-sans;
+  margin-bottom: $small1;
+  //width: 100%;
+}
+
+@mixin hp-section-copy {
+  @extend %copy;
+  margin: 0 $small1;
+  text-align: center;
+  //width: 100%;
+}
+
+///////////////////////////////
+// season banner on homepage //
+///////////////////////////////
+#season-banner {
+  @include border-bottom-dark;
+  width:100%;
+  .banner-image-container {
+    overflow: hidden;
+    margin-left:  0;
+    width: 100%;
+    @include respond-to(medium-plus) {
+     // height: 300px;
+    }
+  }
+}
+//////////////////////////////////
+// Featured concert on homepage //
+//////////////////////////////////
+#featured-concert > article.concert {
+  display: flex;
+  flex-flow: column nowrap;
+  @include border-bottom-dark;
+  div.concert-info {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    > * {
+      text-align: center;
+    }
+    p.concert-tag {
+      @extend %section-tag;
+    }
+    h2.concert-name {
+      @extend %hp-section-name;
+      @extend %big3;
+      a:hover {
+        text-decoration: none;
+        color: $link-color;
+      }
+      font-family: "kepler-std-condensed-display";
+    }
+    p.concert-date {
+      @include hp-section-date;
+    }
+    div.concert-copy {
+      @includ hp-section-copy;
+      @include respond-to(medium) {
+        padding-left: 10%;
+        padding-right: 10%;
+      }
+    }
+  } // end of div.concert-info
+
+  @include respond-to(wide-plus) {
+    flex-flow: row nowrap;
+
+    div.concert-image {
+      flex: 2;
+      .concert-image-container { // flexbox doesn't 'count' padding or margins, need container to add spacing to img
+        margin-right: $container-margin;
+      }
+      padding-right: $container-margin;
+      border-right: none;
+    }
+    div.concert-info {
+      flex: 1;
+      justify-content: center;
+
+      div.concert-image {
+        max-width: 100px;
+      }
+      div.concert-copy > p {
+        @include big;
+        line-height: 1.3em;
+      }
+    } // end of div.concert-info
+
+  } // end of 'wide-plus'
+}
+
+///////////////////////////
+// Row of two blog posts //
+///////////////////////////
+#recent-blog-posts {
+  display: flex;
+  flex-flow: column nowrap;
+
+  @include respond-to(medium-plus) {
+    flex-flow: row nowrap;
+  }
+}
+
+#recent-blog-posts > article.blog-post {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1;
+  @extend %border-bottom;
+  div.blog-info {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    > * {
+      text-align: center
+    }
+    p.blog-tag {
+      @extend %section-tag;
+    }
+    h2.blog-name {
+      @extend %hp-section-name;
+    }
+    p.blog-date {
+      @include hp-section-date;
+    }
+    div.blog-post-author {
+      @include hp-section-date;
+    }
+    div.blog-copy {
+      @includ hp-section-copy;
+      padding: 0 $container-margin;
+    }
+  } // end of div.blog-info
+
+  @include respond-to(medium-plus) {
+    @include border-bottom-dark;
+    flex-flow: row nowrap;
+    div.blog-image {
+      .blog-image-container {
+        padding: 0 1em;
+        img {
+          width: 80%
+        }
+      }
+    }
+    div.blog-info {
+      flex: 1;
+      h2.blog-name {
+        padding: 0 1em;
+      }
+    } // end of div.blog-info
+  } // end of 'medium-plus'
+}
+@include respond-to(wide-plus) {
+    div.blog-image {
+      .blog-image-container {
+        padding: 0 1em;
+        img {
+          width: 60%
+        }
+      }
+    }
+}
+@include respond-to(medium-plus) {
+  #recent-blog-posts > article.blog-post {
+    > div.blog-info {
+      border-right: $lesser-border;
+    }
+  }
+}
+
+#recent-blog-posts > article.blog-post:last-of-type {
+  > div.blog-info {
+    border-right: none;
+  }
+}
+
+
+////////////////////////////////////
+// Row of three upcoming concerts //
+////////////////////////////////////
+#next-concerts {
+  display: flex;
+  flex-flow: column nowrap;
+  @include respond-to(wide-plus) {
+    flex-flow: row nowrap;
+  }
+}
+
+#next-concerts > article.concert {
+  @extend %border-bottom;
+  display: flex;
+  flex-flow: row nowrap;
+  flex: 1;
+
+  div.concert-image {
+    flex: 1;
+    margin-right: 1em;
+  }
+
+  div.concert-info {
+    display: flex;
+    flex-flow: column nowrap;
+    flex: 2;
+    align-items: flex-start;
+
+    p.concert-tag {
+      @extend %section-tag;
+    }
+    h2.concert-name {
+      @extend %hp-section-name;
+      text-align: left;
+    }
+    p.concert-date {
+      @include hp-section-date;
+    }
+    div.concert-copy {
+      width: 100%;
+    }
+    div.concert-copy > p {
+      text-align: left;
+      margin: 0;
+    }
+  } // end of div.concert-info
+
+  @include respond-to(wide-plus) {
+    flex-flow: column nowrap;
+    margin-bottom: $container-margin;
+    border-bottom: none;
+
+    div.concert-image {
+      margin-bottom: $small3;
+      margin: 0 $small1;
+      padding: 0 22px;
+      flex: none;
+    }
+    div.concert-info {
+      //flex: 1;
+      flex: none;
+      align-items: center;
+      margin: 0 22px;
+      text-align: center;
+    h2.concert-name {
+      text-align: center;
+    }
+
+      div.concert-copy > p {
+        @includ hp-section-copy;
+        text-align: center;
+        //padding: 0 22px;
+      }
+    } // end of div.concert-info
+  } // end of 'wide-plus'
+}
+
+@include respond-to(wide-plus) {
+  #next-concerts > article.concert { // wrapped this in a MQ to remove the line on mobile
+    //> div.concert-info {
+      border-right: $lesser-border;
+    //}
+  }
+}
+
+#next-concerts > article.concert:last-of-type {
+    border-bottom: none;
+    border-right: none;
+}

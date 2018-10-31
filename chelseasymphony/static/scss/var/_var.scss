@@ -1,0 +1,52 @@
+// Global Colors
+
+$link-color: #ff003b;
+$tag-color: rgb(159, 162, 167);
+$text-color: rgb(51, 51, 51);
+$nav-color: rgb(80, 80, 80);
+$lighten-up: grayscale($link-color);
+$light-color: lighten($tag-color, 25%);
+$body-link-color: adjust-color($link-color, $hue: 70deg, $saturation: -20%, $lightness: -20%);
+
+// Media Queries
+$break-small: 600px;
+$break-large: 850px;
+$break-xlarge: 1040px;
+
+@mixin respond-to($media) {
+  @if $media == small {
+    @media screen and (max-width: $break-small) { @content; }
+  }
+  @else if $media == medium {
+    @media screen and (min-width: $break-small + 1) and (max-width: $break-large - 1) { @content; }
+  }
+  @else if $media == medium-plus {
+    @media screen and (min-width: $break-small + 1) { @content; }
+  }
+  @else if $media == wide {
+    @media screen and (min-width: $break-large) and (max-width: $break-xlarge - 1) { @content; }
+  }
+  @else if $media == wide-plus {
+    @media screen and (min-width: $break-large + 1) { @content; }
+  }
+  @else if $media == super-wide {
+    @media screen and (min-width: $break-xlarge + 1) { @content; }
+  }
+}
+
+// Layout
+//$max-container-width: 1200px;
+$max-container-width: 980px;
+$container-margin: 14px;
+$default-gutter: 18px;
+$page-margin: 22px; //sets margins for main>.container for medium-plus
+
+@mixin col($no-of-cols, $total-cols, $container-width: $max-container-width, $gutter: $default-gutter) {
+  //note that parent element needs justify-content: space-between;
+  $total-gutter: ($total-cols - $no-of-cols) * $gutter;
+  $calculated-width: ($container-width - $total-gutter) * ($no-of-cols / $total-cols);
+  $percentage-width: ($calculated-width / $container-width) * 100%;
+  width: $percentage-width;
+  flex: none;
+  margin-bottom: $gutter;
+}
