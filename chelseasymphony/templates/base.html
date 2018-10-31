@@ -18,20 +18,160 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         {# Global stylesheets #}
-        <link rel="stylesheet" type="text/css" href="{% static 'css/chelseasymphony.css' %}">
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+        <script>
+            WebFontConfig = {
+                typekit: { id: 'glg4dkm'  }
+            };
+
+            (function(d) {
+                var wf = d.createElement('script'), s = d.scripts[0];
+                wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js';
+                s.parentNode.insertBefore(wf, s);
+            })(document);
+        </script>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 
         {% block extra_css %}
             {# Override this in templates to add extra stylesheets #}
         {% endblock %}
     </head>
 
-    <body class="{% block body_class %}{% endblock %}">
+    <body class="html {% block body_class %}{% endblock %}" >
         {% wagtailuserbar %}
+        <div class="navigation">
+            <div class="container">
+                <div class="email-social">
+                    <!-- <div class="email-subscribe">
+                        <a href="#">Subscribe</a>
+                        </div> -->
+                        <div class="subscribe">
+                            <div class="email-subscribe">
+                                <h3>Subscribe</h3>
+                                <div class="subscribe">
+                                    <!-- Begin MailChimp Signup Form -->
+                                    <div id="mc_embed_signup">
+                                        <form action="//chelseasymphony.us8.list-manage.com/subscribe/post?u=e29b4b2466bf1face2ff8bad4&amp;id=dc83f23f77" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+                                            <div class="mc-field-group">
+                                                <!-- <label for="mce-EMAIL">Email Address </label> --><input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="E-mail Address"></div>
+                                            <div id="mce-responses" class="clear">
+                                                <div class="response" id="mce-error-response" style="display:none"></div>
+                                                <div class="response" id="mce-success-response" style="display:none"></div>
+                                            </div>
+                                            <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups--><div style="position: absolute; left: -5000px;"><input type="text" name="b_e29b4b2466bf1face2ff8bad4_dc83f23f77" tabindex="-1" value=""></div>
+                                            <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn button"></div>
+                                        </form>
+                                    </div><!--End mc_embed_signup-->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="donate-header"><h3><a href="/donate">Donate</a></h3></div>
+                        <div class="ticket-header"><h3><a href="https://thechelseasymphony.eventbrite.com/" target="_blank">Tickets</a></h3></div>
+                        <div class="social">
+                            <a href="https://twitter.com/ChelseaSymphony"><i class="fa fa-twitter"></i></a>
+                            <a href="https://www.facebook.com/TheChelseaSymphony"><i class="fa fa-facebook"></i></a>
+                            <a href="http://instagram.com/chelseasymphony"><i class="fa fa-instagram"></i></a>
+                        </div>
+                </div>
+                <div class="logo">
+                    <a href="/"><img src="{% static '/images/TCSlogo-red.png' %}" alt="The Chelsea Symphony"></a>
+                </div>
+
+                <div class="title">
+                    <h1><a href="/">The Chelsea Symphony</a></h1>
+                </div>
+
+                <div class="nav-toggle">
+                    <button>
+                        <span class="nav-toggle-bar"></span>
+                        <span class="nav-toggle-bar"></span>
+                        <span class="nav-toggle-bar"></span>
+                    </button>
+                </div> <!-- End of .nav-toggle -->
+
+                <!-- Navigation -->
+                <nav role="navigation" class="navbar-collapse collapse">
+
+                    <div class="nav-email-subscribe">
+                        <h3>Subscribe</h3>
+                        <div class="subscribe">
+                            <!-- Begin MailChimp Signup Form -->
+                            <div id="mc_embed_signup">
+                                <form action="//chelseasymphony.us8.list-manage.com/subscribe/post?u=e29b4b2466bf1face2ff8bad4&amp;id=dc83f23f77" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+                                    <div class="mc-field-group">
+                                        <!-- <label for="mce-EMAIL">Email Address </label> --><input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="E-mail Address"></div>
+                                    <div id="mce-responses" class="clear">
+                                        <div class="response" id="mce-error-response" style="display:none"></div>
+                                        <div class="response" id="mce-success-response" style="display:none"></div>
+                                    </div>
+                                    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups--><div style="position: absolute; left: -5000px;"><input type="text" name="b_e29b4b2466bf1face2ff8bad4_dc83f23f77" tabindex="-1" value=""></div>
+                                    <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="btn button"></div>
+                                </form>
+                            </div><!--End mc_embed_signup-->
+                        </div>
+                    </div>
+
+                    <ul class="menu"><li class="first leaf"><a href="/concerts" title="">Concerts</a></li>
+                        <li class="expanded"><a title="" class="nolink">About</a><ul class="menu"><li class="first last leaf"><a href="/about-us">About Us / History</a></li>
+                            </ul></li>
+                            <li class="leaf"><a href="/blog">Blog</a></li>
+                            <li class="leaf"><a href="/musicians" title="">Musicians</a></li>
+                            <li class="expanded"><a title="" class="nolink">Support</a><ul class="menu"><li class="first last leaf"><a href="/donate">Donate</a></li>
+                                </ul></li>
+                                <li class="last expanded"><a title="" class="nolink">Get Involved</a><ul class="menu"><li class="first leaf"><a href="/play-chelsea-symphony" title="Play With The Chelsea Symphony">Play With The Chelsea Symphony</a></li>
+                                        <li class="last leaf"><a href="/tcs-2018-2019-composition-competition" title="">Composition Competition</a></li>
+                                    </ul></li>
+                    </ul>              
+                </nav><!-- End of nav -->
+            </div> <!-- End of .container -->
+        </div> <!-- End of .navigation -->
 
         {% block content %}{% endblock %}
 
+        <footer>
+            <div class="container">
+                <!-- Navigation -->
+                <nav role="navigation" class="navbar-collapse collapse">
+
+                    <ul class="menu"><li class="first expanded"><a title="" class="nolink">Learn More</a><ul class="menu"><li class="first leaf"><a href="/concerts" title="">Season Calendar</a></li>
+                                <li class="leaf"><a href="/about-us" title="">Mission &amp; History</a></li>
+                                <li class="leaf"><a href="/musicians" title="">Roster</a></li>
+                                <li class="leaf"><a href="/about-us" title="">About</a></li>
+                                <li class="leaf"><a href="/policies" title="">Policies</a></li>
+                                <li class="last leaf"><a href="/blog" title="">Blog</a></li>
+                            </ul></li>
+                            <li class="expanded"><a title="" class="nolink">Get Involved</a><ul class="menu"><li class="first leaf"><a href="/tcs-2018-2019-composition-competition" title="">Composition Competition</a></li>
+                                    <li class="last leaf"><a href="/play-chelsea-symphony" title="">Play with TCS</a></li>
+                                </ul></li>
+                                <li class="last expanded"><a title="" class="nolink">Support</a><ul class="menu"><li class="first last leaf"><a href="/donate" title="">Donate</a></li>
+                                    </ul></li>
+                    </ul></nav>
+                    <!-- End of nav -->
+
+                    <div class="contact">
+                        <div class="email">
+                            <div class="icon"><i class="fa fa-envelope-o"></i></div>
+                            <a href="#" mailto="#">info@chelseasymphony.org</a>
+                        </div>
+                        <div class="instagram">
+                            <div class="icon"><i class="fa fa-instagram"></i></div>
+                            <a href="#">@chelseasymphony</a>
+                        </div>
+                        <div class="twitter">
+                            <div class="icon"><i class="fa fa-twitter"></i></div>
+                            <a href="#">@chelseasymphony</a>
+                        </div>
+                        <div class="facebook">
+                            <div class="icon"><i class="fa fa-facebook"></i></div>
+                            <a href="#">thechelseasymphony</a>
+                        </div>
+                    </div>
+            </div>
+        </footer>
         {# Global javascript #}
-        <script type="text/javascript" src="{% static 'js/chelseasymphony.js' %}"></script>
+        <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="{% static 'js/scripts.js' %}"></script>
 
         {% block extra_js %}
             {# Override this in templates to add extra javascript #}
