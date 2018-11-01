@@ -15,12 +15,22 @@ def responsiveimage(parser, token):
     # import pdb
     # pdb.set_trace()
 
-    try:
-        if remaining_bits[-2] == 'as':
-            attrs = _parse_attrs(remaining_bits[:-2])
-            # token is of the form {% responsiveimage self.photo max-320x200 srcset="filter_spec xyzw" [ attr="val" ... ] as img %}
-            return ResponsiveImageNode(image_expr, filter_spec, attrs=attrs, output_var_name=remaining_bits[-1])
-    except (IndexError):
+    # try:
+        # if remaining_bits[-2] == 'as':
+            # attrs = _parse_attrs(remaining_bits[:-2])
+            # # token is of the form {% responsiveimage self.photo max-320x200 srcset="filter_spec xyzw" [ attr="val" ... ] as img %}
+            # return ResponsiveImageNode(image_expr, filter_spec, attrs=attrs, output_var_name=remaining_bits[-1])
+    # except (IndexError):
+        # # token is of the form {% responsiveimage self.photo max-320x200 srcset="filter_spec xyzw" [ attr="val" ... ] %}
+        # # all additional tokens should be kwargs, which become attributes
+        # attrs = _parse_attrs(remaining_bits)
+        # return ResponsiveImageNode(image_expr, filter_spec, attrs=attrs)
+
+    if remaining_bits[-2] == 'as':
+        attrs = _parse_attrs(remaining_bits[:-2])
+        # token is of the form {% responsiveimage self.photo max-320x200 srcset="filter_spec xyzw" [ attr="val" ... ] as img %}
+        return ResponsiveImageNode(image_expr, filter_spec, attrs=attrs, output_var_name=remaining_bits[-1])
+    else:
         # token is of the form {% responsiveimage self.photo max-320x200 srcset="filter_spec xyzw" [ attr="val" ... ] %}
         # all additional tokens should be kwargs, which become attributes
         attrs = _parse_attrs(remaining_bits)
