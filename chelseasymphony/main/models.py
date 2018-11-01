@@ -12,6 +12,7 @@ from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, \
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
 
 from wagtailautocomplete.edit_handlers import AutocompletePanel
@@ -28,13 +29,22 @@ class Home(Page):
         related_name='banner_image'
     )
 
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['featured_concert'] = Concert.objects.all()[0]
+        context['upcoming_concerts'] = Concert.objects.all()[1:3]
+        context['recent_blog_posts'] = BlogPost.objects.all()[:2]
+
+        return context
+
     content_panels = Page.content_panels + [
         ImageChooserPanel('banner_image')
     ]
 
     subpage_types = [
         'ConcertIndex',
-        'PersonIndex'
+        'PersonIndex',
+        'BlogIndex'
     ]
 
 
@@ -90,6 +100,7 @@ class Concert(Page):
     ]
 
     parent_page_types = ['ConcertIndex']
+    subpage_types = ['Performance']  # TODO add a roster page type
 
 
 class Performance(Page):
@@ -187,18 +198,58 @@ class Person(Page):
         FieldPanel('biography'),
         FieldPanel('active_roster'),
         ImageChooserPanel('headshot'),
-        # below may need to be a FieldPanel
-        SnippetChooserPanel('instrument')
+        # # below may need to be a FieldPanel
+        # SnippetChooserPanel('instrument')
     ]
 
     parent_page_types = ['PersonIndex']
+    subpage_types = []
 
 
 class PersonIndex(Page):
     # The roster page will go here
+    parent_page_types = ['Home']
     subpage_types = ['Person']
 
 
 @register_snippet
 class InstrumentModel(models.Model):
     instrument = models.CharField(max_length=255)
+
+
+class BlogPost(Page):
+    author = models.ForeignKey(
+        'Person',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+    date = models.DateField()
+    blog_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='+'
+    )
+    body = StreamField([
+        ('heading', blocks.CharBlock(classname="full title")),
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ])
+
+    content_panels = Page.content_panels + [
+        FieldPanel('author'),
+        FieldPanel('date'),
+        ImageChooserPanel('blog_image'),
+        StreamFieldPanel('body'),
+    ]
+
+    parent_page_types = ['BlogIndex']
+    subpage_types = []
+
+
+class BlogIndex(Page):
+    parent_page_types = ['Home']
+    subpage_types = ['BlogPost']
