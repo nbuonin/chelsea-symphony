@@ -2,13 +2,17 @@ from django import forms
 from django.db import models
 from django.contrib.postgres.fields import DateTimeRangeField
 from django.contrib.postgres.forms import RangeWidget
+from django.forms.widgets import CheckboxSelectMultiple
+from django.utils.text import slugify
+from django.utils.html import strip_tags
 
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
-from wagtail.core.models import Page, Orderable
+from wagtail.core.models import Page, PageManager, Orderable
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, \
     InlinePanel, StreamFieldPanel, PageChooserPanel
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
@@ -37,6 +41,9 @@ class Home(Page):
 
         return context
 
+    class Meta:
+        verbose_name = "Homepage"
+
     content_panels = Page.content_panels + [
         ImageChooserPanel('banner_image')
     ]
@@ -55,6 +62,18 @@ class SimplePage(Page):
         FieldPanel('body')
     ]
 
+    class Meta:
+        verbose_name = "Basic Page"
+
+    def __str__(self):
+        return self.title
+
+    parent_page_types = [
+        'Home',
+        'ConcertIndex',
+        'PersonIndex'
+    ]
+
 
 class PerformanceDate(models.Model):
     concert = ParentalKey(
@@ -66,6 +85,12 @@ class PerformanceDate(models.Model):
         null=False,
         blank=False
     )
+
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return str(self.date)
 
     panels = [
         FieldPanel('date')
@@ -87,23 +112,49 @@ class Concert(Page):
         on_delete=models.PROTECT,
         related_name='concert_image'
     )
+    roster = ParentalManyToManyField(
+        'ActiveRosterMusician',
+        blank=True
+    )
 
-    @property
-    def conductors():
-        pass
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['conductors'] = None
 
     content_panels = Page.content_panels + [
         FieldPanel('description'),
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
         InlinePanel('performance_date', label="Performance Dates"),
+        FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
 
     parent_page_types = ['ConcertIndex']
-    subpage_types = ['Performance']  # TODO add a roster page type
+    subpage_types = ['Performance']
+
+
+# TODO: write tests that verify that only parent dates make it into the child
+# form
+# TODO: write a test that verifies that 'default-slug' doesn't persist
+class PerformanceAdminForm(WagtailAdminPageForm):
+    def __init__(self, data=None, files=None, parent_page=None, *args, **kwargs):
+        super().__init__(data, files, *args, **kwargs)
+        # Set the dates from the parent page dates
+        self.parent_page = parent_page
+        self.fields['performance_dates'].queryset = PerformanceDate.objects\
+            .filter(concert=parent_page.id)
+        # Set a default value for the slug
+        instance = kwargs.get('instance')
+        if not instance.id:
+            self.initial['slug'] = 'default-slug'
 
 
 class Performance(Page):
+    """
+    A Performance object is a child of Concert pages.
+    Its used to model performances of individual works within a Concert.
+    """
+    base_form_class = PerformanceAdminForm
     composition = models.ForeignKey(
         'Composition',
         null=False,
@@ -118,11 +169,21 @@ class Performance(Page):
         on_delete=models.PROTECT,
         related_name='+'
     )
+    performance_dates = ParentalManyToManyField(
+        'PerformanceDate',
+        blank=True
+    )
 
-    content_panels = Page.content_panels + [
+    def clean(self):
+        super().clean()
+        self.title = str(self.composition)
+        self.slug = slugify(self.title)
+
+    content_panels = [
         SnippetChooserPanel('composition'),
         InlinePanel('performer', label='Performers'),
-        SnippetChooserPanel('conductor')
+        PageChooserPanel('conductor'),
+        FieldPanel('performance_dates', widget=forms.CheckboxSelectMultiple)
     ]
 
     parent_page_types = ['Concert']
@@ -161,7 +222,7 @@ class Performer(models.Model):
 
 @register_snippet
 class Composition(models.Model):
-    title = RichTextField()
+    title = RichTextField(features=['bold', 'italic'])
     composer = models.ForeignKey(
         'Person',
         null=True,
@@ -170,12 +231,26 @@ class Composition(models.Model):
         related_name='+'
     )
 
+    def __str__(self):
+        return strip_tags(self.title)
+
     content_panels = [
         SnippetChooserPanel('composer')
     ]
 
 
+# TODO: write a test that verifies that 'default-slug' doesn't persist
+class PersonAdminForm(WagtailAdminPageForm):
+    def __init__(self, data=None, files=None, parent_page=None, *args, **kwargs):
+        super().__init__(data, files, *args, **kwargs)
+        # Set a default value for the slug
+        instance = kwargs.get('instance')
+        if not instance.id:
+            self.initial['slug'] = 'default-slug'
+
+
 class Person(Page):
+    base_form_class = PersonAdminForm
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     biography = RichTextField()
@@ -192,7 +267,21 @@ class Person(Page):
         related_name='+'
     )
 
-    content_panels = Page.content_panels + [
+    def __str__(self):
+        return "{} {}".format(
+            self.first_name,
+            self.last_name
+        )
+
+    def clean(self):
+        super().clean()
+        self.title = "{} {}".format(
+            self.first_name,
+            self.last_name
+        )
+        self.slug = slugify(self.title)
+
+    content_panels = [
         FieldPanel('first_name'),
         FieldPanel('last_name'),
         FieldPanel('biography'),
@@ -253,3 +342,15 @@ class BlogPost(Page):
 class BlogIndex(Page):
     parent_page_types = ['Home']
     subpage_types = ['BlogPost']
+
+
+class ActiveRosterMusicianManager(PageManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(active_roster=True)\
+            .order_by('last_name')
+
+
+class ActiveRosterMusician(Person):
+    objects = ActiveRosterMusicianManager()
+    class Meta:
+        proxy = True
