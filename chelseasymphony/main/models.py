@@ -1,10 +1,12 @@
+from html import unescape
 from django import forms
 from django.db import models
 from django.contrib.postgres.fields import DateTimeRangeField
 from django.contrib.postgres.forms import RangeWidget
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.text import slugify
-from django.utils.html import strip_tags
+from django.utils.html import strip_tags, escape
+from django.utils.safestring import mark_safe
 
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from wagtail.core.models import Page, PageManager, Orderable
@@ -75,11 +77,11 @@ class SimplePage(Page):
     ]
 
 
-class PerformanceDate(models.Model):
+class ConcertDate(models.Model):
     concert = ParentalKey(
         'Concert',
         on_delete=models.CASCADE,
-        related_name='performance_date'
+        related_name='concert_date'
     )
     date = models.DateTimeField(
         null=False,
@@ -125,7 +127,7 @@ class Concert(Page):
         FieldPanel('description'),
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
-        InlinePanel('performance_date', label="Performance Dates"),
+        InlinePanel('concert_date', label="Concert Dates"),
         FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
 
@@ -141,7 +143,7 @@ class PerformanceAdminForm(WagtailAdminPageForm):
         super().__init__(data, files, *args, **kwargs)
         # Set the dates from the parent page dates
         self.parent_page = parent_page
-        self.fields['performance_dates'].queryset = PerformanceDate.objects\
+        self.fields['performance_date'].queryset = ConcertDate.objects\
             .filter(concert=parent_page.id)
         # Set a default value for the slug
         instance = kwargs.get('instance')
@@ -169,8 +171,8 @@ class Performance(Page):
         on_delete=models.PROTECT,
         related_name='+'
     )
-    performance_dates = ParentalManyToManyField(
-        'PerformanceDate',
+    performance_date = ParentalManyToManyField(
+        'ConcertDate',
         blank=True
     )
 
@@ -183,7 +185,10 @@ class Performance(Page):
         SnippetChooserPanel('composition'),
         InlinePanel('performer', label='Performers'),
         PageChooserPanel('conductor'),
-        FieldPanel('performance_dates', widget=forms.CheckboxSelectMultiple)
+        FieldPanel(
+            'performance_date',
+            widget=forms.CheckboxSelectMultiple,
+        )
     ]
 
     parent_page_types = ['Concert']
@@ -222,6 +227,8 @@ class Performer(models.Model):
 
 @register_snippet
 class Composition(models.Model):
+    # Note: calling unescape on the title below is only ok because the input is
+    # being sanitized by the RichTextField.
     title = RichTextField(features=['bold', 'italic'])
     composer = models.ForeignKey(
         'Person',
@@ -232,7 +239,7 @@ class Composition(models.Model):
     )
 
     def __str__(self):
-        return strip_tags(self.title)
+        return unescape(strip_tags(self.title))
 
     content_panels = [
         SnippetChooserPanel('composer')
