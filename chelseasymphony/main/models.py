@@ -12,6 +12,7 @@ from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from wagtail.core.models import Page, PageManager, Orderable
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
+from wagtail.core.url_routing import RouteResult
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, \
     InlinePanel, StreamFieldPanel, PageChooserPanel
 from wagtail.admin.forms import WagtailAdminPageForm
@@ -153,8 +154,9 @@ class PerformanceAdminForm(WagtailAdminPageForm):
 
 class Performance(Page):
     """
-    A Performance object is a child of Concert pages.
+    A Performance page is a child of Concert pages.
     Its used to model performances of individual works within a Concert.
+    These will publish as a list on the parent concert page.
     """
     base_form_class = PerformanceAdminForm
     composition = models.ForeignKey(
@@ -180,6 +182,10 @@ class Performance(Page):
         super().clean()
         self.title = str(self.composition)
         self.slug = slugify(self.title)
+
+    # Route requests to these pages to their parent
+    def get_url_parts(self, request=None):
+        return self.get_parent().get_url_parts(request)
 
     content_panels = [
         SnippetChooserPanel('composition'),
