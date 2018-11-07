@@ -77,7 +77,7 @@ class SimplePage(Page):
     ]
 
 
-class ConcertDate(models.Model):
+class ConcertDate(Orderable):
     concert = ParentalKey(
         'Concert',
         on_delete=models.CASCADE,
@@ -195,7 +195,7 @@ class Performance(Page):
     subpage_types = []
 
 
-class Performer(models.Model):
+class Performer(Orderable):
     """
     This is a performer in the sense of an instance of a performance.
     """
@@ -311,6 +311,11 @@ class PersonIndex(Page):
 @register_snippet
 class InstrumentModel(models.Model):
     instrument = models.CharField(max_length=255)
+    def __str__(self):
+        return self.instrument
+
+    class Meta:
+        verbose_name = "Instrument"
 
 
 class BlogPost(Page):
