@@ -10,5 +10,8 @@ makemigrations:
 superuser:
 	pipenv run ./manage.py createsuperuser
 
+shell:
+	pipenv run ./manage.py shell
+
 scss:
 	npm run watch-scss

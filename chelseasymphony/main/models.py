@@ -1,3 +1,4 @@
+from datetime import datetime
 from html import unescape
 from django import forms
 from django.db import models
@@ -7,6 +8,7 @@ from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.text import slugify
 from django.utils.html import strip_tags, escape
 from django.utils.safestring import mark_safe
+from django.utils.timezone import make_aware
 
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from wagtail.core.models import Page, PageManager, Orderable
@@ -105,6 +107,13 @@ class ConcertIndex(Page):
     subpage_types = ['Concert']
 
 
+class ConcertSeason(models.Model):
+    season = models.CharField(
+        max_length=9,
+        null=True
+    )
+
+
 class Concert(Page):
     description = RichTextField()
     venue = RichTextField()
@@ -119,10 +128,36 @@ class Concert(Page):
         'ActiveRosterMusician',
         blank=True
     )
+    season = models.ForeignKey(
+        'ConcertSeason',
+        null=True,
+        on_delete=models.PROTECT
+    )
+
+    # TODO: needs tests
+    # Think about moving this to a manager on ConcertSeason
+    @staticmethod
+    def calculate_season(date):
+        # The first day of the concert season is Aug 1
+        season_first_day = make_aware(datetime(date.year, 8, 1))
+        season_str = ''
+        if date >= season_first_day:
+            season_str = "{}-{}".format(date.year, date.year + 1)
+        else:
+            season_str = "{}-{}".format(date.year - 1, date.year)
+
+        obj, created = ConcertSeason.objects.get_or_create(season=season_str)
+        return obj
 
     def get_context(self, request):
         context = super().get_context(request)
+        # TODO: query the conductors from child nodes
         context['conductors'] = None
+
+    def clean(self):
+        super().clean()
+        first_concert_date = self.concert_date.first().date
+        self.season = self.calculate_season(first_concert_date)
 
     content_panels = Page.content_panels + [
         FieldPanel('description'),
