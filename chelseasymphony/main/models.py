@@ -8,10 +8,11 @@ from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.text import slugify
 from django.utils.html import strip_tags, escape
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
-from wagtail.core.models import Page, PageManager, Orderable
+from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.core.url_routing import RouteResult
@@ -107,12 +108,20 @@ class ConcertIndex(Page):
     subpage_types = ['Concert']
 
 
-class ConcertSeason(models.Model):
-    season = models.CharField(
-        max_length=9,
-        null=True
-    )
+class ConcertQuerySet(PageQuerySet):
+    def concert_seasons(self):
+        return self.values_list('season', flat=True)
 
+    def future_concerts(self):
+        concert_list = set()
+        for date in ConcertDate.objects\
+                .filter(date__gt=timezone.now()).select_related('concert'):
+            concert_list.add(date.concert)
+
+        return concert_list
+
+
+ConcertManager = PageManager.from_queryset(ConcertQuerySet)
 
 class Concert(Page):
     description = RichTextField()
@@ -128,31 +137,45 @@ class Concert(Page):
         'ActiveRosterMusician',
         blank=True
     )
-    season = models.ForeignKey(
-        'ConcertSeason',
-        null=True,
-        on_delete=models.PROTECT
+    season = models.CharField(
+        max_length=9,
+        null=True
     )
 
     # TODO: needs tests
-    # Think about moving this to a manager on ConcertSeason
     @staticmethod
     def calculate_season(date):
         # The first day of the concert season is Aug 1
         season_first_day = make_aware(datetime(date.year, 8, 1))
-        season_str = ''
         if date >= season_first_day:
-            season_str = "{}-{}".format(date.year, date.year + 1)
+            return "{}-{}".format(date.year, date.year + 1)
         else:
-            season_str = "{}-{}".format(date.year - 1, date.year)
+            return "{}-{}".format(date.year - 1, date.year)
 
-        obj, created = ConcertSeason.objects.get_or_create(season=season_str)
-        return obj
+    def _get_conductors(self):
+        pass
+
+    def _get_performances(self):
+        pass
+
+    def _get_program(self):
+        pass
 
     def get_context(self, request):
         context = super().get_context(request)
+        performances = self.get_descendants()\
+            .select_related('performance__conductor')\
+            .select_related('performance__composition')\
+            .prefetch_related('performance_date')
         # TODO: query the conductors from child nodes
         context['conductors'] = None
+        # Note that performances means something different from the class
+        # Performance. It means a single concert and the performances that make
+        # up a given day's concert.
+        context['performances'] = None
+        # A Program consists of: Composer's Name, Composition, Performers
+        # Performers consist of name and instrument
+        context['program'] = None
 
     def clean(self):
         super().clean()
@@ -167,6 +190,7 @@ class Concert(Page):
         FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
 
+    objects = ConcertManager()
     parent_page_types = ['ConcertIndex']
     subpage_types = ['Performance']
 
