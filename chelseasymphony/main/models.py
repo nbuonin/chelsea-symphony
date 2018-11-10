@@ -152,30 +152,107 @@ class Concert(Page):
         else:
             return "{}-{}".format(date.year - 1, date.year)
 
-    def _get_conductors(self):
-        pass
-
-    def _get_performances(self):
-        pass
-
-    def _get_program(self):
-        pass
-
     def get_context(self, request):
         context = super().get_context(request)
-        performances = self.get_descendants()\
-            .select_related('performance__conductor')\
-            .select_related('performance__composition')\
-            .prefetch_related('performance_date')
-        # TODO: query the conductors from child nodes
-        context['conductors'] = None
-        # Note that performances means something different from the class
-        # Performance. It means a single concert and the performances that make
-        # up a given day's concert.
-        context['performances'] = None
-        # A Program consists of: Composer's Name, Composition, Performers
-        # Performers consist of name and instrument
-        context['program'] = None
+        performances = self.get_descendants().select_related(
+                'performance__conductor',
+                'performance__composition')
+
+        # Conductors
+        conductors = list()
+        for p in performances:
+            conductors.append({
+                'name': p.specific.conductor.title,
+                'url': p.specific.conductor.url
+            })
+
+        context['conductors'] = conductors
+
+        # Program
+        program = list()
+        for p in performances:
+            # First make a set of all performers for a given performance
+            performers = list()
+            for performer in p.specific.performer.all():
+                performers.append({
+                    'name': performer.person.title,
+                    'url': performer.person.url,
+                    'instrument': performer.instrument.instrument
+                })
+
+            # Then assemble with composer and composition
+            program.append({
+                'composer': p.specific.composition.composer.title,
+                'composition': p.specific.composition.title,
+                'performers': performers
+            })
+        context['program'] = program
+
+        # Performer
+        # This needs to display the performer, the work they are performing,
+        # and the date they are performing it.
+        performers = list()
+        for p in performances:
+            soloists = p.specific.performer.all()
+            for s in soloists:
+                performers.add({
+                    'name': s.person.title,
+                    'url': s.person.url,
+                    'headshot': s.person.headshot,
+                    'instrument': s.instrument.instrument,
+                    'work': p.specific.composition.title,
+                    'dates': [d.date for d in p.specific.performance_date.all()]
+                    'bio': s.person.title.biography
+                })
+
+        context['performers'] = performers
+
+    # TODO: needs test
+    def performances_by_date(self):
+        """
+        Performances here means something different from the class
+        Performance. It's a single concert and the performances that make
+        up a given day's concert.
+
+        This method returns a dict that looks like:
+            date
+            program:
+              * composer
+              * composition
+              * performers:
+                * name
+                * url
+                * instrument
+        """
+        concert_dates = self.concert_date.all()
+        performances_by_date = list()
+        for cd in concert_dates:
+            performances = list()
+            ps = cd.performance_set.all()
+            for p in ps:
+                # First make a set of all performers for a given performance
+                performers = list()
+                for performer in p.specific.performer.all():
+                    performers.append({
+                        'name': performer.person.title,
+                        'url': performer.person.url,
+                        'instrument': performer.instrument.instrument
+                    })
+
+                # Then assemble with composer and composition
+                performances.append({
+                    'composer': p.specific.composition.composer.title,
+                    'composition': p.specific.composition.title,
+                    'performers': performers
+                })
+
+            # Finally assemble with the date
+            performances_by_date.append({
+                'date': cd.date,
+                'program': performances
+            })
+
+        return performances_by_date
 
     def clean(self):
         super().clean()
