@@ -13,5 +13,7 @@ superuser:
 shell:
 	pipenv run ./manage.py shell
 
+test:
+	pipenv run ./manage.py test
 scss:
 	npm run watch-scss

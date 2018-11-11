@@ -201,7 +201,7 @@ class Concert(Page):
                     'headshot': s.person.headshot,
                     'instrument': s.instrument.instrument,
                     'work': p.specific.composition.title,
-                    'dates': [d.date for d in p.specific.performance_date.all()]
+                    'dates': [d.date for d in p.specific.performance_date.all()],
                     'bio': s.person.title.biography
                 })
 
