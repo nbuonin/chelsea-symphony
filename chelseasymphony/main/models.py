@@ -44,8 +44,12 @@ class Home(Page):
         context['featured_concert'] = Concert.objects.all()[0]
         context['upcoming_concerts'] = Concert.objects.all()[1:3]
         context['recent_blog_posts'] = BlogPost.objects.all()[:2]
-
         return context
+
+    @classmethod
+    def can_create_at(cls, parent):
+        # Only one of these may be created
+        return super().can_create_at(parent) and not cls.objects.exists()
 
     class Meta:
         verbose_name = "Homepage"
@@ -54,14 +58,17 @@ class Home(Page):
         ImageChooserPanel('banner_image')
     ]
 
+    parent_page_types = ['wagtailcore.Page']
+
     subpage_types = [
         'ConcertIndex',
         'PersonIndex',
-        'BlogIndex'
+        'BlogIndex',
+        'BasicPage'
     ]
 
 
-class SimplePage(Page):
+class BasicPage(Page):
     body = RichTextField()
 
     content_panels = Page.content_panels + [
@@ -74,11 +81,7 @@ class SimplePage(Page):
     def __str__(self):
         return self.title
 
-    parent_page_types = [
-        'Home',
-        'ConcertIndex',
-        'PersonIndex'
-    ]
+    parent_page_types = ['Home']
 
 
 class ConcertDate(Orderable):
@@ -104,6 +107,11 @@ class ConcertDate(Orderable):
 
 
 class ConcertIndex(Page):
+    @classmethod
+    def can_create_at(cls, parent):
+        # Only one of these may be created
+        return super().can_create_at(parent) and not cls.objects.exists()
+
     parent_page_types = ['Home']
     subpage_types = ['Concert']
 
