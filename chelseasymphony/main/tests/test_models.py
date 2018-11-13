@@ -44,6 +44,9 @@ class HomeTest(WagtailPageTests):
 
 
 class BasicPageTest(WagtailPageTests):
+    def setUp(self):
+        pass
+
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
             BasicPage,
@@ -117,6 +120,10 @@ class ConcertTest(WagtailPageTests):
 
     def test_clean(self):
         # test that the calculated_season value gets assigned to self.season
+        pass
+
+    def test_future_concerts(self):
+        # test Concert.objects.future_concerts()
         pass
 
 
