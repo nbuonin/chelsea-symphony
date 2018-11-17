@@ -1,26 +1,73 @@
 from django.apps import apps
 from wagtail.tests.utils import WagtailPageTests
-from wagtail.core.models import Page
+from wagtail.core.models import Page, Site
 from chelseasymphony.main.models import (
     Home, BasicPage, ConcertDate, ConcertIndex, Concert,
     Performance, Performer, Composition, Person, PersonIndex,
     InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician
 )
+ContentType = apps.get_model('contenttypes.ContentType')
+
+def create_base_site():
+    """
+    This returns a tuple of:
+    (homepage, concert_index, person_index)
+    """
+    Page.objects.filter(id=2).delete()
+    Site.objects.all().delete()
+    homepage_content_type, __ = ContentType.objects.get_or_create(
+        model='home', app_label='main')
+
+    homepage = Home.objects.create(
+        title="Home Page",
+        draft_title="Home Page",
+        slug="",
+        content_type=homepage_content_type,
+        path="00010001",
+        depth=2,
+        numchild=0,
+        url_path="/",
+    )
+    Site.objects.create(
+        hostname="localhost",
+        root_page=homepage,
+        is_default_site=True
+    )
+    c_idx = ConcertIndex(
+        title="Concert Index",
+        slug="concerts"
+    )
+    homepage.add_child(instance=c_idx)
+    c_idx.save_revision().publish()
+
+    p_idx = PersonIndex(
+        title="Person Index",
+        slug="people"
+    )
+    homepage.add_child(instance=p_idx)
+    p_idx.save_revision().publish()
+
+    return (homepage, c_idx, p_idx)
+
 
 class HomeTest(WagtailPageTests):
     def setUp(self):
-        homepage = Home.objects.create(
-            title="Home Page",
-            path="/",
-            depth="1"
+        hp, c_idx, p_idx = create_base_site()
+        # you need 4 concerts: 3 in the future, 1 in the past
+        # you need 2 blog posts
+        # Test get_context to verify that the future concerts appear and that
+        # the past concert does not; the 2 blog posts appear
+        p1 = p_idx.specific.add_child(
+            instance=Person(
+                title="Foo Bar",
+                first_name = "Foo",
+                last_name = "Bar",
+                biography = "FooBar",
+                slug="foo-bar",
+                active_roster= True,
+            )
         )
-        Site = apps.get_model('wagtailcore.Site')
-        Site.objects.all().delete()
-        Site.objects.create(
-            hostname="localhost",
-            root_page=homepage,
-            is_default_site=True
-        )
+        p1.save_revision().publish()
 
 
     def test_parent_page_types(self):

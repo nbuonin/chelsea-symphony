@@ -147,7 +147,8 @@ class Concert(Page):
     )
     season = models.CharField(
         max_length=9,
-        null=True
+        null=True,
+        blank=True
     )
 
     # TODO: needs tests
@@ -264,8 +265,9 @@ class Concert(Page):
 
     def clean(self):
         super().clean()
-        first_concert_date = self.concert_date.first().date
-        self.season = self.calculate_season(first_concert_date)
+        if self.concert_date.exists():
+            first_concert_date = self.concert_date.first().date
+            self.season = self.calculate_season(first_concert_date)
 
     content_panels = Page.content_panels + [
         FieldPanel('description'),
@@ -405,6 +407,17 @@ class PersonAdminForm(WagtailAdminPageForm):
         if not instance.id:
             self.initial['slug'] = 'default-slug'
 
+    def save(self, commit=True):
+        page = super().save(commit=False)
+        page.title = "{} {}".format(
+            page.first_name,
+            page.last_name
+        )
+        page.slug = slugify(page.title)
+        if commit:
+            page.save()
+        return page
+
 
 class Person(Page):
     base_form_class = PersonAdminForm
@@ -421,7 +434,7 @@ class Person(Page):
     )
     instrument = ParentalManyToManyField(
         'InstrumentModel',
-        related_name='+'
+        related_name='person_instrument'
     )
 
     def __str__(self):
@@ -430,13 +443,8 @@ class Person(Page):
             self.last_name
         )
 
-    def clean(self):
-        super().clean()
-        self.title = "{} {}".format(
-            self.first_name,
-            self.last_name
-        )
-        self.slug = slugify(self.title)
+    # def clean(self):
+        # super().clean()
 
     content_panels = [
         FieldPanel('first_name'),
