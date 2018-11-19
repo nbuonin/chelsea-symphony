@@ -6,6 +6,9 @@ from chelseasymphony.main.models import (
     Performance, Performer, Composition, Person, PersonIndex,
     InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician
 )
+from chelseasymphony.main.tests.factories import (
+    PersonFactory
+)
 ContentType = apps.get_model('contenttypes.ContentType')
 
 def create_base_site():
@@ -57,17 +60,18 @@ class HomeTest(WagtailPageTests):
         # you need 2 blog posts
         # Test get_context to verify that the future concerts appear and that
         # the past concert does not; the 2 blog posts appear
-        p1 = p_idx.specific.add_child(
-            instance=Person(
-                title="Foo Bar",
-                first_name = "Foo",
-                last_name = "Bar",
-                biography = "FooBar",
-                slug="foo-bar",
-                active_roster= True,
-            )
-        )
-        p1.save_revision().publish()
+        person_1 = PersonFactory(parent=p_idx)
+        # p1 = p_idx.specific.add_child(
+            # instance=Person(
+                # title="Foo Bar",
+                # first_name = "Foo",
+                # last_name = "Bar",
+                # biography = "FooBar",
+                # slug="foo-bar",
+                # active_roster= True,
+            # )
+        # )
+        # p1.save_revision().publish()
 
 
     def test_parent_page_types(self):

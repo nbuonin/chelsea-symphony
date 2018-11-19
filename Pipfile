@@ -9,6 +9,7 @@ wagtail = "*"
 wagtail-autocomplete = "*"
 faker = "*"
 factory-boy = "*"
+wagtail-factories = "*"
 
 [dev-packages]
 

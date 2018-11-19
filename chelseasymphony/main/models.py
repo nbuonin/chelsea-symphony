@@ -407,16 +407,16 @@ class PersonAdminForm(WagtailAdminPageForm):
         if not instance.id:
             self.initial['slug'] = 'default-slug'
 
-    def save(self, commit=True):
-        page = super().save(commit=False)
-        page.title = "{} {}".format(
-            page.first_name,
-            page.last_name
-        )
-        page.slug = slugify(page.title)
-        if commit:
-            page.save()
-        return page
+    # def save(self, commit=True):
+        # page = super().save(commit=False)
+        # page.title = "{} {}".format(
+            # page.first_name,
+            # page.last_name
+        # )
+        # page.slug = slugify(page.title)
+        # if commit:
+            # page.save()
+        # return page
 
 
 class Person(Page):
@@ -443,8 +443,16 @@ class Person(Page):
             self.last_name
         )
 
-    # def clean(self):
-        # super().clean()
+    def clean(self):
+        super().clean()
+        self.title = "{} {}".format(
+            self.first_name,
+            self.last_name
+        )
+        # Can you check if a slug already exists?
+        # when it raises a ValidationError where do catch that?
+        # you might need to override save too
+        self.slug = slugify(self.title)
 
     content_panels = [
         FieldPanel('first_name'),
