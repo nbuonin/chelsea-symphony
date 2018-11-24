@@ -2,10 +2,11 @@ from datetime import (
     datetime, timedelta
 )
 from django.utils.timezone import get_current_timezone
+from django.utils.text import slugify
 from faker import Factory
 from factory import (
     DjangoModelFactory, SubFactory, post_generation, RelatedFactory,
-    LazyAttribute
+    LazyAttribute, Faker
 )
 from wagtail_factories import (
     PageFactory, ImageChooserBlockFactory
@@ -64,19 +65,11 @@ class InstrumentModelFactory(DjangoModelFactory):
 
 
 class PersonFactory(PageFactory):
-    first_name = faker.first_name()
-    last_name = faker.last_name()
-    biography = faker.text(max_nb_chars=200, ext_word_list=None)
+    first_name = Faker('first_name')
+    last_name = Faker('last_name')
+    biography = Faker('text', max_nb_chars=200, ext_word_list=None)
     active_roster = True
     headshot = SubFactory(ImageChooserBlockFactory)
-
-    @classmethod
-    def _adjust_kwargs(cls, **kwargs):
-        # Unexplainably, this factory does return unique names with each call.
-        # Hacking the kwargs in this way does seem to get it to work though.
-        kwargs['first_name'] = faker.first_name()
-        kwargs['last_name'] = faker.last_name()
-        return kwargs
 
     @post_generation
     def parent(self, create, extracted, **kwargs):
@@ -121,7 +114,7 @@ class PersonFactory(PageFactory):
 
 
 class CompositionFactory(DjangoModelFactory):
-    title = ' '.join(faker.words())
+    title = Faker('sentence')
     composer = SubFactory(PersonFactory)
 
     class Meta:
@@ -139,16 +132,10 @@ class PerformerFactory(DjangoModelFactory):
 
 class PerformanceFactory(PageFactory):
     composition = SubFactory(CompositionFactory)
-    title = ' '.join(faker.words())
+    title = LazyAttribute(lambda o: o.composition.title)
+    slug = LazyAttribute(lambda o: slugify(o.composition.title))
     conductor = SubFactory(PersonFactory)
     performer = RelatedFactory(PerformerFactory, 'performance')
-
-    @classmethod
-    def _adjust_kwargs(cls, **kwargs):
-        # Unexplainably, this factory does return unique names with each call.
-        # Hacking the kwargs in this way does seem to get it to work though.
-        kwargs['title'] = faker.word()
-        return kwargs
 
     @post_generation
     def performance_date(self, create, extracted, **kwargs):
@@ -157,14 +144,6 @@ class PerformanceFactory(PageFactory):
         else:
             concert_date = self.get_parent().concert_date.first()
             self.performance_date.add(concert_date)
-
-    # @post_generation
-    # def performer(self, create, extracted, **kwargs):
-        # if not create:
-            # return
-        # else:
-            # self.performer.add(PerformerFactory())
-
 
     class Meta:
         model = Performance
@@ -182,17 +161,10 @@ class ConcertDateFactory(DjangoModelFactory):
 
 
 class ConcertFactory(PageFactory):
-    title = faker.word()
-    description = faker.text(max_nb_chars=200, ext_word_list=None)
-    venue = faker.text(max_nb_chars=200, ext_word_list=None)
+    title = Faker('word')
+    description = Faker('text', max_nb_chars=200, ext_word_list=None)
+    venue = Faker('text', max_nb_chars=200, ext_word_list=None)
     concert_image = SubFactory(ImageChooserBlockFactory)
-
-    @classmethod
-    def _adjust_kwargs(cls, **kwargs):
-        # Unexplainably, this factory does return unique names with each call.
-        # Hacking the kwargs in this way does seem to get it to work though.
-        kwargs['title'] = faker.word()
-        return kwargs
 
     @post_generation
     def make_concert_dates(self, create, extracted, **kwargs):
@@ -244,9 +216,10 @@ class ConcertFactory(PageFactory):
         if not create:
             return
         else:
-            # Create a performance for each concert
-            # Because of bugginess in my code, or the factories, I can't
-            # generate more than one performance.
+            # Create four performances for each concert
+            PerformanceFactory(parent=self)
+            PerformanceFactory(parent=self)
+            PerformanceFactory(parent=self)
             PerformanceFactory(parent=self)
             return
 
