@@ -39,17 +39,132 @@ INSTRUMENT_NAMES = [
 faker = Factory.create()
 
 
+class InstrumentModelFactory(DjangoModelFactory):
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        """
+        If an instument kwarg is passed, get or create the instrument, else
+        if instruments already exist, return a random one. Else, if they don't
+        exist, create them and return a random one.
+        """
+        manager = cls._get_manager(model_class)
+        inst = kwargs.get('instrument', None)
+        if inst:
+            return manager.get_or_create(instrument=inst)
+        else:
+            if manager.exists():
+                return manager.order_by('?').first()
+            else:
+                for i in INSTRUMENT_NAMES:
+                    manager.create(*args, instrument=i)
+                return manager.order_by('?').first()
+
+    class Meta:
+        model = InstrumentModel
+
+
+class PersonFactory(PageFactory):
+    first_name = faker.first_name()
+    last_name = faker.last_name()
+    biography = faker.text(max_nb_chars=200, ext_word_list=None)
+    active_roster = True
+    headshot = SubFactory(ImageChooserBlockFactory)
+
+    @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        # Unexplainably, this factory does return unique names with each call.
+        # Hacking the kwargs in this way does seem to get it to work though.
+        kwargs['first_name'] = faker.first_name()
+        kwargs['last_name'] = faker.last_name()
+        return kwargs
+
+    @post_generation
+    def parent(self, create, extracted, **kwargs):
+        """
+        This is overriden from the MP_Factory base class in wagtail-factories.
+        If no parent is passed, this assumes that a person index already
+        exists, and that should be its parent.
+        """
+        if create:
+            if extracted and kwargs:
+                raise ValueError("Can't pass a parent instance and attributes")
+
+            if kwargs:
+                parent = self._parent_factory(**kwargs)
+            else:
+                if extracted:
+                    parent = extracted
+                else:
+                    # If no parent is passed, try using the Person index
+                    parent = PersonIndex.objects.first()
+
+            if parent:
+                parent.add_child(instance=self)
+            else:
+                type(self).add_root(instance=self)
+
+            del self._parent_factory
+
+    @post_generation
+    def instrument(self, create, extracted, **kwargs):
+        if not create:
+           return
+        if extracted:
+            for e in extracted:
+                self.instrument.add(e)
+        else:
+            self.instrument.add(InstrumentModelFactory())
+
+
+    class Meta:
+        model = Person
+
+
 class CompositionFactory(DjangoModelFactory):
-    title = None
-    # Many-to-one to Person
-    Composer = None
+    title = ' '.join(faker.words())
+    composer = SubFactory(PersonFactory)
+
+    class Meta:
+        model = Composition
+
+
+class PerformerFactory(DjangoModelFactory):
+    performance = None
+    person = SubFactory(PersonFactory)
+    instrument = SubFactory(InstrumentModelFactory)
+
+    class Meta:
+        model = Performer
 
 
 class PerformanceFactory(PageFactory):
-    composition = None
-    conductor = None
-    performance_date = None
-    # MtM to performer
+    composition = SubFactory(CompositionFactory)
+    title = ' '.join(faker.words())
+    conductor = SubFactory(PersonFactory)
+    performer = RelatedFactory(PerformerFactory, 'performance')
+
+    @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        # Unexplainably, this factory does return unique names with each call.
+        # Hacking the kwargs in this way does seem to get it to work though.
+        kwargs['title'] = faker.word()
+        return kwargs
+
+    @post_generation
+    def performance_date(self, create, extracted, **kwargs):
+        if not create:
+            return
+        else:
+            concert_date = self.get_parent().concert_date.first()
+            self.performance_date.add(concert_date)
+
+    # @post_generation
+    # def performer(self, create, extracted, **kwargs):
+        # if not create:
+            # return
+        # else:
+            # self.performer.add(PerformerFactory())
+
 
     class Meta:
         model = Performance
@@ -67,9 +182,17 @@ class ConcertDateFactory(DjangoModelFactory):
 
 
 class ConcertFactory(PageFactory):
+    title = faker.word()
     description = faker.text(max_nb_chars=200, ext_word_list=None)
     venue = faker.text(max_nb_chars=200, ext_word_list=None)
     concert_image = SubFactory(ImageChooserBlockFactory)
+
+    @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        # Unexplainably, this factory does return unique names with each call.
+        # Hacking the kwargs in this way does seem to get it to work though.
+        kwargs['title'] = faker.word()
+        return kwargs
 
     @post_generation
     def make_concert_dates(self, create, extracted, **kwargs):
@@ -116,52 +239,18 @@ class ConcertFactory(PageFactory):
             for i in extracted:
                 self.roster.add(i)
 
-    # Create four performances for each concert
-    # RelatedFactory(PerformanceFactory)
-    # RelatedFactory(PerformanceFactory)
-    # RelatedFactory(PerformanceFactory)
-    # RelatedFactory(PerformanceFactory)
+    @post_generation
+    def create_performances(self, create, extracted, **kwargs):
+        if not create:
+            return
+        else:
+            # Create a performance for each concert
+            # Because of bugginess in my code, or the factories, I can't
+            # generate more than one performance.
+            PerformanceFactory(parent=self)
+            return
 
     class Meta:
         model = Concert
+        exclude = ('future',)
 
-class InstrumentModelFactory(DjangoModelFactory):
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        """
-        If instruments already exist, pick a random one and return.
-        If they don't exist, generate them from the list of names, and return it
-        Otherwise, if called with kwargs, behave as expected.
-        """
-        inst = kwargs.get('instrument', None)
-        if inst:
-            # get or create
-            if InstrumentModel.objects.exists():
-                return InstrumentModel.objects.get_or_create(instrument=inst)
-            else:
-                for i in INSTRUMENT_NAMES:
-                    InstrumentModel.objects.create(*args, instrument=i)
-
-                return InstrumentModel.objects.order_by('?').first()
-        else:
-            return super()._create(model_class, *args, **kwargs)
-
-    class Meta:
-        model = InstrumentModel
-
-
-class PersonFactory(PageFactory):
-    first_name = faker.first_name()
-    last_name = faker.last_name()
-    biography = faker.text(max_nb_chars=200, ext_word_list=None)
-    active_roster = True
-    headshot = SubFactory(ImageChooserBlockFactory)
-    instrument = RelatedFactory(InstrumentModelFactory)
-
-    # @classmethod
-    # def _create(cls, model_class, *args, **kwargs):
-        # if not kwargs:
-            # if Person.objects.exist
-
-    class Meta:
-        model = Person
