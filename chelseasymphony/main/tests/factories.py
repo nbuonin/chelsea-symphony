@@ -3,7 +3,6 @@ from datetime import (
 )
 from django.utils.timezone import get_current_timezone
 from django.utils.text import slugify
-from faker import Factory
 from factory import (
     DjangoModelFactory, SubFactory, post_generation, RelatedFactory,
     LazyAttribute, Faker
@@ -36,8 +35,6 @@ INSTRUMENT_NAMES = [
     'Piano',
     'Harpsichord'
 ]
-
-faker = Factory.create()
 
 
 class InstrumentModelFactory(DjangoModelFactory):
@@ -162,27 +159,13 @@ class ConcertFactory(PageFactory):
     concert_image = SubFactory(ImageChooserBlockFactory)
 
     @post_generation
-    def past(self, create, extracted, **kwargs):
+    def dates(self, create, extracted, **kwargs):
         if not create:
             return
         else:
-            tz = get_current_timezone()
             if extracted:
-                d = faker.date_between(start_date="-1y", end_date="-2d")
-                concert_1 = datetime(
-                    year=d.year, month=d.month, day=d.day, hour=20, tzinfo=tz)
-                day = timedelta(days=+1)
-                concert_2 = concert_1 + day
-                ConcertDateFactory(concert=self, date=concert_1)
-                ConcertDateFactory(concert=self, date=concert_2)
-            else:
-                d = faker.future_date(end_date="+1y")
-                concert_1 = datetime(
-                    year=d.year, month=d.month, day=d.day, hour=20, tzinfo=tz)
-                day = timedelta(days=+1)
-                concert_2 = concert_1 + day
-                ConcertDateFactory(concert=self, date=concert_1)
-                ConcertDateFactory(concert=self, date=concert_2)
+                for date in extracted:
+                    ConcertDateFactory(concert=self, date=date)
 
     @post_generation
     def roster(self, create, extracted, **kwargs):
