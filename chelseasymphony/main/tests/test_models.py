@@ -19,6 +19,7 @@ from faker import Factory
 faker = Factory.create()
 
 c = Client()
+TZ = get_current_timezone()
 
 ContentType = apps.get_model('contenttypes.ContentType')
 
@@ -95,14 +96,13 @@ class HomeTest(WagtailPageTests):
         # Creates three concert series in the future, each starting one week
         # apart from each other. Also creates one concert in the past.
         # This tests that the soonest concert appears as the featured concert
-        tz = get_current_timezone()
         day = timedelta(days=+1)
         week = timedelta(days=+7)
 
         # Create a concert at some point in the future.
         d = faker.future_date(end_date="+1y")
         c1_d1 = datetime(
-            year=d.year, month=d.month, day=d.day, hour=20, tzinfo=tz)
+            year=d.year, month=d.month, day=d.day, hour=20, tzinfo=TZ)
         c1_d2 = c1_d1 + day
         c1 = ConcertFactory(
             parent=self.c_idx,
@@ -134,7 +134,7 @@ class HomeTest(WagtailPageTests):
         # Creates a concert at some past date, test that this does not appear
         c5_d = faker.date_between(start_date="-1y", end_date="-2d")
         c5_d1 = datetime(
-            year=c5_d.year, month=c5_d.month, day=c5_d.day, hour=20, tzinfo=tz)
+            year=c5_d.year, month=c5_d.month, day=c5_d.day, hour=20, tzinfo=TZ)
         c5_d2 = c5_d1 + day
         c5 = ConcertFactory(
             parent=self.c_idx,
@@ -183,24 +183,9 @@ class BasicPageTest(WagtailPageTests):
 
 
 class ConcertIndexTest(WagtailPageTests):
-    def setUp(self):
-        self.homepage = Home.objects.create(
-            title="Home Page",
-            path="/",
-            depth="1"
-        )
-        Site = apps.get_model('wagtailcore.Site')
-        # Delete the bootstrapped site first, then create our own
-        Site.objects.all().delete()
-        Site.objects.create(
-            hostname="localhost",
-            root_page=self.homepage,
-            is_default_site=True
-        )
-        concerts = ConcertIndex(title="Concerts")
-        self.homepage.add_child(instance=concerts)
-        concerts.save()
-
+    @classmethod
+    def setUpTestData(cls):
+        cls.homepage, cls.c_idx, cls.p_idx, cls.b_idx = create_base_site()
 
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
@@ -222,8 +207,9 @@ class ConcertIndexTest(WagtailPageTests):
 
 
 class ConcertTest(WagtailPageTests):
-    def setUp(self):
-        pass
+    @classmethod
+    def setUpTestData(cls):
+        cls.homepage, cls.c_idx, cls.p_idx, cls.b_idx = create_base_site()
 
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
@@ -238,7 +224,14 @@ class ConcertTest(WagtailPageTests):
         )
 
     def test_calculate_season(self):
-        pass
+        # The concert season begins on the Aug 1 of each year
+        d1 = datetime(year=2018, month=7, day=1, hour=20, minute=0, tzinfo=TZ)
+        d1_season = Concert.calculate_season(d1)
+        assert(d1_season == '2017-2018')
+
+        d2 = datetime(year=2018, month=8, day=1, hour=20, minute=0, tzinfo=TZ)
+        d2_season = Concert.calculate_season(d2)
+        assert(d2_season == '2018-2019')
 
     def test_get_context(self):
         pass
