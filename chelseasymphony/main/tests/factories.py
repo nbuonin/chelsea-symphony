@@ -132,8 +132,6 @@ class PerformerFactory(DjangoModelFactory):
 
 class PerformanceFactory(PageFactory):
     composition = SubFactory(CompositionFactory)
-    # title = LazyAttribute(lambda o: o.composition.title)
-    # slug = LazyAttribute(lambda o: slugify(o.composition.title))
     conductor = SubFactory(PersonFactory)
     performer = RelatedFactory(PerformerFactory, 'performance')
 
@@ -220,3 +218,14 @@ class ConcertFactory(PageFactory):
 
     class Meta:
         model = Concert
+
+
+class BlogPostFactory(PageFactory):
+    title = Faker('sentence')
+    author = SubFactory(PersonFactory)
+    date = Faker('future_date')
+    body = Faker('paragraph')
+
+    class Meta:
+        model = BlogPost
+
