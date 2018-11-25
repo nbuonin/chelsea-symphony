@@ -132,8 +132,8 @@ class PerformerFactory(DjangoModelFactory):
 
 class PerformanceFactory(PageFactory):
     composition = SubFactory(CompositionFactory)
-    title = LazyAttribute(lambda o: o.composition.title)
-    slug = LazyAttribute(lambda o: slugify(o.composition.title))
+    # title = LazyAttribute(lambda o: o.composition.title)
+    # slug = LazyAttribute(lambda o: slugify(o.composition.title))
     conductor = SubFactory(PersonFactory)
     performer = RelatedFactory(PerformerFactory, 'performance')
 
@@ -151,13 +151,10 @@ class PerformanceFactory(PageFactory):
 
 class ConcertDateFactory(DjangoModelFactory):
     concert = None
-    d = faker.future_date(end_date="+1y")
-    date = datetime(
-        year=d.year, month=d.month, day=d.day, hour=20)
+    date = Faker('future_date', end_date="+1y")
 
     class Meta:
         model = ConcertDate
-        exclude = ('d',)
 
 
 class ConcertFactory(PageFactory):
@@ -167,13 +164,12 @@ class ConcertFactory(PageFactory):
     concert_image = SubFactory(ImageChooserBlockFactory)
 
     @post_generation
-    def make_concert_dates(self, create, extracted, **kwargs):
+    def past(self, create, extracted, **kwargs):
         if not create:
             return
         else:
-            future = kwargs.get('future', True)
             tz = get_current_timezone()
-            if future:
+            if extracted:
                 d = faker.date_between(start_date="-1y", end_date="-2d")
                 concert_1 = datetime(
                     year=d.year, month=d.month, day=d.day, hour=20, tzinfo=tz)
@@ -221,9 +217,6 @@ class ConcertFactory(PageFactory):
             PerformanceFactory(parent=self)
             PerformanceFactory(parent=self)
             PerformanceFactory(parent=self)
-            return
 
     class Meta:
         model = Concert
-        exclude = ('future',)
-
