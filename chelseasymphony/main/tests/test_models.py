@@ -1,4 +1,9 @@
+from datetime import (
+    datetime, timedelta
+)
+from django.utils.timezone import get_current_timezone
 from django.apps import apps
+from django.test import Client
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.core.models import Page, Site
 from chelseasymphony.main.models import (
@@ -7,8 +12,14 @@ from chelseasymphony.main.models import (
     InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician
 )
 from chelseasymphony.main.tests.factories import (
-    PersonFactory, ConcertFactory
+    PersonFactory, ConcertFactory, BlogPostFactory
 )
+
+from faker import Factory
+faker = Factory.create()
+
+c = Client()
+
 ContentType = apps.get_model('contenttypes.ContentType')
 
 def create_base_site():
@@ -50,21 +61,20 @@ def create_base_site():
     homepage.add_child(instance=p_idx)
     p_idx.save_revision().publish()
 
-    return (homepage, c_idx, p_idx)
+    b_idx = BlogIndex(
+        title="Blog Index",
+        slug="blog"
+    )
+    homepage.add_child(instance=b_idx)
+    b_idx.save_revision().publish()
+
+    return (homepage, c_idx, p_idx, b_idx)
 
 
 class HomeTest(WagtailPageTests):
     @classmethod
     def setUpTestData(cls):
-        hp, c_idx, p_idx = create_base_site()
-        # you need 4 concerts: 3 in the future, 1 in the past
-        # you need 2 blog posts
-        # Test get_context to verify that the future concerts appear and that
-        # the past concert does not; the 2 blog posts appear
-        c1 = ConcertFactory(parent=c_idx, future=True)
-        c2 = ConcertFactory(parent=c_idx, title='Foo', future=True)
-        c3 = ConcertFactory(parent=c_idx, title='Bar', future=True)
-        c4 = ConcertFactory(parent=c_idx, title='FooBar', future=False)
+        cls.homepage, cls.c_idx, cls.p_idx, cls.b_idx = create_base_site()
 
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
@@ -79,17 +89,92 @@ class HomeTest(WagtailPageTests):
         )
 
     def test_only_one_instance(self):
-        root = Page.objects.get(id=1)
-        assert(Home.can_create_at(root) == False)
+        assert(Home.can_create_at(self.homepage) == False)
 
     def test_context(self):
-        assert(True)
+        # Creates three concert series in the future, each starting one week
+        # apart from each other. Also creates one concert in the past.
+        # This tests that the soonest concert appears as the featured concert
+        tz = get_current_timezone()
+        day = timedelta(days=+1)
+        week = timedelta(days=+7)
+
+        # Create a concert at some point in the future.
+        d = faker.future_date(end_date="+1y")
+        c1_d1 = datetime(
+            year=d.year, month=d.month, day=d.day, hour=20, tzinfo=tz)
+        c1_d2 = c1_d1 + day
+        c1 = ConcertFactory(
+            parent=self.c_idx,
+            dates=[c1_d1, c1_d2]
+        )
+
+        # Then create some more concerts, all one week apart from each other.
+        c2_d1 = c1_d1 + week
+        c2_d2 = c2_d1 + day
+        c2 = ConcertFactory(
+            parent=self.c_idx,
+            dates=[c2_d1, c2_d2]
+        )
+
+        c3_d1 = c2_d1 + week
+        c3_d2 = c3_d1 + day
+        c3 = ConcertFactory(
+            parent=self.c_idx,
+            dates=[c3_d1, c3_d2]
+        )
+
+        c4_d1 = c3_d1 + week
+        c4_d2 = c4_d1 + day
+        c4 = ConcertFactory(
+            parent=self.c_idx,
+            dates=[c4_d1, c4_d2]
+        )
+
+        # Creates a concert at some past date, test that this does not appear
+        c5_d = faker.date_between(start_date="-1y", end_date="-2d")
+        c5_d1 = datetime(
+            year=c5_d.year, month=c5_d.month, day=c5_d.day, hour=20, tzinfo=tz)
+        c5_d2 = c5_d1 + day
+        c5 = ConcertFactory(
+            parent=self.c_idx,
+            dates=[c5_d1, c5_d2]
+        )
+
+        # Create some blog posts
+        b1 = BlogPostFactory(parent=self.b_idx)
+        b2 = BlogPostFactory(parent=self.b_idx)
+
+        response = c.get(self.homepage.url)
+        ctx = response.context
+        featured_concert = ctx['featured_concert']
+        upcoming_concerts = ctx['upcoming_concerts']
+        recent_blog_posts = ctx['recent_blog_posts']
+
+        # Assert next concert is the featured concert
+        assert(c1 == featured_concert)
+
+        # Assert the size of upcoming concerts
+        assert(len(upcoming_concerts) == 3)
+
+        # Assert the next future concerts are in the correct postiitons
+        assert(c2 == upcoming_concerts[0])
+        assert(c3 == upcoming_concerts[1])
+        assert(c4 == upcoming_concerts[2])
+
+        # Assert that the past concert isn't published on the homepage
+        assert(c5 != featured_concert)
+        assert(c5 not in upcoming_concerts)
+
+        # Assert the size of recent blog posts
+        assert(len(recent_blog_posts) == 2)
+
+        # Assert that blog posts appear on the homepage
+        assert(b1 in recent_blog_posts)
+        assert(b2 in recent_blog_posts)
 
 
 class BasicPageTest(WagtailPageTests):
-    def setUp(self):
-        pass
-
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
             BasicPage,

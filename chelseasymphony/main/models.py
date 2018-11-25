@@ -42,7 +42,7 @@ class Home(Page):
     def get_context(self, request):
         context = super().get_context(request)
         context['featured_concert'] = Concert.objects.all()[0]
-        context['upcoming_concerts'] = Concert.objects.all()[1:3]
+        context['upcoming_concerts'] = Concert.objects.all()[1:4]
         context['recent_blog_posts'] = BlogPost.objects.all()[:2]
         return context
 
