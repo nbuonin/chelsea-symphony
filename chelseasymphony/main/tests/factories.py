@@ -16,6 +16,8 @@ from chelseasymphony.main.models import (
     InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician
 )
 
+TZ = get_current_timezone()
+
 INSTRUMENT_NAMES = [
     'Violin',
     'Viola',
@@ -146,7 +148,7 @@ class PerformanceFactory(PageFactory):
 
 class ConcertDateFactory(DjangoModelFactory):
     concert = None
-    date = Faker('future_date', end_date="+1y")
+    date = Faker('future_datetime', end_date="+1y", tzinfo=TZ)
 
     class Meta:
         model = ConcertDate
@@ -166,6 +168,8 @@ class ConcertFactory(PageFactory):
             if extracted:
                 for date in extracted:
                     ConcertDateFactory(concert=self, date=date)
+            else:
+                ConcertDateFactory(concert=self)
 
     @post_generation
     def roster(self, create, extracted, **kwargs):
@@ -206,7 +210,7 @@ class ConcertFactory(PageFactory):
 class BlogPostFactory(PageFactory):
     title = Faker('sentence')
     author = SubFactory(PersonFactory)
-    date = Faker('future_date')
+    date = Faker('future_date', tzinfo=TZ)
     body = Faker('paragraph')
 
     class Meta:

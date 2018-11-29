@@ -121,12 +121,8 @@ class ConcertQuerySet(PageQuerySet):
         return self.values_list('season', flat=True)
 
     def future_concerts(self):
-        concert_list = set()
-        for date in ConcertDate.objects\
-                .filter(date__gt=timezone.now()).select_related('concert'):
-            concert_list.add(date.concert)
-
-        return concert_list
+        return Concert.objects.\
+            filter(concert_date__date__gt=timezone.now()).distinct()
 
 
 ConcertManager = PageManager.from_queryset(ConcertQuerySet)
@@ -222,6 +218,8 @@ class Concert(Page):
         Performances here means something different from the class
         Performance. It's a single concert and the performances that make
         up a given day's concert.
+
+        This will be used on the Concert Index pages
 
         This method returns a dict that looks like:
             date

@@ -93,14 +93,13 @@ class HomeTest(WagtailPageTests):
         assert(Home.can_create_at(self.homepage) == False)
 
     def test_context(self):
-        # Creates three concert series in the future, each starting one week
-        # apart from each other. Also creates one concert in the past.
-        # This tests that the soonest concert appears as the featured concert
+        # Creates four concert series in the future, each starting one week
+        # apart from each other.
         day = timedelta(days=+1)
         week = timedelta(days=+7)
 
         # Create a concert at some point in the future.
-        d = faker.future_date(end_date="+1y")
+        d = faker.future_date(end_date="+1y", tzinfo=TZ)
         c1_d1 = datetime(
             year=d.year, month=d.month, day=d.day, hour=20, tzinfo=TZ)
         c1_d2 = c1_d1 + day
@@ -210,6 +209,42 @@ class ConcertTest(WagtailPageTests):
     @classmethod
     def setUpTestData(cls):
         cls.homepage, cls.c_idx, cls.p_idx, cls.b_idx = create_base_site()
+        # Creates four concert series in the future, each starting one week
+        # apart from each other.
+        day = timedelta(days=+1)
+        week = timedelta(days=+7)
+
+        # Create a concert at some point in the future.
+        d = faker.future_date(end_date="+1y", tzinfo=TZ)
+        c1_d1 = datetime(
+            year=d.year, month=d.month, day=d.day, hour=20, tzinfo=TZ)
+        c1_d2 = c1_d1 + day
+        cls.c1 = ConcertFactory(
+            parent=cls.c_idx,
+            dates=[c1_d1, c1_d2]
+        )
+
+        # Then create some more concerts, all one week apart from each other.
+        c2_d1 = c1_d1 + week
+        c2_d2 = c2_d1 + day
+        cls.c2 = ConcertFactory(
+            parent=cls.c_idx,
+            dates=[c2_d1, c2_d2]
+        )
+
+        c3_d1 = c2_d1 + week
+        c3_d2 = c3_d1 + day
+        cls.c3 = ConcertFactory(
+            parent=cls.c_idx,
+            dates=[c3_d1, c3_d2]
+        )
+
+        c4_d1 = c3_d1 + week
+        c4_d2 = c4_d1 + day
+        cls.c4 = ConcertFactory(
+            parent=cls.c_idx,
+            dates=[c4_d1, c4_d2]
+        )
 
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
@@ -241,11 +276,17 @@ class ConcertTest(WagtailPageTests):
 
     def test_clean(self):
         # test that the calculated_season value gets assigned to self.season
-        pass
+        c = ConcertFactory()
+        assert(c.season)
 
     def test_future_concerts(self):
         # test Concert.objects.future_concerts()
-        pass
+        fc = Concert.objects.future_concerts()
+        assert(len(fc) == 4)
+        assert(self.c1 == fc[0])
+        assert(self.c2 == fc[1])
+        assert(self.c3 == fc[2])
+        assert(self.c4 == fc[3])
 
 
 class PerformanceTest(WagtailPageTests):
