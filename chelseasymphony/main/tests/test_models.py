@@ -72,6 +72,47 @@ def create_base_site():
     return (homepage, c_idx, p_idx, b_idx)
 
 
+def create_future_concerts(c_idx):
+    # Creates four concert series in the future, each starting one week
+    # apart from each other.
+    day = timedelta(days=+1)
+    week = timedelta(days=+7)
+
+    # Create a concert at some point in the future.
+    d = faker.future_date(end_date="+1y", tzinfo=TZ)
+    c1_d1 = datetime(
+        year=d.year, month=d.month, day=d.day, hour=20, tzinfo=TZ)
+    c1_d2 = c1_d1 + day
+    c1 = ConcertFactory(
+        parent=c_idx,
+        dates=[c1_d1, c1_d2]
+    )
+
+    # Then create some more concerts, all one week apart from each other.
+    c2_d1 = c1_d1 + week
+    c2_d2 = c2_d1 + day
+    c2 = ConcertFactory(
+        parent=c_idx,
+        dates=[c2_d1, c2_d2]
+    )
+
+    c3_d1 = c2_d1 + week
+    c3_d2 = c3_d1 + day
+    c3 = ConcertFactory(
+        parent=c_idx,
+        dates=[c3_d1, c3_d2]
+    )
+
+    c4_d1 = c3_d1 + week
+    c4_d2 = c4_d1 + day
+    c4 = ConcertFactory(
+        parent=c_idx,
+        dates=[c4_d1, c4_d2]
+    )
+
+    return (c1, c2, c3, c4)
+
+
 class HomeTest(WagtailPageTests):
     @classmethod
     def setUpTestData(cls):
@@ -93,42 +134,8 @@ class HomeTest(WagtailPageTests):
         assert(Home.can_create_at(self.homepage) == False)
 
     def test_context(self):
-        # Creates four concert series in the future, each starting one week
-        # apart from each other.
+        c1, c2, c3, c4 = create_future_concerts(self.c_idx)
         day = timedelta(days=+1)
-        week = timedelta(days=+7)
-
-        # Create a concert at some point in the future.
-        d = faker.future_date(end_date="+1y", tzinfo=TZ)
-        c1_d1 = datetime(
-            year=d.year, month=d.month, day=d.day, hour=20, tzinfo=TZ)
-        c1_d2 = c1_d1 + day
-        c1 = ConcertFactory(
-            parent=self.c_idx,
-            dates=[c1_d1, c1_d2]
-        )
-
-        # Then create some more concerts, all one week apart from each other.
-        c2_d1 = c1_d1 + week
-        c2_d2 = c2_d1 + day
-        c2 = ConcertFactory(
-            parent=self.c_idx,
-            dates=[c2_d1, c2_d2]
-        )
-
-        c3_d1 = c2_d1 + week
-        c3_d2 = c3_d1 + day
-        c3 = ConcertFactory(
-            parent=self.c_idx,
-            dates=[c3_d1, c3_d2]
-        )
-
-        c4_d1 = c3_d1 + week
-        c4_d2 = c4_d1 + day
-        c4 = ConcertFactory(
-            parent=self.c_idx,
-            dates=[c4_d1, c4_d2]
-        )
 
         # Creates a concert at some past date, test that this does not appear
         c5_d = faker.date_between(start_date="-1y", end_date="-2d")
@@ -209,42 +216,7 @@ class ConcertTest(WagtailPageTests):
     @classmethod
     def setUpTestData(cls):
         cls.homepage, cls.c_idx, cls.p_idx, cls.b_idx = create_base_site()
-        # Creates four concert series in the future, each starting one week
-        # apart from each other.
-        day = timedelta(days=+1)
-        week = timedelta(days=+7)
-
-        # Create a concert at some point in the future.
-        d = faker.future_date(end_date="+1y", tzinfo=TZ)
-        c1_d1 = datetime(
-            year=d.year, month=d.month, day=d.day, hour=20, tzinfo=TZ)
-        c1_d2 = c1_d1 + day
-        cls.c1 = ConcertFactory(
-            parent=cls.c_idx,
-            dates=[c1_d1, c1_d2]
-        )
-
-        # Then create some more concerts, all one week apart from each other.
-        c2_d1 = c1_d1 + week
-        c2_d2 = c2_d1 + day
-        cls.c2 = ConcertFactory(
-            parent=cls.c_idx,
-            dates=[c2_d1, c2_d2]
-        )
-
-        c3_d1 = c2_d1 + week
-        c3_d2 = c3_d1 + day
-        cls.c3 = ConcertFactory(
-            parent=cls.c_idx,
-            dates=[c3_d1, c3_d2]
-        )
-
-        c4_d1 = c3_d1 + week
-        c4_d2 = c4_d1 + day
-        cls.c4 = ConcertFactory(
-            parent=cls.c_idx,
-            dates=[c4_d1, c4_d2]
-        )
+        cls.c1, cls.c2, cls.c3, cls.c4 = create_future_concerts(cls.c_idx)
 
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
