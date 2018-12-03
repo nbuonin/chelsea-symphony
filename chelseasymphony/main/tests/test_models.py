@@ -241,7 +241,24 @@ class ConcertTest(WagtailPageTests):
         assert(d2_season == '2018-2019')
 
     def test_get_context(self):
-        pass
+        response = c.get(self.c1.get_url())
+        ctx = response.context
+
+        # Get performances and check conductor names
+        conductor_names = [c['name'] for c in ctx['conductors']]
+        for p in self.c1.get_children().specific():
+            assert(p.conductor.title in conductor_names)
+
+        # Check the program by checking performance names
+        performance_titles = [p['composition'] for p in ctx['program']]
+        for p in self.c1.get_children().specific():
+            assert(p.title in performance_titles)
+
+        # Check the performer names
+        performer_names = [p['name'] for p in ctx['performers']]
+        for p in self.c1.get_children().specific():
+            for performer in p.performer.all():
+                assert performer.person.title in performer_names
 
     def test_performances_by_date(self):
         pass

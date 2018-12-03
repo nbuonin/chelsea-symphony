@@ -200,17 +200,18 @@ class Concert(Page):
         for p in performances:
             soloists = p.specific.performer.all()
             for s in soloists:
-                performers.add({
+                performers.append({
                     'name': s.person.title,
                     'url': s.person.url,
                     'headshot': s.person.headshot,
                     'instrument': s.instrument.instrument,
                     'work': p.specific.composition.title,
                     'dates': [d.date for d in p.specific.performance_date.all()],
-                    'bio': s.person.title.biography
+                    'bio': s.person.biography
                 })
 
         context['performers'] = performers
+        return context
 
     # TODO: needs test
     def performances_by_date(self):
