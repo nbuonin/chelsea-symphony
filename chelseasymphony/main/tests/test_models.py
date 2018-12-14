@@ -261,7 +261,36 @@ class ConcertTest(WagtailPageTests):
                 assert performer.person.title in performer_names
 
     def test_performances_by_date(self):
-        pass
+        """
+        The performances_by_date method should return a dict that looks like:
+            date
+            program:
+              * composer
+              * composition
+              * performers:
+                * name
+                * url
+                * instrument
+        """
+        dates = [p['date'] for p in self.c1.performances_by_date()]
+        for d in [d.date for d in self.c1.concert_date.all()]:
+            assert d in dates
+
+        # Assert the keys of the interface
+        assert 'date' in self.c1.performances_by_date()[0].keys()
+        assert 'program' in self.c1.performances_by_date()[0].keys()
+        assert 'composer' in \
+            self.c1.performances_by_date()[0]['program'][0].keys()
+        assert 'composition' in \
+            self.c1.performances_by_date()[0]['program'][0].keys()
+        assert 'performers' in \
+            self.c1.performances_by_date()[0]['program'][0].keys()
+
+        a_performer = self.c1.performances_by_date()[0]\
+            ['program'][0]['performers'][0].keys()
+        assert 'name' in a_performer
+        assert 'url' in a_performer
+        assert 'instrument' in a_performer
 
     def test_clean(self):
         # test that the calculated_season value gets assigned to self.season
