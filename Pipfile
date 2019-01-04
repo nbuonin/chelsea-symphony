@@ -10,6 +10,7 @@ wagtail-autocomplete = "*"
 faker = "*"
 factory-boy = "*"
 wagtail-factories = "*"
+gunicorn = "*"
 
 [dev-packages]
 

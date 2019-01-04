@@ -1,0 +1,4 @@
+.git*
+.venv
+media
+node_modules

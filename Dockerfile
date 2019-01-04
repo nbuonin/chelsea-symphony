@@ -1,21 +1,20 @@
-FROM python:3.6
-LABEL maintainer="hello@wagtail.io"
+FROM python:3-slim
+LABEL maintainer="nick@buonincontri.org"
 
 ENV PYTHONUNBUFFERED 1
 ENV DJANGO_ENV dev
 
-COPY ./requirements.txt /code/requirements.txt
-RUN pip install -r /code/requirements.txt
-RUN pip install gunicorn
+RUN pip3 install pipenv
 
-COPY . /code/
-WORKDIR /code/
+COPY . /app/
+WORKDIR /app/
 
-RUN python manage.py migrate
+RUN set -ex && \
+    pipenv install
+#    useradd wagtail && \
+#    chown -R wagtail /app
 
-RUN useradd wagtail
-RUN chown -R wagtail /code
-USER wagtail
+# USER wagtail
 
 EXPOSE 8000
-CMD exec gunicorn chelseasymphony.wsgi:application --bind 0.0.0.0:8000 --workers 3
+CMD pipenv run gunicorn chelseasymphony.wsgi:application --bind 0.0.0.0:8000 --workers 3
