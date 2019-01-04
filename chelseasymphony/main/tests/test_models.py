@@ -4,6 +4,7 @@ from datetime import (
 from django.utils.timezone import get_current_timezone
 from django.apps import apps
 from django.test import Client
+from django.utils.text import slugify
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.core.models import Page, Site
 from chelseasymphony.main.models import (
@@ -336,8 +337,10 @@ class ConcertTest(WagtailPageTests):
 
 
 class PerformanceTest(WagtailPageTests):
-    def setUp(self):
-        pass
+    @classmethod
+    def setUpTestData(cls):
+        cls.homepage, cls.c_idx, cls.p_idx, cls.b_idx = create_base_site()
+        cls.c1, cls.c2, cls.c3, cls.c4 = create_future_concerts(cls.c_idx)
 
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
@@ -361,11 +364,34 @@ class PerformanceTest(WagtailPageTests):
     def test_clean(self):
         # Check that the title matches the compostion title and then check that
         # the slug is set to the slugified version of the title
-        pass
+        perf = self.c1.get_descendants().first().specific
+        self.assertEquals(
+            perf.title,
+            perf.composition.title
+        )
+        self.assertEquals(
+            perf.slug,
+            slugify(perf.title)
+        )
+
+        perf.composition.title = "Foo Bar"
+        perf.composition.save()
+        perf.clean()
+        self.assertEquals(
+            perf.title,
+            "Foo Bar"
+        )
+        self.assertEquals(
+            perf.slug,
+            "foo-bar"
+        )
 
     def test_get_url_parts(self):
         # Check that the url returned is that of the parent Concert instance
-        pass
+        self.assertEquals(
+            self.c1.get_url_parts(),
+            self.c1.get_descendants().first().specific.get_url_parts()
+        )
 
 
 class PersonTest(WagtailPageTests):
