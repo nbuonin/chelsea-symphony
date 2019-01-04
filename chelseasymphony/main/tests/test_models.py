@@ -179,6 +179,34 @@ class HomeTest(WagtailPageTests):
         assert(b1 in recent_blog_posts)
         assert(b2 in recent_blog_posts)
 
+        # Test that partial listings of concerts are returned.
+        # Delete two concerts, expect that of the two remaining, one is
+        # returned as a featured concert, and the other as an upcoming concert
+        c1.delete()
+        c2.delete()
+
+        response = c.get(self.homepage.url)
+        ctx = response.context
+        featured_concert = ctx['featured_concert']
+        upcoming_concerts = ctx['upcoming_concerts']
+        recent_blog_posts = ctx['recent_blog_posts']
+
+        assert(c3 == featured_concert)
+        assert(c4 == upcoming_concerts[0])
+
+        # Test that no exceptions are thrown when no future concerts exist
+        c3.delete()
+        c4.delete()
+
+        response = c.get(self.homepage.url)
+        ctx = response.context
+        featured_concert = ctx['featured_concert']
+        upcoming_concerts = ctx['upcoming_concerts']
+        recent_blog_posts = ctx['recent_blog_posts']
+
+        self.assertIsNone(featured_concert)
+        assert(len(upcoming_concerts) == 0)
+
 
 class BasicPageTest(WagtailPageTests):
     def test_parent_page_types(self):

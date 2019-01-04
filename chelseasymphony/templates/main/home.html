@@ -15,7 +15,7 @@
     </div>
   </section>
 
-
+{% if featured_concert %}
   <section id="featured-concert">
       <article class="concert">
           <div class="concert-image">
@@ -48,7 +48,7 @@
           </div>
       </article>
   </section>
-
+{% endif %}
 
   <section id="recent-blog-posts">
       {% for post in recent_blog_posts %}

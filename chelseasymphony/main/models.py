@@ -2,6 +2,7 @@ from datetime import datetime
 from html import unescape
 from django import forms
 from django.db import models
+from django.db.models import Max, Min
 from django.contrib.postgres.fields import DateTimeRangeField
 from django.contrib.postgres.forms import RangeWidget
 from django.forms.widgets import CheckboxSelectMultiple
@@ -41,8 +42,9 @@ class Home(Page):
 
     def get_context(self, request):
         context = super().get_context(request)
-        context['featured_concert'] = Concert.objects.all()[0]
-        context['upcoming_concerts'] = Concert.objects.all()[1:4]
+        future_concerts = Concert.objects.future_concerts()
+        context['featured_concert'] = future_concerts.first()
+        context['upcoming_concerts'] = future_concerts[1:4]
         context['recent_blog_posts'] = BlogPost.objects.all()[:2]
         return context
 
@@ -84,7 +86,7 @@ class BasicPage(Page):
     parent_page_types = ['Home']
 
 
-class ConcertDate(Orderable):
+class ConcertDate(models.Model):
     concert = ParentalKey(
         'Concert',
         on_delete=models.CASCADE,
@@ -121,13 +123,25 @@ class ConcertQuerySet(PageQuerySet):
         return self.values_list('season', flat=True)
 
     def future_concerts(self):
+        today = timezone.now().replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
         return Concert.objects.\
-            filter(concert_date__date__gt=timezone.now()).distinct()
+            annotate(last_date=Max('concert_date__date')).\
+            filter(
+                last_date__gt=today,
+                live=True,
+                concert_date__date__isnull=False).distinct().\
+            order_by('last_date')
 
 
 ConcertManager = PageManager.from_queryset(ConcertQuerySet)
 
 class Concert(Page):
+    # TODO: Concerts should require a concert date
     description = RichTextField()
     venue = RichTextField()
     concert_image = models.ForeignKey(
