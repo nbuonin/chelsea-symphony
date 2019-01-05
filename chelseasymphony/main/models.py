@@ -6,6 +6,7 @@ from django.db.models import Max, Min
 from django.contrib.postgres.fields import DateTimeRangeField
 from django.contrib.postgres.forms import RangeWidget
 from django.forms.widgets import CheckboxSelectMultiple
+from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from django.utils.html import strip_tags, escape
 from django.utils.safestring import mark_safe
@@ -17,6 +18,7 @@ from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.core.url_routing import RouteResult
+from wagtail.contrib.routable_page.models import RoutablePageMixin, route
 from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, \
     InlinePanel, StreamFieldPanel, PageChooserPanel
 from wagtail.admin.forms import WagtailAdminPageForm
@@ -108,11 +110,33 @@ class ConcertDate(models.Model):
     ]
 
 
-class ConcertIndex(Page):
+class ConcertIndex(RoutablePageMixin, Page):
     @classmethod
     def can_create_at(cls, parent):
         # Only one of these may be created
         return super().can_create_at(parent) and not cls.objects.exists()
+
+    @route(r'^$')
+    def upcoming_concerts(self, request):
+        context = self.get_context(request)
+        context['concerts'] = Concert.objects.future_concerts()
+        return TemplateResponse(
+            request,
+            self.get_template(request),
+            context
+        )
+
+    @route(r'(?P<season>\d{4}-\d{4})/$')
+    def concerts_by_season(self, request, season):
+        context = self.get_context(request)
+        context['season'] = season
+        context['concerts'] = Concert.objects.filter(season=season)
+        return TemplateResponse(
+            request,
+            self.get_template(request),
+            context
+        )
+
 
     parent_page_types = ['Home']
     subpage_types = ['Concert']
