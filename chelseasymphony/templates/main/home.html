@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
 {% load responsive_image %}
 
 {% block content %}
@@ -11,7 +12,7 @@
 
   <section id="season-banner">
     <div class="banner-image-container">
-        {% responsiveimage page.banner_image width-1470 srcset="width-833 833w, width-1208 1208w, width-1470 1470w" sizes="980px" height="" %}
+        {% responsiveimage page.banner_image width-1470 srcset="width-833 833w, width-1208 1208w, width-1470 1470w" sizes="555px, 805px, 980px" %}
     </div>
   </section>
 
@@ -21,35 +22,41 @@
           <div class="concert-image">
               <div class="concert-image-container">
                   <a href="{% pageurl featured_concert %}">
-                      {% responsiveimage featured_concert.concert_image width-945 srcset="width-833 833w, width-1208 1208w, width-945 945w" sizes="945px" %}
-                      <!--<picture >-->
-                          <!--[>[if IE 9]><video style="display: none;"><![endif]<]-->
-                          <!--<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_page_mobile/public/Holiday.jpg?itok=r1ToKQtO&amp;timestamp=1536545421 1x" data-aspectratio="833/306" media="(min-width: 0px) and (max-width: 599px)" />-->
-                          <!--<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_page_tablet/public/Holiday.jpg?itok=r93_yJO5&amp;timestamp=1536545421 1x" data-aspectratio="1208/446" media="(min-width: 600px) and (max-width: 849px)" />-->
-                          <!--<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_headline_desktop/public/Holiday.jpg?itok=axSD08E_&amp;timestamp=1536545421 1x" data-aspectratio="945/348" media="(min-width: 850px) and (max-width: 1039px)" />-->
-                          <!--<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_headline_desktop/public/Holiday.jpg?itok=axSD08E_&amp;timestamp=1536545421 1x" data-aspectratio="945/348" media="(min-width: 1040px)" />-->
-                          <!--[>[if IE 9]></video><![endif]<]-->
-                          <!--<img  class="lazyload" data-aspectratio="" src="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_headline_desktop/public/Holiday.jpg?itok=axSD08E_&amp;timestamp=1536545421" alt="" title="" />-->
-                      <!--</picture>-->
+                      {% responsiveimage featured_concert.concert_image fill-945x348 srcset="fill-833x306 833w, fill-1208x446 1208w, fill-945x348 945w" sizes="555px, 1208px, 630px" %}
                   </a>
               </div>
           </div>
           <div class="concert-info">
-              <p class="concert-tag">{# date range#}</p>
+              <p class="concert-tag">
+                {% with cd=featured_concert.concert_date.all %}
+                {% if cd|length_is:"1" %}
+                    {{ cd.first.date|date:"F j" }}
+                {% elif cd.first.date|date:"nY" == cd.last.date|date:"nY" %} 
+                    {{ cd.first.date|date:"F j" }}-{{cd.last.date|date:"j"}}
+                {% else %}
+                    {{ cd.first.date|date:"F j" }} - {{cd.last.date|date:"F j"}}
+                {% endif %}
+                {% endwith %}
+              </p>
               <h2 class="concert-name">
                   <a href="{% pageurl featured_concert %}">{{ featured_concert.title }}</a>
               </h2>
               <p class="concert-date">
-                <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="2018-12-07T20:00:00-05:00">Friday | 12.7.18 | 8:00 PM</span>
+                {% with cd=featured_concert.concert_date.all %}
+                    {% for d in cd %}
+                    <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="{{ d.date|date:"c" }}">{{ d.date|date:"l | n.j.y | "  }}{{d.date|time:"g:i A"}}</span><br>
+                    {% endfor %}
+                {% endwith %}
               </p>
               <div class="concert-copy">
-                  {{ featured_concert.description }}
+                  {{ featured_concert.description|richtext }}
               </div>
           </div>
       </article>
   </section>
 {% endif %}
 
+{% if recent_blog_posts %}
   <section id="recent-blog-posts">
       {% for post in recent_blog_posts %}
       <article class="blog-post">
@@ -57,15 +64,14 @@
               <div class="blog-image">
                   <div class="blog-image-container">
                       <a href="{% pageurl post %}">
-                          {# pick up from here #}
+                        {% image post.blog_image fill-675x450 as b_img_mobile %}
+                        {% image post.blog_image fill-549x306 as b_img_tablet %}
                           <picture >
-                              <!--[if IE 9]><video style="display: none;"><![endif]-->
-                              <source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tsc2r_blog_list___homepage_desktop/public/blog-image/RiseUp.jpg?itok=v5m70lR6&amp;timestamp=1536540276 1x" data-aspectratio="/" media="(min-width: 0px) and (max-width: 599px)" />
-                              <source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_blog_homepage_mobile_and_tablet/public/blog-image/RiseUp.jpg?itok=xOJIn8NZ&amp;timestamp=1536540276 1x" data-aspectratio="/" media="(min-width: 600px) and (max-width: 849px)" />
-                              <source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tsc2r_blog_list___homepage_desktop/public/blog-image/RiseUp.jpg?itok=v5m70lR6&amp;timestamp=1536540276 1x" data-aspectratio="/" media="(min-width: 850px) and (max-width: 1039px)" />
-                              <source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tsc2r_blog_list___homepage_desktop/public/blog-image/RiseUp.jpg?itok=v5m70lR6&amp;timestamp=1536540276 1x" data-aspectratio="/" media="(min-width: 1040px)" />
-                              <!--[if IE 9]></video><![endif]-->
-                              <img  class="lazyload" data-aspectratio="" src="https://chelseasymphony.org/sites/default/files/styles/tsc2r_blog_list___homepage_desktop/public/blog-image/RiseUp.jpg?itok=v5m70lR6&amp;timestamp=1536540276" alt="" title="" />
+                              <source srcset="{{ b_img_mobile.url }}" media="(min-width: 0px) and (max-width: 599px)" />
+                              <source srcset="{{ b_image_tablet.url  }}" media="(min-width: 600px) and (max-width: 849px)" />
+                              <source srcset="{{ b_img_mobile.url }}" media="(min-width: 850px) and (max-width: 1039px)" />
+                              <source srcset="{{ b_img_mobile.url }}" media="(min-width: 1040px)" />
+                              <img src="{{ b_img_mobile.url }}" alt="" title="" />
                           </picture>
                       </a>
                   </div>
@@ -73,96 +79,67 @@
               <p class="blog-tag">
               </p>
               <h2 class="blog-name">
-                  <a href="/blog/welcome-2018-19-resolution">Welcome to 2018-19: RESOLUTION</a>        </h2>
-              <p class="blog-date">
-              September 9, 2018    </p>
-              <!-- <div class="blog-post-author">
-                  <span class="field-content">Mark Seto</span>    </div> -->
+                  <a href="{% pageurl post %}">{{ post.title }}</a>        </h2>
+              <p class="blog-date">{{ post.date|date:"F j, Y" }}</p>
               <div class="blog-copy">
-                  The Chelsea Symphony is thrilled to present our 2018-19 season, Resolution: Music of Social Action. Our concerts this year feature compositions from turbulent times past and present.    </div>
+                  {{ post.promo_copy|richtext }}
+              </div>
           </div>
       </article>
       {% endfor %}
   </section>
+{% endif %}
 
-
-  <section id="next-concerts">
-
-<article class="concert">
-  <div class="concert-image">
-    <div class="concert-image-container">
-      <a href="/concert/awakening"><picture >
-<!--[if IE 9]><video style="display: none;"><![endif]-->
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_mobile/public/Awakening.jpg?itok=qT7nzgRf&amp;timestamp=1536545370 1x" data-aspectratio="270/338" media="(min-width: 0px) and (max-width: 599px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_image_0_79/public/Awakening.jpg?itok=S71_E9Kn&amp;timestamp=1536545370 1x" data-aspectratio="/" media="(min-width: 600px) and (max-width: 849px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/Awakening.jpg?itok=ORSLq7jU&amp;timestamp=1536545370 1x" data-aspectratio="389/143" media="(min-width: 850px) and (max-width: 1039px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/Awakening.jpg?itok=ORSLq7jU&amp;timestamp=1536545370 1x" data-aspectratio="389/143" media="(min-width: 1040px)" />
-<!--[if IE 9]></video><![endif]-->
-<img  class="lazyload" data-aspectratio="" src="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/Awakening.jpg?itok=ORSLq7jU&amp;timestamp=1536545370" alt="" title="" />
-</picture></a>    </div>
-  </div>
-  <div class="concert-info">
-    <p class="concert-tag">
-      January 25-26    </p>
-    <h2 class="concert-name">
-      <a href="/concert/awakening">AWAKENING</a>    </h2>
-    <p class="concert-date">
-      <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="2019-01-25T20:00:00-05:00">Friday | 1.25.19 | 8:00 PM</span><br /><span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="2019-01-26T20:00:00-05:00">Saturday | 1.26.19 | 8:00 PM</span>    </p>
-    <div class="concert-copy">
-          </div>
-  </div>
-</article>
-
-<article class="concert">
-  <div class="concert-image">
-    <div class="concert-image-container">
-      <a href="/concert/reflection"><picture >
-<!--[if IE 9]><video style="display: none;"><![endif]-->
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_mobile/public/ReflectionBackground1.jpg?itok=4STzIr_S&amp;timestamp=1536545492 1x" data-aspectratio="270/338" media="(min-width: 0px) and (max-width: 599px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_image_0_79/public/ReflectionBackground1.jpg?itok=W53O-SpT&amp;timestamp=1536545492 1x" data-aspectratio="/" media="(min-width: 600px) and (max-width: 849px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/ReflectionBackground1.jpg?itok=3tEurDJI&amp;timestamp=1536545492 1x" data-aspectratio="389/143" media="(min-width: 850px) and (max-width: 1039px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/ReflectionBackground1.jpg?itok=3tEurDJI&amp;timestamp=1536545492 1x" data-aspectratio="389/143" media="(min-width: 1040px)" />
-<!--[if IE 9]></video><![endif]-->
-<img  class="lazyload" data-aspectratio="" src="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/ReflectionBackground1.jpg?itok=3tEurDJI&amp;timestamp=1536545492" alt="" title="" />
-</picture></a>    </div>
-  </div>
-  <div class="concert-info">
-    <p class="concert-tag">
-      March 8-9    </p>
-    <h2 class="concert-name">
-      <a href="/concert/reflection">REFLECTION</a>    </h2>
-    <p class="concert-date">
-      <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="2019-03-08T20:00:00-05:00">Friday | 3.8.19 | 8:00 PM</span><br /><span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="2019-03-09T20:00:00-05:00">Saturday | 3.9.19 | 8:00 PM</span>    </p>
-    <div class="concert-copy">
-          </div>
-  </div>
-</article>
-
-<article class="concert">
-  <div class="concert-image">
-    <div class="concert-image-container">
-      <a href="/concert/rebirth"><picture >
-<!--[if IE 9]><video style="display: none;"><![endif]-->
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_mobile/public/rebirth.jpg?itok=JNT02Rga&amp;timestamp=1536545571 1x" data-aspectratio="270/338" media="(min-width: 0px) and (max-width: 599px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_image_0_79/public/rebirth.jpg?itok=PNGvkZlz&amp;timestamp=1536545571 1x" data-aspectratio="/" media="(min-width: 600px) and (max-width: 849px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/rebirth.jpg?itok=HLmDxcMN&amp;timestamp=1536545571 1x" data-aspectratio="389/143" media="(min-width: 850px) and (max-width: 1039px)" />
-<source data-srcset="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/rebirth.jpg?itok=HLmDxcMN&amp;timestamp=1536545571 1x" data-aspectratio="389/143" media="(min-width: 1040px)" />
-<!--[if IE 9]></video><![endif]-->
-<img  class="lazyload" data-aspectratio="" src="https://chelseasymphony.org/sites/default/files/styles/tcs2r_concert_homepage_upcoming_desktop/public/rebirth.jpg?itok=HLmDxcMN&amp;timestamp=1536545571" alt="" title="" />
-</picture></a>    </div>
-  </div>
-  <div class="concert-info">
-    <p class="concert-tag">
-      May 18-19    </p>
-    <h2 class="concert-name">
-      <a href="/concert/rebirth">REBIRTH</a>    </h2>
-    <p class="concert-date">
-      <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="2019-05-18T20:00:00-04:00">Saturday | 5.18.19 | 8:00 PM</span><br /><span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="2019-05-19T14:00:00-04:00">Sunday | 5.19.19 | 2:00 PM</span>    </p>
-    <div class="concert-copy">
-          </div>
-  </div>
-</article>
-  </section>
+{% if upcoming_concerts %}
+<section id="next-concerts">
+    {% for c in upcoming_concerts %}
+    <article class="concert">
+        <div class="concert-image">
+            <div class="concert-image-container">
+                <a href="{% pageurl c %}">
+                    {% image c.concert_image fill-270x338 as c_img_mobile %}
+                    {% image c.concert_image fill-393x492-c50 as c_img_tablet %}
+                    {% image c.concert_image fill-398x143 as c_img_full %}
+                    <picture>
+                        <source srcset="{{ c_img_mobile.url }}" media="(min-width: 0px) and (max-width: 599px)" />
+                        <source srcset="{{ c_img_tablet.url }}" media="(min-width: 600px) and (max-width: 849px)" />
+                        <source srcset="{{ c_img_full.url }}" media="(min-width: 850px) and (max-width: 1039px)" />
+                        <source srcset="{{ c_img_full.url }}" media="(min-width: 1040px)" />
+                        <img src="{{ c_img_full.url }}" alt="" title="" />
+                    </picture>
+                </a>
+            </div>
+        </div>
+        <div class="concert-info">
+            <p class="concert-tag">
+                {% with cd=c.concert_date.all %}
+                {% if cd|length_is:"1" %}
+                    {{ cd.first.date|date:"F j" }}
+                {% elif cd.first.date|date:"nY" == cd.last.date|date:"nY" %} 
+                    {{ cd.first.date|date:"F j" }}-{{cd.last.date|date:"j"}}
+                {% else %}
+                    {{ cd.first.date|date:"F j" }} - {{cd.last.date|date:"F j"}}
+                {% endif %}
+                {% endwith %}
+            </p>
+            <h2 class="concert-name">
+                <a href="{% pageurl c %}">{{ c.title }}</a>
+            </h2>
+            <p class="concert-date">
+                {% with cd=c.concert_date.all %}
+                    {% for d in cd %}
+                    <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="{{ d.date|date:"c" }}">{{ d.date|date:"l | n.j.y | "  }}{{d.date|time:"g:i A"}}</span><br>
+                    {% endfor %}
+                {% endwith %}
+            </p>
+            <div class="concert-copy">
+                {{ c.promo_copy | richtext }}
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endif %}
   </div>
 </main>
 {% endblock %}

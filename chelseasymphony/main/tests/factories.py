@@ -156,6 +156,7 @@ class ConcertDateFactory(DjangoModelFactory):
 
 class ConcertFactory(PageFactory):
     title = Faker('word')
+    promo_copy = Faker('text', max_nb_chars=200, ext_word_list=None)
     description = Faker('text', max_nb_chars=200, ext_word_list=None)
     venue = Faker('text', max_nb_chars=200, ext_word_list=None)
     concert_image = SubFactory(ImageChooserBlockFactory)
@@ -211,6 +212,7 @@ class BlogPostFactory(PageFactory):
     title = Faker('sentence')
     author = SubFactory(PersonFactory)
     date = Faker('future_date', tzinfo=TZ)
+    promo_copy = Faker('paragraph')
     body = Faker('paragraph')
 
     class Meta:

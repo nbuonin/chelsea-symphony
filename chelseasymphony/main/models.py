@@ -142,6 +142,7 @@ ConcertManager = PageManager.from_queryset(ConcertQuerySet)
 
 class Concert(Page):
     # TODO: Concerts should require a concert date
+    promo_copy = RichTextField()
     description = RichTextField()
     venue = RichTextField()
     concert_image = models.ForeignKey(
@@ -227,7 +228,6 @@ class Concert(Page):
         context['performers'] = performers
         return context
 
-    # TODO: needs test
     def performances_by_date(self):
         """
         Performances here means something different from the class
@@ -283,6 +283,7 @@ class Concert(Page):
             self.season = self.calculate_season(first_concert_date)
 
     content_panels = Page.content_panels + [
+        FieldPanel('promo_copy'),
         FieldPanel('description'),
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
@@ -513,6 +514,7 @@ class BlogPost(Page):
         on_delete=models.PROTECT,
         related_name='+'
     )
+    promo_copy = RichTextField()
     body = StreamField([
         ('heading', blocks.CharBlock(classname="full title")),
         ('paragraph', blocks.RichTextBlock()),
@@ -523,6 +525,7 @@ class BlogPost(Page):
         FieldPanel('author'),
         FieldPanel('date'),
         ImageChooserPanel('blog_image'),
+        FieldPanel('promo_copy'),
         StreamFieldPanel('body'),
     ]
 

@@ -1,3 +1,5 @@
+# Largely taken from
+# https://gist.github.com/coredumperror/41f9f8fe511ac4e88547487d6d43c69b
 from django import template
 
 from wagtail.images.models import SourceImageIOError
@@ -5,26 +7,12 @@ from wagtail.images.templatetags.wagtailimages_tags import ImageNode
 
 register = template.Library()
 
-
 @register.tag(name="responsiveimage")
 def responsiveimage(parser, token):
     bits = token.split_contents()[1:]
     image_expr = parser.compile_filter(bits[0])
     filter_spec = bits[1]
     remaining_bits = bits[2:]
-    # import pdb
-    # pdb.set_trace()
-
-    # try:
-        # if remaining_bits[-2] == 'as':
-            # attrs = _parse_attrs(remaining_bits[:-2])
-            # # token is of the form {% responsiveimage self.photo max-320x200 srcset="filter_spec xyzw" [ attr="val" ... ] as img %}
-            # return ResponsiveImageNode(image_expr, filter_spec, attrs=attrs, output_var_name=remaining_bits[-1])
-    # except (IndexError):
-        # # token is of the form {% responsiveimage self.photo max-320x200 srcset="filter_spec xyzw" [ attr="val" ... ] %}
-        # # all additional tokens should be kwargs, which become attributes
-        # attrs = _parse_attrs(remaining_bits)
-        # return ResponsiveImageNode(image_expr, filter_spec, attrs=attrs)
 
     if remaining_bits[-2] == 'as':
         attrs = _parse_attrs(remaining_bits[:-2])
