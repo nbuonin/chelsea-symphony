@@ -117,6 +117,9 @@ div.page-header {
           color: $link-color; // set this as a default in base.scss
         }
       }
+      .performer {
+          padding-right: 1em;
+      }
       .instrument {
         font-style: italic;
       }

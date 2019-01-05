@@ -218,24 +218,26 @@
 
 .past-seasons:hover {
     position: relative;
-  .view-tcs2-concert-season-list {
+  .concert-season-list {
     display: block;
     width: 170px;
   }
 }
 
-.view-tcs2-concert-season-list {
+.concert-season-list {
   display: none;
   background-color: rgba(255, 255, 255, .7);
   padding: 0 1em 0.5em;
   position: absolute;
   right: 0;
 
-  .view-content {
+  .concert-season-list-container {
     column-count: 2;
-
-    a:hover {
-      color: $tag-color;
-      }
+    a {
+        display: block;
+        &:hover {
+            color: $tag-color;
+        }
+    }
   }
 }

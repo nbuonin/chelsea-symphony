@@ -119,6 +119,7 @@ class ConcertIndex(RoutablePageMixin, Page):
     @route(r'^$')
     def upcoming_concerts(self, request):
         context = self.get_context(request)
+        context['seasons'] = Concert.objects.concert_seasons()
         context['concerts'] = Concert.objects.future_concerts()
         return TemplateResponse(
             request,
@@ -129,14 +130,20 @@ class ConcertIndex(RoutablePageMixin, Page):
     @route(r'(?P<season>\d{4}-\d{4})/$')
     def concerts_by_season(self, request, season):
         context = self.get_context(request)
+        context['seasons'] = Concert.objects.concert_seasons()
         context['season'] = season
-        context['concerts'] = Concert.objects.filter(season=season)
+        context['concerts'] = Concert.objects.\
+            annotate(last_date=Max('concert_date__date')).\
+            filter(
+                season=season,
+                live=True,
+                concert_date__date__isnull=False).distinct().\
+            order_by('last_date')
         return TemplateResponse(
             request,
             self.get_template(request),
             context
         )
-
 
     parent_page_types = ['Home']
     subpage_types = ['Concert']
@@ -144,7 +151,9 @@ class ConcertIndex(RoutablePageMixin, Page):
 
 class ConcertQuerySet(PageQuerySet):
     def concert_seasons(self):
-        return self.values_list('season', flat=True)
+        return sorted(
+            set(s for s in self.values_list('season', flat=True))
+        )
 
     def future_concerts(self):
         today = timezone.now().replace(
