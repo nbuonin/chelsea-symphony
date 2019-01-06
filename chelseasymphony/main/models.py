@@ -563,6 +563,12 @@ class BlogPost(Page):
         StreamFieldPanel('body'),
     ]
 
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['recent_blog_posts'] = BlogPost.objects.live()\
+            .order_by('-date')[:5]
+        return context
+
     parent_page_types = ['BlogIndex']
     subpage_types = []
 
@@ -570,6 +576,13 @@ class BlogPost(Page):
 class BlogIndex(Page):
     parent_page_types = ['Home']
     subpage_types = ['BlogPost']
+
+    def get_context(self, request):
+        context = super().get_context(request)
+        context['blog_posts'] = BlogPost.objects.live()\
+            .order_by('-date')
+        return context
+
 
 
 class ActiveRosterMusicianManager(PageManager):

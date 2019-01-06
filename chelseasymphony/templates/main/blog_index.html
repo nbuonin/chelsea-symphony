@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+{% load responsive_image %}
+{% load el_pagination_tags %}
+
+{% block content %}
+<main>
+    <div class="container">
+        <section id="blog-post-list">
+            {% paginate blog_posts %}
+            {% for blog in blog_posts %}
+            <article class="blog-post">
+                <div class="blog-image">
+                    <div class="blog-image-container">
+                        <a href="{% pageurl blog %}">
+                            {% responsiveimage blog.blog_image fill-425x284 srcset="fill-555x370 555w, fill-282x188 282w, fill-425x284 425w" sizes="555px, 282px, 425px" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="blog-info">
+                    <p class="blog-post-dateline">
+                        {{ blog.date | date:"F j, Y" }}
+                    </p>
+                    <h1 class="blog-post-title">
+                        <a href="{% pageurl blog %}">{{ blog.title }}</a>
+                    </h1>
+                    {% if blog.author %}
+                    <p class="blog-post-author">
+                        {{ blog.author }}
+                    </p>
+                    {% endif %}
+                    <div class="blog-copy">
+                        {{ blog.promo_copy | richtext }}  
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+            {% show_pages %}
+        </section>
+    </div>
+</main>
+{% endblock %}

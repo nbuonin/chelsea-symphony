@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+{% load responsive_image %}
+{% load el_pagination_tags %}
+
+{% block content %}
+<main>
+    <div id="blog-post-container" class="container">
+        <article id="blog-post">
+            <div class="blog-post-image">
+                <div class="blog-post-image-container">
+                    {% responsiveimage page.blog_image fill-963x264 srcset="fill-779x213 779w, fill-963x264 963w" sizes="779px, 963px" %}
+                </div>
+            </div>
+            <div class="blog-post-title-info">
+                <p class="blog-post-dateline">
+                    <span property="dc:date dc:created" content="{{ page.date | date:"c" }}" datatype="xsd:dateTime">{{ page.date | date:"l, F j, Y" }}</span>
+                </p>
+                <h1 class="blog-post-title">{{ page.title }}</h1>
+                {% if page.author %}
+                <p class="blog-post-author">
+                By <a href="{% pageurl page.author%}">{{ page.author }}</a>
+                </p>
+                {% endif %}
+            </div>
+            <div class="blog-post-body">
+                {% include_block page.body %}
+            </div>
+        </article>
+        <aside id="blog-post-recent">
+            <div>
+                <h2>Recent Blog Posts</h2>
+                {% for post in recent_blog_posts %}
+                <li>
+                    <span class="blog-post-title">
+                        <a href="{% pageurl post %}">{{ post.title }}</a> - {{ post.date | date:"n.j.y" }}
+                    </span>
+                </li>
+                {% endfor %}
+            </div>
+        </aside>
+    </div>
+</main>
+{% endblock %}
