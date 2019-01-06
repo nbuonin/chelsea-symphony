@@ -26,7 +26,7 @@
             <article class="concert">
                 <div class="concert-info-a">
                     <p class="concert-tag">
-                        {% with cd=c.concert_date.all %}
+                        {% with cd=concert_date.all %}
                         {% if cd|length_is:"1" %}
                             {{ cd.first.date|date:"F j" }}
                         {% elif cd.first.date|date:"nY" == cd.last.date|date:"nY" %} 

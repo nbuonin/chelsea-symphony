@@ -1,5 +1,106 @@
 {% extends 'base.html' %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+{% load responsive_image %}
 
 {% block content %}
-<h1 class="foo">Concert Page</h1>
+<main>
+    <div class="container">
+        <article id="concert">
+            <p class="concert-tag">
+                {% with cd=page.concert_date.all %}
+                {% if cd|length_is:"1" %}
+                    {{ cd.first.date|date:"F j" }}
+                {% elif cd.first.date|date:"nY" == cd.last.date|date:"nY" %} 
+                    {{ cd.first.date|date:"F j" }}-{{cd.last.date|date:"j"}}
+                {% else %}
+                    {{ cd.first.date|date:"F j" }} - {{cd.last.date|date:"F j"}}
+                {% endif %}
+                {% endwith %}
+            </p>
+            <div class="concert-image">
+                <div class="concert-image-container">
+                    {% responsiveimage page.concert_image fill-1470x542 srcset="fill-833x306 833w, fill-1208x446 1208w, fill-1470x542 1470w" sizes="555px, 1208px, 630px" %}
+                </div>
+            </div>
+            <div class="concert-title-info">
+                <h1 class="concert-name">
+                    {{ page.title }}
+                    <span property="dc:title" content="{{ page.title }}" class="rdf-meta element-hidden"></span>
+                </h1>
+            </div>
+            <div class="concert-copy-container">
+                <div class="concert-date-location">
+                    <p class="concert-date">
+                        {% with cd=page.concert_date.all %}
+                            {% for d in cd %}
+                            <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="{{ d.date|date:"c" }}">{{ d.date|date:"l | n.j.y | "  }}{{d.date|time:"g:i A"}}</span><br>
+                            {% endfor %}
+                        {% endwith %}
+                    </p>
+                    <p class="concert-location">
+                        {{ page.venue | richtext }}
+                    </p>
+                </div>  
+                <div class="concert-copy">
+                    {{ page.description | richtext }}
+                    <div class="concert-conductors">
+                        {% for c in conductors %}
+                        <span><a href="{{ c.url }}">{{ c.name }}</a></span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="concert-program">
+                <h2>The Program</h2>
+                {% for performance in program %}
+                <div class="concert-program-listing">
+                    <div class="concert-program-piece">
+                        <span class="concert-program-piece-composer">{{ performance.composer }}</span>{{ performance.composition | richtext }}
+                    </div>
+                    {% for performer in performance.performers %} 
+                    <div class="concert-program-piece-soloist">
+                        <span class="performer"><a href="{{ performer.url }}">{{ performer.name }}</a></span>
+                        <span class="instrument">{{ performer.instrument }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="concert-soloists">
+                <h2>Featured Artists</h2>
+                {% for performer in performers %} 
+                <section class="concert-soloist">
+                    <div class="concert-soloist-image">
+                        <div class="concer-soloist-image-container">
+                            <a href="{{ performer.url }}">
+                                {% responsiveimage performer.headshot fill-833x1038 srcset="fill-833x1038 833w, fill-582x726 582w, fill-455x567 455w" sizes="833px, 582px, 833px" %}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="solist-program-listing-container">
+                        <div class="concert-program-listing">
+                            <p class="concert-program-piece-soloist">
+                                <a href="{{ performer.url }}">{{ performer.name }}</a><br>
+                                {{ performer.instrument }}
+                            </p>
+                            <p class="concert-program-date">
+                                {% for date in performer.dates %}   
+                                {{ date | date:"l, n.j" }},
+                                {% endfor %}
+                            </p>
+                            <p class="concert-program-piece">
+                                <span class="concert-program-piece-composer">{{ performer.composer }}: </span>{{ performer.work | striptags }}
+                            </p>
+                        </div>
+                        <div class="concert-soloist-bio">
+                            {{ performer.bio | richtext | truncatewords_html:80 }}
+                        </div>
+                    </div>
+                </section>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+</main>
 {% endblock %}

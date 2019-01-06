@@ -71,9 +71,12 @@
       }
     }
   }
-	.concert-copy p {
-     @extend %copy;
-	}
+  .concert-copy {
+      width: 100%;
+      p {
+          @extend %copy;
+      }
+  }
 }
 
 #concert .concert-program {
@@ -84,6 +87,9 @@
   }
   .concert-program-piece-soloist {
 	 padding-left: 1em;
+     .performer {
+         margin-right: 1em;
+     }
   }
 
   .concert-program-listing {
@@ -101,8 +107,11 @@
 				padding-right: $big2;
 			 }
 			 .concert-program-piece-composer::after {
-            content: "";
-           }
+                content: "";
+             }
+             .rich-text {
+                 display: inline-block;
+             }
 			 .concert-program-piece-title {
 				display: inline-block;
 				text-align: left;

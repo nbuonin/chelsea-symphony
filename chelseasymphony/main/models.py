@@ -253,6 +253,7 @@ class Concert(Page):
                     'url': s.person.url,
                     'headshot': s.person.headshot,
                     'instrument': s.instrument.instrument,
+                    'composer': p.specific.composition.composer.title,
                     'work': p.specific.composition.title,
                     'dates': [d.date for d in p.specific.performance_date.all()],
                     'bio': s.person.biography
