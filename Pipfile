@@ -12,6 +12,7 @@ factory-boy = "*"
 wagtail-factories = "*"
 gunicorn = "*"
 django-el-pagination = "*"
+wagtailmenus = "*"
 
 [dev-packages]
 

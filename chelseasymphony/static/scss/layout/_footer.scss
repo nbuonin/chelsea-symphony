@@ -33,6 +33,18 @@ body > footer > .container {
 		}
 	}
 
+    div.learn-more, div.get-involved {
+        flex: 1;
+		h4 {
+            @extend %list-header;
+            @extend %caps-sans;
+            margin-bottom: 0px;
+		}
+        div.flat-menu {
+            margin-bottom: 1em;
+        }
+    }
+
 	div.contact {
 		flex: 1;
 

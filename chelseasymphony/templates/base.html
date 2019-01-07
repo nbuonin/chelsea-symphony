@@ -1,4 +1,5 @@
 {% load static wagtailuserbar %}
+{% load menu_tags %}
 
 <!DOCTYPE html>
 <html class="no-js">
@@ -111,61 +112,41 @@
                         </div>
                     </div>
 
-                    <ul class="menu"><li class="first leaf"><a href="/concerts" title="">Concerts</a></li>
-                        <li class="expanded"><a title="" class="nolink">About</a><ul class="menu"><li class="first last leaf"><a href="/about-us">About Us / History</a></li>
-                            </ul></li>
-                            <li class="leaf"><a href="/blog">Blog</a></li>
-                            <li class="leaf"><a href="/musicians" title="">Musicians</a></li>
-                            <li class="expanded"><a title="" class="nolink">Support</a><ul class="menu"><li class="first last leaf"><a href="/donate">Donate</a></li>
-                                </ul></li>
-                                <li class="last expanded"><a title="" class="nolink">Get Involved</a><ul class="menu"><li class="first leaf"><a href="/play-chelsea-symphony" title="Play With The Chelsea Symphony">Play With The Chelsea Symphony</a></li>
-                                        <li class="last leaf"><a href="/tcs-2018-2019-composition-competition" title="">Composition Competition</a></li>
-                                    </ul></li>
-                    </ul>              
+                    {% main_menu %}
                 </nav><!-- End of nav -->
             </div> <!-- End of .container -->
         </div> <!-- End of .navigation -->
 
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
 
         <footer>
             <div class="container">
-                <!-- Navigation -->
-                <nav role="navigation" class="navbar-collapse collapse">
-
-                    <ul class="menu"><li class="first expanded"><a title="" class="nolink">Learn More</a><ul class="menu"><li class="first leaf"><a href="/concerts" title="">Season Calendar</a></li>
-                                <li class="leaf"><a href="/about-us" title="">Mission &amp; History</a></li>
-                                <li class="leaf"><a href="/musicians" title="">Roster</a></li>
-                                <li class="leaf"><a href="/about-us" title="">About</a></li>
-                                <li class="leaf"><a href="/policies" title="">Policies</a></li>
-                                <li class="last leaf"><a href="/blog" title="">Blog</a></li>
-                            </ul></li>
-                            <li class="expanded"><a title="" class="nolink">Get Involved</a><ul class="menu"><li class="first leaf"><a href="/tcs-2018-2019-composition-competition" title="">Composition Competition</a></li>
-                                    <li class="last leaf"><a href="/play-chelsea-symphony" title="">Play with TCS</a></li>
-                                </ul></li>
-                                <li class="last expanded"><a title="" class="nolink">Support</a><ul class="menu"><li class="first last leaf"><a href="/donate" title="">Donate</a></li>
-                                    </ul></li>
-                    </ul></nav>
-                    <!-- End of nav -->
-
-                    <div class="contact">
-                        <div class="email">
-                            <div class="icon"><i class="fa fa-envelope-o"></i></div>
-                            <a href="#" mailto="#">info@chelseasymphony.org</a>
-                        </div>
-                        <div class="instagram">
-                            <div class="icon"><i class="fa fa-instagram"></i></div>
-                            <a href="#">@chelseasymphony</a>
-                        </div>
-                        <div class="twitter">
-                            <div class="icon"><i class="fa fa-twitter"></i></div>
-                            <a href="#">@chelseasymphony</a>
-                        </div>
-                        <div class="facebook">
-                            <div class="icon"><i class="fa fa-facebook"></i></div>
-                            <a href="#">thechelseasymphony</a>
-                        </div>
+                <div class="learn-more">
+                    {% flat_menu 'learn_more' %}
+                </div>
+                <div class="get-involved">
+                    {% flat_menu 'get_involved' %}
+                    {% flat_menu 'support' %}
+                </div>
+                <div class="contact">
+                    <div class="email">
+                        <div class="icon"><i class="fa fa-envelope-o"></i></div>
+                        <a href="#" mailto="#">info@chelseasymphony.org</a>
                     </div>
+                    <div class="instagram">
+                        <div class="icon"><i class="fa fa-instagram"></i></div>
+                        <a href="#">@chelseasymphony</a>
+                    </div>
+                    <div class="twitter">
+                        <div class="icon"><i class="fa fa-twitter"></i></div>
+                        <a href="#">@chelseasymphony</a>
+                    </div>
+                    <div class="facebook">
+                        <div class="icon"><i class="fa fa-facebook"></i></div>
+                        <a href="#">thechelseasymphony</a>
+                    </div>
+                </div>
             </div>
         </footer>
         {# Global javascript #}

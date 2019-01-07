@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.contrib.routable_page',
+    'wagtail.contrib.modeladmin',
     'wagtail.embeds',
     'wagtail.sites',
     'wagtail.users',
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'modelcluster',
     'taggit',
     'el_pagination',
+    'wagtailmenus',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -84,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request', ## For EL-pagination
+                'wagtailmenus.context_processors.wagtailmenus',
             ],
         },
     },
