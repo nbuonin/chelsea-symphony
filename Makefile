@@ -19,5 +19,8 @@ test:
 scss:
 	npm run watch-scss
 
-docker:
+docker-image:
 	docker build -t nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"` .
+
+docker-test:
+	docker run --rm nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"` pipenv run python manage.py test
