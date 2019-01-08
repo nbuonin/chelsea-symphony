@@ -15,5 +15,9 @@ shell:
 
 test:
 	pipenv run ./manage.py test
+
 scss:
 	npm run watch-scss
+
+docker:
+	docker build -t nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"` .
