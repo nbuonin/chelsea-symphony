@@ -24,3 +24,6 @@ docker-image:
 
 docker-test:
 	docker run --rm nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"` pipenv run python manage.py test
+
+docker-push:
+	docker push nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"`
