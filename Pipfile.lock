@@ -260,11 +260,9 @@
         },
         "wagtail-autocomplete": {
             "hashes": [
-                "sha256:b4ca8b795478806a1e13e83c87d5c2f7d81f4e34d89083c98917a6d0e3723957",
-                "sha256:f0ff17f8897a7c9f10a7985b69ae7df7bb48f1baaf9bfea138fa591b5869df03"
+                "sha256:bb038531de6fb8689a7dd8a56068370248a758ab23da53d054128c4eb2fb4cb1"
             ],
-            "index": "pypi",
-            "version": "==0.1.1"
+            "version": "==0.3.1"
         },
         "wagtail-factories": {
             "hashes": [
