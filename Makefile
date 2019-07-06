@@ -1,13 +1,16 @@
 PY_SENTINAL = .venv/sentinal
 JS_SENTINAL = node_modules/sentinal
+PIPFILE = Pipfile
 
-$(PY_SENTINAL):
+$(PY_SENTINAL): $(PIPFILE)
 	-rm -rf .venv
 	pipenv sync 
+	touch $@
 
 $(JS_SENTINAL):
 	-rm -rf node_modules
 	npm install
+	touch $@
 
 clean:
 	-rm -rf .venv node_modules
@@ -42,4 +45,4 @@ docker-test:
 docker-push:
 	docker push nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"`
 
-.PHONY: $(PY_SENTINAL) clean runserver migrate makemigrations superuser shell test scss docker-image docker-test docker-push
+.PHONY: clean runserver migrate makemigrations superuser shell test scss docker-image docker-test docker-push

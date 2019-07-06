@@ -32,6 +32,11 @@ from wagtailautocomplete.edit_handlers import AutocompletePanel
 
 from modelcluster.models import ClusterableModel
 
+# For PayPal
+from django.urls import reverse
+from django.shortcuts import render
+from paypal.standard.forms import PayPalPaymentsForm
+
 
 class Home(Page):
     banner_image = models.ForeignKey(
@@ -68,7 +73,8 @@ class Home(Page):
         'ConcertIndex',
         'PersonIndex',
         'BlogIndex',
-        'BasicPage'
+        'BasicPage',
+        'Donate'
     ]
 
 
@@ -595,3 +601,71 @@ class ActiveRosterMusician(Person):
     objects = ActiveRosterMusicianManager()
     class Meta:
         proxy = True
+
+
+class Donate(Page):
+    body = StreamField([
+        ('heading', blocks.CharBlock(classname="full title")),
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ])
+
+    content_panels = Page.content_panels + [
+        StreamFieldPanel('body'),
+    ]
+
+    def serve(self, request):
+        single_donation_amounts = [
+            '50.00',
+            '100.00',
+            '250.00',
+            '500.00',
+            '1000.00',
+            '5000.00'
+        ]
+
+        recurring_donation_amounts = [
+            '10.00',
+            '15.00',
+            '25.00',
+            '50.00',
+            '100.00',
+            '125.00'
+        ]
+
+        paypal_dict_single = {
+            "cmd": "_donations",
+            "business": "info@chelseasymphony.org",
+            "amount": "15.00",
+            "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
+            # "return": request.build_absolute_uri(reverse('your-return-view')),
+            # "cancel_return": request.build_absolute_uri(reverse('your-cancel-view')),
+        }
+
+        paypal_dict_recurring = {
+            "cmd": "_xclick-subscriptions",
+            "business": "info@chelseasymphony.org",
+            "src": "1",
+            "srt": "24",
+            "p3": "1",
+            "t3": "M",
+            "amount": "",
+            "no_note": "1",
+            "no_shipping": "2",
+            "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
+            # "return": request.build_absolute_uri(reverse('your-return-view')),
+            # "cancel_return": request.build_absolute_uri(reverse('your-cancel-view')),
+            # "custom": "premium_plan",  # Custom command to correlate to some function later (optional)
+        }
+
+        # Create the forms.
+        form_single = PayPalPaymentsForm(initial=paypal_dict_single, button_type='donate')
+        form_recurring = PayPalPaymentsForm(initial=paypal_dict_recurring, button_type='donate')
+        context = {
+            "page": self,
+            "single": form_single,
+            "recurring": form_recurring,
+            "single_donation_amounts": single_donation_amounts,
+            "recurring_donation_amounts": recurring_donation_amounts,
+        }
+        return render(request, "main/donate.html", context)
