@@ -3,7 +3,7 @@ JS_SENTINAL = node_modules/sentinal
 
 $(PY_SENTINAL):
 	-rm -rf .venv
-	pipenv install
+	pipenv sync 
 
 $(JS_SENTINAL):
 	-rm -rf node_modules
