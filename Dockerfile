@@ -10,7 +10,7 @@ COPY . /app/
 WORKDIR /app/
 
 RUN set -ex && \
-    pipenv install
+    pipenv sync 
 #    useradd wagtail && \
 #    chown -R wagtail /app
 
