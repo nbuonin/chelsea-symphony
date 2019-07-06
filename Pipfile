@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 wagtail = "*"
-"psycopg2" = "*"
 wagtail-autocomplete = "*"
 faker = "*"
 factory-boy = "==2.11.1"
@@ -13,6 +12,7 @@ wagtail-factories = "*"
 gunicorn = "*"
 django-el-pagination = "*"
 wagtailmenus = "*"
+psycopg2-binary = "==2.8.3"
 
 [dev-packages]
 
