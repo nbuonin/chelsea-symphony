@@ -10,7 +10,8 @@ from wagtail.core.models import Page, Site
 from chelseasymphony.main.models import (
     Home, BasicPage, ConcertDate, ConcertIndex, Concert,
     Performance, Performer, Composition, Person, PersonIndex,
-    InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician
+    InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician,
+    Donate
 )
 from chelseasymphony.main.tests.factories import (
     PersonFactory, ConcertFactory, BlogPostFactory
@@ -128,7 +129,7 @@ class HomeTest(WagtailPageTests):
     def test_subpage_types(self):
         self.assertAllowedSubpageTypes(
             Home,
-            {ConcertIndex, PersonIndex, BlogIndex, BasicPage}
+            {ConcertIndex, PersonIndex, BlogIndex, BasicPage, Donate}
         )
 
     def test_only_one_instance(self):
