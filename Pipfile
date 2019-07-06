@@ -4,14 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-wagtail = "*"
-wagtail-autocomplete = "*"
-faker = "*"
+wagtail = "==2.5.1"
+wagtail-autocomplete = "==0.3.1"
+faker = "==1.0.7"
 factory-boy = "==2.11.1"
-wagtail-factories = "*"
-gunicorn = "*"
-django-el-pagination = "*"
-wagtailmenus = "*"
+wagtail-factories = "==1.1.0"
+gunicorn = "==19.9.0"
+django-el-pagination = "==3.2.4"
+wagtailmenus = "==2.13.1"
 psycopg2-binary = "==2.8.3"
 
 [dev-packages]
