@@ -200,6 +200,11 @@ class Concert(Page):
         null=True,
         blank=True
     )
+    legacy_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True
+    )
 
     # TODO: needs tests
     @staticmethod
@@ -475,9 +480,14 @@ class PersonAdminForm(WagtailAdminPageForm):
 
 class Person(Page):
     base_form_class = PersonAdminForm
-    first_name = models.CharField(max_length=255)
+    first_name = models.CharField(
+        blank=True,
+        max_length=255
+    )
     last_name = models.CharField(max_length=255)
-    biography = RichTextField()
+    biography = RichTextField(
+        blank=True,
+    )
     active_roster= models.BooleanField()
     headshot = models.ForeignKey(
         'wagtailimages.Image',
@@ -488,7 +498,12 @@ class Person(Page):
     )
     instrument = ParentalManyToManyField(
         'InstrumentModel',
-        related_name='person_instrument'
+        related_name='person_instrument',
+    )
+    legacy_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True
     )
 
     def __str__(self):
@@ -560,6 +575,11 @@ class BlogPost(Page):
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
     ])
+    legacy_id = models.IntegerField(
+        null=True,
+        blank=True,
+        unique=True
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('author'),
