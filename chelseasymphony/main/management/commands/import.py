@@ -57,6 +57,12 @@ class Command(BaseCommand):
         cphts = requests(IMPORT_BASE_URL + '/api/concerts/images').json['nodes']
         self.concert_photos = [p['node'] for p in cphts]
 
+        users = requests(IMPORT_BASE_URL + '/api/users').json['nodes']
+        self.people = [p['node'] for p in users]
+
+        hdshts = requests(IMPORT_BASE_URL + '/api/users/headshot').json['nodes']
+        self.headshots = [p['node'] for p in hdshts]
+
     def get_concert_dates(self, id);
         """Gets concert dates by concert ID"""
         return [d for d in self.concert_dates if d['nid'] == id]
@@ -70,14 +76,19 @@ class Command(BaseCommand):
         """Gets soloists by performance ID"""
         return [s for s in self.concert_soloists if s['performance_id'] == id]
 
-    def get_concert_photo_by_id(self, id):
+    def get_concert_photo_by_id(self, nid):
         """
-        Gets concert images by id
+        Gets concert images by node id
         Note: this uses the tightest crop to set the focal point for the image
         """
         return [p for p in self.concert_photos
-                if (p['nid'] == id and
+                if (p['nid'] == nid and
                     p['crop_style_name'] == 'tcs2r_concert_image_0_79')][0]
+
+    def get_headshot_by_uid(self, uid):
+        return [p for p in self.headshots
+                if (p['uid'] == uid and
+                    p['crop_style_name'] == 'tcs2r_musician_headshot_1_5')][0]
 
     def get_wagtail_image(self, url):
         """
@@ -284,14 +295,58 @@ class Command(BaseCommand):
     # https://github.com/wagtail/wagtail/blob/8fd54fd71c0cdc724c4c1772bc9c544adf1ac4a5/wagtail/contrib/redirects/tests.py#L143
 
     def create_people(self, person_idx);
-        # get the JSON, iterate over each entry, and add as a child to the
-        # index page
+        """
+        "node" : {
+            "name" : "Aaron Dai",
+            "uid" : "241",
+            "first_name" : "Aaron",
+            "last_name" : "Dai",
+            "instrument" : "Piano",
+            "biography" : "",
+            "active" : "Yes",
+            "active_roster" : "Yes"
+        }
+        """
+        if not self.people:
+            self.fetch_data()
+
+        for p in self.people:
+            active_roster = True if p['active_roster'] == "Yes" else False
+            headshot = self.
+            person = Person(
+                first_name=p['first_name'],
+                last_name=p['last_name'],
+                biography=p['biography'],
+                active_roster=active_roster,
+            )
+
+            self.person_idx.add_child(instance=Person)
+            person.save_revision().publish()
+
+            try:
+                instrument = InstrumentModel.objects.\
+                    get(instrument=p['instrument'])
+                person.instrument.add()
+            except DoesNotExist:
+                pass
+
+            h_img = self.get_headshot_by_uid(p['uid'])
+            if h_img:
+                headshot = self.get_wagtail_image(headshot['head_shot']['src'])
+                headshot.focal_point_x = h_img['crop_area_X_offset']
+                headshot.focal_point_y = h_img['crop_area_Y_offset']
+                headshot.focal_point_width = h_img['crop_area_width']
+                headshot.focal_point_height = h_img['crop_area_height']
+                person.headshot.add(headshot)
+
 
     def create_blogposts(self, blog_idx);
         # get the JSON, iterate over each entry, and add as a child to the
         # index page
 
     def handle(self, *args, **kwargs):
+        self.fetch_data()
+
         # Create people first, so that Concerts and Blogs can reference them
         self.create_people()
 
