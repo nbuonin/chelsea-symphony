@@ -1,18 +1,302 @@
+from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet, Site
+ContentType = apps.get_model('contenttypes.ContentType')
 from django.core.management.base import BaseCommand
-from dateutil.parser import isoparse
-from pytz import timezone
-import pytz
+from django.utils.datetime import parse_datetime
+from django.utils.timezone import make_aware
+from chelseasymphony.main.models import (
+    Home, BasicPage, ConcertDate, ConcertIndex, Concert,
+    Performance, Performer, Composition, Person, PersonIndex,
+    InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician,
+    Donate
+)
+from wagtail.images import get_image_model
+WagtailImage = get_image_model()
+from PIL import Image
+import re
+
+
+import requests
+
+IMPORT_BASE_URL = 'http://localhost:8080'
 
 class Command(BaseCommand):
     help = 'Demo the command'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            self.concert_idx = ConcertIndex.objects()[0]
+        except IndexError:
+            print("The concert index does not exist")
+            raise
+        try:
+            self.person_idx = PersonIndex.objects()[0]
+        except IndexError:
+            print("The person index does not exist")
+            raise
+        try:
+            self.blog_idx = BlogIndex.objects()[0]
+        except IndexError:
+            print("The blog index does not exist")
+            raise
+
+    def fetch_data(self):
+        # For concerts
+        cns = requests(IMPORT_BASE_URL + '/api/concerts').json()['nodes']
+        self.concerts = [c['node'] for c in cns]
+
+        cdts = requests(IMPORT_BASE_URL + '/api/concert-date').json()['nodes']
+        self.concert_dates = [d['node'] for d in cdts]
+
+        cprf = requests(IMPORT_BASE_URL + '/api/performances').json()['nodes']
+        self.concert_performances = [p['node'] for p in cprf]
+
+        csls = requests(IMPORT_BASE_URL + '/api/soloists').json()['nodes']
+        self.concert_soloists = [c['node'] for c in csls]
+
+        cphts = requests(IMPORT_BASE_URL + '/api/concerts/images').json['nodes']
+        self.concert_photos = [p['node'] for p in cphts]
+
+    def get_concert_dates(self, id);
+        """Gets concert dates by concert ID"""
+        return [d for d in self.concert_dates if d['nid'] == id]
+
+    def get_concert_performances(self, id):
+        """Gets concert performances by concert ID"""
+        performances = [p for p in self.concert_performances if p['nid'] == id]
+        return sorted(performances, key=lambda p: p['program_order'])
+
+    def get_soloists_by_performance_id(self, id):
+        """Gets soloists by performance ID"""
+        return [s for s in self.concert_soloists if s['performance_id'] == id]
+
+    def get_concert_photo_by_id(self, id):
+        """
+        Gets concert images by id
+        Note: this uses the tightest crop to set the focal point for the image
+        """
+        return [p for p in self.concert_photos
+                if (p['nid'] == id and
+                    p['crop_style_name'] == 'tcs2r_concert_image_0_79')][0]
+
+    def get_wagtail_image(self, url):
+        """
+        Looks for an existing image with the same name, otherwise downloads
+        and saves the image.
+        From: https://github.com/kevinhowbrook/wagtail-migration/blob/debdead7d5e9b3f00439e803642a3ef45ad2bb19/importers/base.py#L127
+        """
+        filename = self._filename_from_url(url)
+
+        # see if an image with
+        # the same name exists
+        try:
+            return WagtailImage.objects.get(title=filename)
+        except WagtailImage.DoesNotExist:
+            pass
+
+        # otherwise download
+        print(f"Downloading {url}")
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            print(f"Error {response.status_code} downloading: {url}")
+            return None
+
+        # check its a valid image
+        pil_image = Image.open(BytesIO(response.content))
+        pil_image.verify()
+
+        # save and return
+        return WagtailImage.objects.create(
+            title=filename,
+            file=SimpleUploadedFile(filename, response.content)
+        )
+
+    def _filename_from_url(self, url):
+        url_parsed = parse.urlparse(url)
+        return os.path.split(url_parsed.path)[1]
+
+    def get_or_create_person(self, name):
+        # You need to trim the string
+        # You need to handle only one name present
+        names = re.split(r'\s+', name.strip(), 1)
+        try:
+            first, last = names
+            p = Person.objects.filter(first_name=first, last_name=last)
+        except ValueError:
+            p = Person.objects.filter(last_name=names[0])
+
+        if not p:
+            person = Person.objects.create(
+                first_name=first,
+                last_name=last
+            )
+
+            self.person_idx.add_child(instance=person)
+            person.save_revision.publish()
+            return person
+        else:
+            return p
+
+    def get_or_create_composition(self, composition, composer):
+        comp = Composition.objects.filter(title=composition)
+        if not comp:
+           cmpsr = self.get_or_create_person(composer)
+           compstn = Composition.objects.create(
+               title=composition,
+               composer=cmpsr
+           )
+        else:
+            return comp
+
+    def create_performances(self, concert):
+        """
+        Get performances for a particular concert:
+        "node" : {
+            "title" : "RAGE + REMEMBRANCE",
+            "nid" : "108",
+            "composer" : "Aaron Israel Levin",
+            "composition" : "In Between",
+            "conductor" : "Matthew Aubin",
+            "conductor_uid" : "12",
+            "performance_id" : "363",
+            "performance_date" : "2019-06-29, 2019-06-30",
+            "program_order" : "0"
+        }
+        "node" : {
+            "nid" : "108",
+            "soloist" : "E.J. Lee",
+            "uid" : "36",
+            "instrument" : "Violin",
+            "performance_id" : "366"
+        }
+        """
+        for perf in this.get_concert_performances(concert.legacy_id):
+            conductor = Person.objects.get(legacy_id=perf['conductor_uid'])
+            composition = self.get_or_create_composition(
+                perf['composition'], perf['compose'])
+            performance = Performance.objects.create(
+                conductor=conductor,
+                composition=composition
+            )
+            concert.add_child(instance=performance)
+            performance.save_revision().publish()
+
+            for perf_date in re.split(r', ', perf['performance_date']):
+                date = parse_date(perf_date)
+                concert_date = concert.concert_date.filter(date__date=date)
+                performance.performance_date.add(concert_date)
+
+            for performer in self.\
+                    get_soloists_by_performance_id(perf['performance_id']):
+                soloist = Person.objects.filter(legacy_id=performer['uid'])
+                instrument = InstrumentModel.objects.filter(
+                    instrument=performer['instrument]'])
+                Performer.objects.create(
+                    performance=performance,
+                    person=soloist,
+                    instrument=instrument
+                )
+
+
+    def create_concert_dates(self, concert):
+        """
+        "node" : {
+            "title" : "RAGE + REMEMBRANCE",
+            "concert_date" : "2019-06-29T20:00, 2019-06-30T14:00",
+            "nid" : "108"
+        }
+        """
+        dates = self.get_concert_dates(concert.legacy_id)
+        date_strings = [d.strip() for d in dates['concert_date'].split(',')]
+        for d in date_strings:
+            nieve_date = parse_datetime(d)
+            aware_date = make_aware(nieve_date)
+            ConcertDate.objects.create(
+                concert=concert,
+                date=aware_date
+            )
+
+    def create_concert(self, c):
+        """
+        "node" : {
+            "title" : "RAGE + REMEMBRANCE",
+            "body" : "The Chelsea Symphony presents the season finale of RESOLUTION with a concert featuring John Corigliano's Symphony No. 1. Written in the late 1980s, the AIDS pandemic was claiming the lives of many. As the first of his large format works, the symphonic form here is used to commemorate, as the composer noted, \"my friends – those I had lost and the one I was losing.\" Partly inspired by the NAMES Project AIDS Memorial Quilt, the first movement is subtitled \"Apologue: Of Rage and Remembrance,\" and is dedicated to a pianist. The next two movements commemorate a music executive and a cellist. In the finale, a tarantella melody played by piano in a featured role and the cello line from the previous movements are juxtaposed against “a repeated pattern consisting of waves of brass chords ... [to convey] an image of timelessness.\"\n\nAlso on this finale series, TCS welcomes back two soloists to the stage for two solos for the violin: Adam von Housen performs the Mendelssohn's Violin Concerto in D minor on Saturday's concert, written by the prodigious composer when he was just 13 years old and forgotten until after his death. Sunday's matinee performance brings EJ Lee to the stage to close out our soloist season with the Beethoven Violin Concerto.\n\nBoth concerts open with In Between by Aaron Israel Levin, the winning composition from the 2018-19 TCS Composition Competition, now in its fifth year.\n\nTickets for reserved unassigned seating in a premium area are on sale at Eventbrite!\nTickets also available at the door for a suggested donation of $20. ",
+            "Concert Image" : {
+                "src" : "http://localhost:8080/sites/default/files/RageRemembranceBackground2.jpg",
+                "alt" : "",
+                "title" : ""
+            },
+            "concert_location" : "The DiMenna Center for Classical Music, 450 West 37th Street",
+            "concert_season" : "2018-2019",
+            "concert_tag" : "June 29-30",
+            "nid" : "108",
+            "path" : "/concert/rage-remembrance"
+            }
+        }
+        """
+        # Create the Concert Page
+        title = c['title']
+        # TODO: Promo Copy
+        promo_copy = null
+        description = c['body']
+        venue = c['concert_location']
+        legacy_id = c['nid']
+        redirect_path = c['path']
+
+        c_img = self.get_concert_photo_by_id(c['nid'])
+        concert_image = self.get_wagtail_image(
+            c_img['concert_img']['src'])
+
+        concert_image.focal_point_x = c_img['crop_area_X_offset']
+        concert_image.focal_point_y = c_img['crop_area_Y_offset']
+        concert_image.focal_point_width = c_img['crop_area_width']
+        concert_image.focal_point_height = c_img['crop_area_height']
+
+        concert = Concert(
+            title=title,
+            slug=null
+            promo_copy=promo_copy,
+            description=description,
+            concert_image=concert_image,
+            venue=venue,
+            legacy_id=legacy_id
+        )
+
+        self.concert_idx.add_child(instance=concert)
+        concert.save_revision().publish()
+        return concert
+
+    def create_concerts(self);
+        if not self.concerts:
+            self.fetch_data()
+
+        for c in self.concerts:
+            if not Concert.objects.filter(legacy_id=c['nid']):
+                # Create the concert
+                concert = self.create_concert(c)
+                # Create dates for the concert
+                self.create_concert_dates(concert)
+                # Create performances
+                self.create_performances(concert)
+
+    # TODO: look here for how to redirect manually:
+    # https://github.com/wagtail/wagtail/blob/8fd54fd71c0cdc724c4c1772bc9c544adf1ac4a5/wagtail/contrib/redirects/tests.py#L143
+
+    def create_people(self, person_idx);
+        # get the JSON, iterate over each entry, and add as a child to the
+        # index page
+
+    def create_blogposts(self, blog_idx);
+        # get the JSON, iterate over each entry, and add as a child to the
+        # index page
+
     def handle(self, *args, **kwargs):
-        self.stdout.write('Yo Nick, it works')
+        # Create people first, so that Concerts and Blogs can reference them
+        self.create_people()
 
-        # example:
-        # first parse the ISO to a datetime object, then localize it
-        eastern = timezone('US/Eastern')
+        # Then create concerts
+        self.create_concerts()
 
-        d = isoparse('2019-06-29T20:00')
-        new_date = eastern.localize(d)
-        self.stdout.write(new_date.ctime())
+        # Then create blog posts
+
