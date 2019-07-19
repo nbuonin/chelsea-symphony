@@ -1,8 +1,8 @@
 from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet, Site
+from django.apps import apps
 ContentType = apps.get_model('contenttypes.ContentType')
 from django.core.management.base import BaseCommand
-from django.utils.datetime import parse_datetime
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.timezone import make_aware
 from chelseasymphony.main.models import (
     Home, BasicPage, ConcertDate, ConcertIndex, Concert,
@@ -27,51 +27,51 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         try:
-            self.concert_idx = ConcertIndex.objects()[0]
+            self.concert_idx = ConcertIndex.objects.first()
         except IndexError:
             print("The concert index does not exist")
             raise
         try:
-            self.person_idx = PersonIndex.objects()[0]
+            self.person_idx = PersonIndex.objects.first()
         except IndexError:
             print("The person index does not exist")
             raise
         try:
-            self.blog_idx = BlogIndex.objects()[0]
+            self.blog_idx = BlogIndex.objects.first()
         except IndexError:
             print("The blog index does not exist")
             raise
 
     def fetch_data(self):
         # For concerts
-        cns = requests(IMPORT_BASE_URL + '/api/concerts').json()['nodes']
+        cns = requests.get(IMPORT_BASE_URL + '/api/concerts').json()['nodes']
         self.concerts = [c['node'] for c in cns]
 
-        cdts = requests(IMPORT_BASE_URL + '/api/concert-date').json()['nodes']
+        cdts = requests.get(IMPORT_BASE_URL + '/api/concert-date').json()['nodes']
         self.concert_dates = [d['node'] for d in cdts]
 
-        cprf = requests(IMPORT_BASE_URL + '/api/performances').json()['nodes']
+        cprf = requests.get(IMPORT_BASE_URL + '/api/performances').json()['nodes']
         self.concert_performances = [p['node'] for p in cprf]
 
-        csls = requests(IMPORT_BASE_URL + '/api/soloists').json()['nodes']
+        csls = requests.get(IMPORT_BASE_URL + '/api/soloists').json()['nodes']
         self.concert_soloists = [c['node'] for c in csls]
 
-        cphts = requests(IMPORT_BASE_URL + '/api/concerts/images').json['nodes']
+        cphts = requests.get(IMPORT_BASE_URL + '/api/concerts/images').json()['nodes']
         self.concert_photos = [p['node'] for p in cphts]
 
-        users = requests(IMPORT_BASE_URL + '/api/users').json['nodes']
+        users = requests.get(IMPORT_BASE_URL + '/api/users').json()['nodes']
         self.people = [p['node'] for p in users]
 
-        hdshts = requests(IMPORT_BASE_URL + '/api/users/headshot').json['nodes']
+        hdshts = requests.get(IMPORT_BASE_URL + '/api/users/headshot').json()['nodes']
         self.headshots = [p['node'] for p in hdshts]
 
-        bp = requests(IMPORT_BASE_URL + '/api/blogpost').json['nodes']
+        bp = requests.get(IMPORT_BASE_URL + '/api/blogpost').json()['nodes']
         self.blog_posts = [b['node'] for b in bp]
 
-        bp_img = requests(IMPORT_BASE_URL + '/api/blogpost-image').json['nodes']
+        bp_img = requests.get(IMPORT_BASE_URL + '/api/blogpost-image').json()['nodes']
         self.blog_posts_images = [b['node'] for b in bp]
 
-    def get_concert_dates(self, id);
+    def get_concert_dates(self, id):
         """Gets concert dates by concert ID"""
         return [d for d in self.concert_dates if d['nid'] == id]
 
@@ -276,9 +276,10 @@ class Command(BaseCommand):
         concert_image.focal_point_width = c_img['crop_area_width']
         concert_image.focal_point_height = c_img['crop_area_height']
 
+        # TODO: set the slug
         concert = Concert(
             title=title,
-            slug=null
+            slug=null,
             promo_copy=promo_copy,
             description=description,
             concert_image=concert_image,
@@ -290,7 +291,7 @@ class Command(BaseCommand):
         concert.save_revision().publish()
         return concert
 
-    def create_concerts(self);
+    def create_concerts(self):
         if not self.concerts:
             self.fetch_data()
 
@@ -306,7 +307,7 @@ class Command(BaseCommand):
     # TODO: look here for how to redirect manually:
     # https://github.com/wagtail/wagtail/blob/8fd54fd71c0cdc724c4c1772bc9c544adf1ac4a5/wagtail/contrib/redirects/tests.py#L143
 
-    def create_people(self);
+    def create_people(self):
         """
         "node" : {
             "name" : "Aaron Dai",
@@ -324,7 +325,6 @@ class Command(BaseCommand):
 
         for p in self.people:
             active_roster = True if p['active_roster'] == "Yes" else False
-            headshot = self.
             person = Person(
                 first_name=p['first_name'],
                 last_name=p['last_name'],
@@ -352,7 +352,7 @@ class Command(BaseCommand):
                 person.headshot.add(headshot)
 
 
-    def create_blogposts(self);
+    def create_blogposts(self):
         if not self.blog_posts:
             self.fetch_data()
 
