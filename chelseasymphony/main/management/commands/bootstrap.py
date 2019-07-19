@@ -29,6 +29,7 @@ class Command(BaseCommand):
                 'Trombone',
                 'Tuba',
                 'Percussion',
+                'Vibraphone',
                 'Timpani',
                 'Piano',
                 'Harpsichord'

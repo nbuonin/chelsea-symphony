@@ -33,6 +33,7 @@ INSTRUMENT_NAMES = [
     'Trombone',
     'Tuba',
     'Percussion',
+    'Vibraphone',
     'Timpani',
     'Piano',
     'Harpsichord'
