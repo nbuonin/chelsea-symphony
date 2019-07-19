@@ -59,7 +59,7 @@ def create_base_site():
 
     p_idx = PersonIndex(
         title="Person Index",
-        slug="people"
+        slug="musicians"
     )
     homepage.add_child(instance=p_idx)
     p_idx.save_revision().publish()
