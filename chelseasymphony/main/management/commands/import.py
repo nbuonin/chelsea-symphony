@@ -11,8 +11,10 @@ from chelseasymphony.main.models import (
     Donate
 )
 from wagtail.core.rich_text import RichText
+from wagtail.contrib.redirects.models import Redirect
 from wagtail.images import get_image_model
 WagtailImage = get_image_model()
+
 from PIL import Image
 import re
 
@@ -111,8 +113,7 @@ class Command(BaseCommand):
         """
         filename = self._filename_from_url(url)
 
-        # see if an image with
-        # the same name exists
+        # see if an image with the same name exists
         try:
             return WagtailImage.objects.get(title=filename)
         except WagtailImage.DoesNotExist:
@@ -141,37 +142,34 @@ class Command(BaseCommand):
         return os.path.split(url_parsed.path)[1]
 
     def get_or_create_person(self, name):
-        # You need to trim the string
-        # You need to handle only one name present
-        names = re.split(r'\s+', name.strip(), 1)
+        name = name.strip()
+        first = last = ''
         try:
-            first, last = names
-            p = Person.objects.filter(first_name=first, last_name=last)
+            first, last = re.split(r'\s+', name, 1)
         except ValueError:
-            p = Person.objects.filter(last_name=names[0])
+            last = name
 
-        if not p:
-            person = Person.objects.create(
+        try:
+            return Person.objects.get(first_name=first, last_name=last)
+        except Person.DoesNotExist:
+            person = Person(
                 first_name=first,
                 last_name=last
             )
-
+            person.full_clean()
             self.person_idx.add_child(instance=person)
             person.save_revision.publish()
             return person
-        else:
-            return p
 
     def get_or_create_composition(self, composition, composer):
-        comp = Composition.objects.filter(title=composition)
-        if not comp:
-           cmpsr = self.get_or_create_person(composer)
-           compstn = Composition.objects.create(
+        try:
+            return Composition.objects.get(title=composition)
+        except Composition.DoesNotExist:
+           cmpsr = self.get_or_create_person(composer) if composer else None
+           return Composition.objects.create(
                title=composition,
                composer=cmpsr
            )
-        else:
-            return comp
 
     def create_performances(self, concert):
         """
@@ -196,6 +194,9 @@ class Command(BaseCommand):
         }
         """
         for perf in this.get_concert_performances(concert.legacy_id):
+            print('Creating performance for concert ' + concert.title +
+                  ': ' + perf['composition'])
+            # This assumes that all Person objects are created first
             conductor = Person.objects.get(legacy_id=perf['conductor_uid'])
             composition = self.get_or_create_composition(
                 perf['composition'], perf['compose'])
@@ -203,18 +204,20 @@ class Command(BaseCommand):
                 conductor=conductor,
                 composition=composition
             )
+            performance.full_clean()
             concert.add_child(instance=performance)
             performance.save_revision().publish()
 
             for perf_date in re.split(r', ', perf['performance_date']):
                 date = parse_date(perf_date)
-                concert_date = concert.concert_date.filter(date__date=date)
+                concert_date = concert.concert_date.get(date__date=date)
                 performance.performance_date.add(concert_date)
 
             for performer in self.\
                     get_soloists_by_performance_id(perf['performance_id']):
-                soloist = Person.objects.filter(legacy_id=performer['uid'])
-                instrument = InstrumentModel.objects.filter(
+                print('Adding performer: ' + performer['soloist'])
+                soloist = Person.objects.get(legacy_id=performer['uid'])
+                instrument = InstrumentModel.objects.get_or_create(
                     instrument=performer['instrument]'])
                 Performer.objects.create(
                     performance=performance,
@@ -260,11 +263,8 @@ class Command(BaseCommand):
         }
         """
         # Create the Concert Page
-        title = c['title']
-        promo_copy = c['promo_copy']
-        description = c['body']
-        venue = c['concert_location']
-        legacy_id = c['nid']
+        venue = c['concert_location'] if c['concert_location'] \
+            else "St. Paul's Church"
         redirect_path = c['path']
 
         c_img = self.get_concert_photo_by_id(c['nid'])
@@ -276,36 +276,36 @@ class Command(BaseCommand):
         concert_image.focal_point_width = c_img['crop_area_width']
         concert_image.focal_point_height = c_img['crop_area_height']
 
-        # TODO: set the slug
         concert = Concert(
-            title=title,
-            slug=null,
-            promo_copy=promo_copy,
-            description=description,
+            title=c['title'],
+            promo_copy=c['promo_copy'],
+            description=c['body'],
             concert_image=concert_image,
             venue=venue,
-            legacy_id=legacy_id
+            legacy_id=c['nid']
         )
-
+        concert.full_clean()
         self.concert_idx.add_child(instance=concert)
         concert.save_revision().publish()
+
+        # Create a redirect
+        Redirect.objects.create(old_path=c['path'], redirect_page=concert)
         return concert
 
     def create_concerts(self):
         if not self.concerts:
             self.fetch_data()
 
-        for c in self.concerts:
-            if not Concert.objects.filter(legacy_id=c['nid']):
-                # Create the concert
-                concert = self.create_concert(c)
-                # Create dates for the concert
-                self.create_concert_dates(concert)
-                # Create performances
-                self.create_performances(concert)
-
-    # TODO: look here for how to redirect manually:
-    # https://github.com/wagtail/wagtail/blob/8fd54fd71c0cdc724c4c1772bc9c544adf1ac4a5/wagtail/contrib/redirects/tests.py#L143
+        concerts = (c for c in self.concerts
+                    if not Concert.objects.exists(legacy_id=c['nid']))
+        for c in concerts:
+            print('Creating concert: ' + c['title'])
+            # Create the concert
+            concert = self.create_concert(c)
+            # Create dates for the concert
+            self.create_concert_dates(concert)
+            # Create performances
+            self.create_performances(concert)
 
     def create_people(self):
         """
@@ -323,24 +323,26 @@ class Command(BaseCommand):
         if not self.people:
             self.fetch_data()
 
-        for p in self.people:
+        persons = (p for p in self.people
+                  if not Person.objects.exists(legacy_id=p['uid']))
+        for p in persons:
+            print('Now creating: ' + p['name'])
             active_roster = True if p['active_roster'] == "Yes" else False
             person = Person(
+                title=p['name'],
                 first_name=p['first_name'],
                 last_name=p['last_name'],
                 biography=p['biography'],
                 active_roster=active_roster,
+                legacy_id=p['uid']
             )
-
-            self.person_idx.add_child(instance=Person)
+            person.full_clean()
+            self.person_idx.add_child(instance=person)
             person.save_revision().publish()
 
-            try:
-                instrument = InstrumentModel.objects.\
-                    get(instrument=p['instrument'])
-                person.instrument.add()
-            except DoesNotExist:
-                pass
+            instrument = InstrumentModel.objects.\
+                get_or_create(instrument=p['instrument'])
+            person.instrument.add(instrument)
 
             h_img = self.get_headshot_by_uid(p['uid'])
             if h_img:
@@ -356,8 +358,12 @@ class Command(BaseCommand):
         if not self.blog_posts:
             self.fetch_data()
 
-        for post in self.blog_posts:
-            author = self.get_or_create_person(post['author_uid'])
+        posts = (p for p in self.blog_posts
+                 if not BlogPost.objects.exists(legacy_id=p['nid']))
+        for post in posts:
+            print('Creating blog post: ' + post['title'])
+            # This assumes that all Persons will be created first
+            author = Person.objects.get(legacy_id=post['author_uid'])
             blog_post = BlogPost(
                 title=post['title'],
                 legacy_id=post['nid'],
@@ -366,9 +372,14 @@ class Command(BaseCommand):
                 author=author,
                 date=parse_date(post['post_date'])
             )
-
+            blog_post.full_clean()
             self.blog_idx.add_child(instance=blog_post)
             blog_post.save_revision().publish()
+
+            # Create a redirect
+            Redirect.objects.create(
+                old_path=post['path'],
+                redirect_page=blog_post)
 
             blog_img = self.get_blog_img_from_id(post['nid'])
             if blog_img:
