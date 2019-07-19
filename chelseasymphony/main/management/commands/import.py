@@ -2,6 +2,7 @@ from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet, Site
 ContentType = apps.get_model('contenttypes.ContentType')
 from django.core.management.base import BaseCommand
 from django.utils.datetime import parse_datetime
+from django.utils.dateparse import parse_date
 from django.utils.timezone import make_aware
 from chelseasymphony.main.models import (
     Home, BasicPage, ConcertDate, ConcertIndex, Concert,
@@ -9,6 +10,7 @@ from chelseasymphony.main.models import (
     InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician,
     Donate
 )
+from wagtail.core.rich_text import RichText
 from wagtail.images import get_image_model
 WagtailImage = get_image_model()
 from PIL import Image
@@ -63,6 +65,12 @@ class Command(BaseCommand):
         hdshts = requests(IMPORT_BASE_URL + '/api/users/headshot').json['nodes']
         self.headshots = [p['node'] for p in hdshts]
 
+        bp = requests(IMPORT_BASE_URL + '/api/blogpost').json['nodes']
+        self.blog_posts = [b['node'] for b in bp]
+
+        bp_img = requests(IMPORT_BASE_URL + '/api/blogpost-image').json['nodes']
+        self.blog_posts_images = [b['node'] for b in bp]
+
     def get_concert_dates(self, id);
         """Gets concert dates by concert ID"""
         return [d for d in self.concert_dates if d['nid'] == id]
@@ -89,6 +97,11 @@ class Command(BaseCommand):
         return [p for p in self.headshots
                 if (p['uid'] == uid and
                     p['crop_style_name'] == 'tcs2r_musician_headshot_1_5')][0]
+
+    def get_blog_img_from_id(self, nid):
+        return [p for p in self.blog_posts_images
+                if (p['nid'] == nid and
+                    p['crop_style_name'] == 'tsc2r_blog_list___homepage_desktop')]
 
     def get_wagtail_image(self, url):
         """
@@ -248,8 +261,7 @@ class Command(BaseCommand):
         """
         # Create the Concert Page
         title = c['title']
-        # TODO: Promo Copy
-        promo_copy = null
+        promo_copy = c['promo_copy']
         description = c['body']
         venue = c['concert_location']
         legacy_id = c['nid']
@@ -294,7 +306,7 @@ class Command(BaseCommand):
     # TODO: look here for how to redirect manually:
     # https://github.com/wagtail/wagtail/blob/8fd54fd71c0cdc724c4c1772bc9c544adf1ac4a5/wagtail/contrib/redirects/tests.py#L143
 
-    def create_people(self, person_idx);
+    def create_people(self);
         """
         "node" : {
             "name" : "Aaron Dai",
@@ -340,9 +352,32 @@ class Command(BaseCommand):
                 person.headshot.add(headshot)
 
 
-    def create_blogposts(self, blog_idx);
-        # get the JSON, iterate over each entry, and add as a child to the
-        # index page
+    def create_blogposts(self);
+        if not self.blog_posts:
+            self.fetch_data()
+
+        for post in self.blog_posts:
+            author = self.get_or_create_person(post['author_uid'])
+            blog_post = BlogPost(
+                title=post['title'],
+                legacy_id=post['nid'],
+                promo_copy=post['promo_copy'],
+                body=[('rich_text', RichText(post['body']))],
+                author=author,
+                date=parse_date(post['post_date'])
+            )
+
+            self.blog_idx.add_child(instance=blog_post)
+            blog_post.save_revision().publish()
+
+            blog_img = self.get_blog_img_from_id(post['nid'])
+            if blog_img:
+                blog_image = self.get_wagtail_image(blog_img['blog_image']['src'])
+                blog_image.focal_point_x = post['crop_area_X_offset']
+                blog_image.focal_point_y = post['crop_area_Y_offset']
+                blog_image.focal_point_width = post['crop_area_width']
+                blog_image.focal_point_height = post['crop_area_height']
+                blog_post.blog_image.add(blog_image)
 
     def handle(self, *args, **kwargs):
         self.fetch_data()
@@ -354,4 +389,5 @@ class Command(BaseCommand):
         self.create_concerts()
 
         # Then create blog posts
+        self.create_blogposts()
 
