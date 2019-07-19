@@ -12,6 +12,7 @@ from django.utils.html import strip_tags, escape
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 from django.utils.timezone import make_aware
+from django.shortcuts import get_object_or_404
 
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
 from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet
@@ -151,6 +152,15 @@ class ConcertIndex(RoutablePageMixin, Page):
             context
         )
 
+    @route(r'(?P<season>\d{4}-\d{4})/(?P<slug>[\w-]+)/?$')
+    def get_concert(self, request, season, slug):
+        concert_page = get_object_or_404(
+            Concert,
+            season=season,
+            slug=slug
+        )
+        return concert_page.serve(request)
+
     parent_page_types = ['Home']
     subpage_types = ['Concert']
 
@@ -180,7 +190,6 @@ class ConcertQuerySet(PageQuerySet):
 ConcertManager = PageManager.from_queryset(ConcertQuerySet)
 
 class Concert(Page):
-    # TODO: Concerts should require a concert date
     promo_copy = RichTextField()
     description = RichTextField()
     venue = RichTextField()
@@ -206,7 +215,6 @@ class Concert(Page):
         unique=True
     )
 
-    # TODO: needs tests
     @staticmethod
     def calculate_season(date):
         # The first day of the concert season is Aug 1
@@ -327,12 +335,19 @@ class Concert(Page):
             first_concert_date = self.concert_date.first().date
             self.season = self.calculate_season(first_concert_date)
 
+    def set_url_path(self, parent):
+        super().set_url_path(parent=parent)
+        self.url_path = self.url_path.replace(
+            self.slug,
+            self.season + '/' + self.slug
+        )
+
     content_panels = Page.content_panels + [
         FieldPanel('promo_copy'),
         FieldPanel('description'),
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
-        InlinePanel('concert_date', label="Concert Dates"),
+        InlinePanel('concert_date', label="Concert Dates", min_num=1),
         FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
 
@@ -465,17 +480,6 @@ class PersonAdminForm(WagtailAdminPageForm):
         instance = kwargs.get('instance')
         if not instance.id:
             self.initial['slug'] = 'default-slug'
-
-    # def save(self, commit=True):
-        # page = super().save(commit=False)
-        # page.title = "{} {}".format(
-            # page.first_name,
-            # page.last_name
-        # )
-        # page.slug = slugify(page.title)
-        # if commit:
-            # page.save()
-        # return page
 
 
 class Person(Page):
