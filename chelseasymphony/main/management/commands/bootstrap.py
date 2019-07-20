@@ -15,26 +15,29 @@ class Command(BaseCommand):
             create_base_site()
 
             instrument_names = [
-                'Violin',
-                'Viola',
-                'Cello',
-                'Double Bass',
-                'Harp',
-                'Flute',
-                'Oboe',
-                'Clarinet',
-                'Bassoon',
-                'French Horn',
-                'Trumpet',
-                'Trombone',
-                'Tuba',
-                'Percussion',
-                'Vibraphone',
-                'Timpani',
-                'Piano',
-                'Harpsichord'
+                ['Violin', True],
+                ['Viola', True],
+                ['Cello', True],
+                ['Double Bass', True],
+                ['Harp', True],
+                ['Flute', True],
+                ['Oboe', True],
+                ['Clarinet', True],
+                ['Bassoon', True],
+                ['French Horn', True],
+                ['Trumpet', True],
+                ['Trombone', True],
+                ['Tuba', True],
+                ['Percussion', True],
+                ['Vibraphone', False],
+                ['Timpani', True],
+                ['Piano', True],
+                ['Composer', False],
+                ['Conductor', False],
+                ['Harpsichord', False]
             ]
-            for instrument in instrument_names:
+            for instrument, roster in instrument_names:
                 InstrumentModel.objects.create(
-                    instrument=instrument
+                    instrument=instrument,
+                    show_on_roster=roster
                 )
