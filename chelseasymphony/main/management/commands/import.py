@@ -51,28 +51,33 @@ class Command(BaseCommand):
         cns = requests.get(IMPORT_BASE_URL + '/api/concerts').json()['nodes']
         self.concerts = [c['node'] for c in cns]
 
-        cdts = requests.get(IMPORT_BASE_URL + '/api/concert-date').json()['nodes']
+        cdts = requests.get(
+            IMPORT_BASE_URL + '/api/concert-date').json()['nodes']
         self.concert_dates = [d['node'] for d in cdts]
 
-        cprf = requests.get(IMPORT_BASE_URL + '/api/performances').json()['nodes']
+        cprf = requests.get(
+            IMPORT_BASE_URL + '/api/performances').json()['nodes']
         self.concert_performances = [p['node'] for p in cprf]
 
         csls = requests.get(IMPORT_BASE_URL + '/api/soloists').json()['nodes']
         self.concert_soloists = [c['node'] for c in csls]
 
-        cphts = requests.get(IMPORT_BASE_URL + '/api/concerts/images').json()['nodes']
+        cphts = requests.get(
+            IMPORT_BASE_URL + '/api/concerts/images').json()['nodes']
         self.concert_photos = [p['node'] for p in cphts]
 
         users = requests.get(IMPORT_BASE_URL + '/api/users').json()['nodes']
         self.people = [p['node'] for p in users]
 
-        hdshts = requests.get(IMPORT_BASE_URL + '/api/users/headshot').json()['nodes']
+        hdshts = requests.get(
+            IMPORT_BASE_URL + '/api/users/headshot').json()['nodes']
         self.headshots = [p['node'] for p in hdshts]
 
         bp = requests.get(IMPORT_BASE_URL + '/api/blogpost').json()['nodes']
         self.blog_posts = [b['node'] for b in bp]
 
-        bp_img = requests.get(IMPORT_BASE_URL + '/api/blogpost-image').json()['nodes']
+        bp_img = requests.get(
+            IMPORT_BASE_URL + '/api/blogpost-image').json()['nodes']
         self.blog_posts_images = [b['node'] for b in bp_img]
 
     def get_concert_dates(self, cid):
@@ -82,12 +87,14 @@ class Command(BaseCommand):
 
     def get_concert_performances(self, nid):
         """Gets concert performances by concert ID"""
-        performances = [p for p in self.concert_performances if p['nid'] == str(nid)]
+        performances = [p for p in self.concert_performances
+                        if p['nid'] == str(nid)]
         return sorted(performances, key=lambda p: p['program_order'])
 
     def get_soloists_by_performance_id(self, nid):
         """Gets soloists by performance ID"""
-        return [s for s in self.concert_soloists if s['performance_id'] == str(nid)]
+        return [s for s in self.concert_soloists
+                if s['performance_id'] == str(nid)]
 
     def get_concert_photo_by_id(self, nid):
         """
@@ -105,7 +112,8 @@ class Command(BaseCommand):
         try:
             return [p for p in self.headshots
                     if (p['uid'] == str(uid) and
-                        p['crop_style_name'] == 'tcs2r_musician_headshot_1_5')][0]
+                        p['crop_style_name'] ==
+                        'tcs2r_musician_headshot_1_5')][0]
         except IndexError:
             return None
 
@@ -113,7 +121,8 @@ class Command(BaseCommand):
         try:
             return [p for p in self.blog_posts_images
                     if (p['nid'] == str(nid) and
-                        p['crop_style_name'] == 'tsc2r_blog_list___homepage_desktop')][0]
+                        p['crop_style_name'] ==
+                        'tsc2r_blog_list___homepage_desktop')][0]
         except IndexError:
             return None
 
@@ -166,7 +175,8 @@ class Command(BaseCommand):
         except Person.MultipleObjectsReturned:
             # Names are ambigious! Because there are no pk's on composer names
             # from Drupal, just use the first Person we find
-            return Person.objects.filter(first_name=first, last_name=last).first()
+            return Person.objects.filter(
+                first_name=first, last_name=last).first()
         except Person.DoesNotExist:
             person = Person(
                 first_name=first,
@@ -181,34 +191,13 @@ class Command(BaseCommand):
         try:
             return Composition.objects.get(title=composition)
         except Composition.DoesNotExist:
-           cmpsr = self.get_or_create_person(composer) if composer else None
-           return Composition.objects.create(
-               title=composition,
-               composer=cmpsr
-           )
+            cmpsr = self.get_or_create_person(composer) if composer else None
+            return Composition.objects.create(
+                title=composition,
+                composer=cmpsr
+            )
 
     def create_performances(self, concert):
-        """
-        Get performances for a particular concert:
-        "node" : {
-            "title" : "RAGE + REMEMBRANCE",
-            "nid" : "108",
-            "composer" : "Aaron Israel Levin",
-            "composition" : "In Between",
-            "conductor" : "Matthew Aubin",
-            "conductor_uid" : "12",
-            "performance_id" : "363",
-            "performance_date" : "2019-06-29, 2019-06-30",
-            "program_order" : "0"
-        }
-        "node" : {
-            "nid" : "108",
-            "soloist" : "E.J. Lee",
-            "uid" : "36",
-            "instrument" : "Violin",
-            "performance_id" : "366"
-        }
-        """
         for perf in self.get_concert_performances(concert.legacy_id):
             print('Creating performance for concert ' + concert.title +
                   ': ' + perf['composition'])
@@ -245,13 +234,6 @@ class Command(BaseCommand):
                 )
 
     def create_concert_dates(self, concert):
-        """
-        "node" : {
-            "title" : "RAGE + REMEMBRANCE",
-            "concert_date" : "2019-06-29T20:00, 2019-06-30T14:00",
-            "nid" : "108"
-        }
-        """
         dates = self.get_concert_dates(concert.legacy_id)
         date_strings = dates['concert_date'].split(', ')
         for d in date_strings:
@@ -265,27 +247,8 @@ class Command(BaseCommand):
             concert.save_revision().publish()
 
     def create_concert(self, c):
-        """
-        "node" : {
-            "title" : "RAGE + REMEMBRANCE",
-            "body" : "The Chelsea Symphony presents the season finale of RESOLUTION with a concert featuring John Corigliano's Symphony No. 1. Written in the late 1980s, the AIDS pandemic was claiming the lives of many. As the first of his large format works, the symphonic form here is used to commemorate, as the composer noted, \"my friends – those I had lost and the one I was losing.\" Partly inspired by the NAMES Project AIDS Memorial Quilt, the first movement is subtitled \"Apologue: Of Rage and Remembrance,\" and is dedicated to a pianist. The next two movements commemorate a music executive and a cellist. In the finale, a tarantella melody played by piano in a featured role and the cello line from the previous movements are juxtaposed against “a repeated pattern consisting of waves of brass chords ... [to convey] an image of timelessness.\"\n\nAlso on this finale series, TCS welcomes back two soloists to the stage for two solos for the violin: Adam von Housen performs the Mendelssohn's Violin Concerto in D minor on Saturday's concert, written by the prodigious composer when he was just 13 years old and forgotten until after his death. Sunday's matinee performance brings EJ Lee to the stage to close out our soloist season with the Beethoven Violin Concerto.\n\nBoth concerts open with In Between by Aaron Israel Levin, the winning composition from the 2018-19 TCS Composition Competition, now in its fifth year.\n\nTickets for reserved unassigned seating in a premium area are on sale at Eventbrite!\nTickets also available at the door for a suggested donation of $20. ",
-            "concert_image" : {
-                "src" : "http://localhost:8080/sites/default/files/RageRemembranceBackground2.jpg",
-                "alt" : "",
-                "title" : ""
-            },
-            "concert_location" : "The DiMenna Center for Classical Music, 450 West 37th Street",
-            "concert_season" : "2018-2019",
-            "concert_tag" : "June 29-30",
-            "nid" : "108",
-            "path" : "/concert/rage-remembrance"
-            }
-        }
-        """
-        # Create the Concert Page
         venue = c['concert_location'] if c['concert_location'] \
             else "St. Paul's Church"
-        redirect_path = c['path']
 
         concert = Concert(
             title=c['title'],
@@ -330,23 +293,11 @@ class Command(BaseCommand):
             self.create_performances(concert)
 
     def create_people(self):
-        """
-        "node" : {
-            "name" : "Aaron Dai",
-            "uid" : "241",
-            "first_name" : "Aaron",
-            "last_name" : "Dai",
-            "instrument" : "Piano",
-            "biography" : "",
-            "active" : "Yes",
-            "active_roster" : "Yes"
-        }
-        """
         if not self.people:
             self.fetch_data()
 
         persons = (p for p in self.people
-                  if not Person.objects.filter(legacy_id=p['uid']).exists())
+                   if not Person.objects.filter(legacy_id=p['uid']).exists())
         for p in persons:
             print('Now creating: ' + p['name'])
             active_roster = True if p['active_roster'] == "Yes" else False
@@ -360,7 +311,7 @@ class Command(BaseCommand):
             self.person_idx.add_child(instance=person)
             person.save_revision().publish()
 
-            instrument, created  = InstrumentModel.objects.\
+            instrument, created = InstrumentModel.objects.\
                 get_or_create(instrument=p['instrument'])
             person.instrument.add(instrument)
             person.save_revision().publish()
@@ -374,7 +325,6 @@ class Command(BaseCommand):
                 headshot.focal_point_height = h_img['crop_area_height']
                 person.headshot = headshot
                 person.save()
-
 
     def create_blogposts(self):
         if not self.blog_posts:
@@ -404,7 +354,8 @@ class Command(BaseCommand):
 
             blog_img = self.get_blog_img_from_id(post['nid'])
             if blog_img:
-                blog_image = self.get_wagtail_image(blog_img['blog_image']['src'])
+                blog_image = self.get_wagtail_image(
+                    blog_img['blog_image']['src'])
                 blog_image.focal_point_x = blog_img['crop_area_X_offset']
                 blog_image.focal_point_y = blog_img['crop_area_Y_offset']
                 blog_image.focal_point_width = blog_img['crop_area_width']
@@ -423,4 +374,3 @@ class Command(BaseCommand):
 
         # Then create blog posts
         self.create_blogposts()
-
