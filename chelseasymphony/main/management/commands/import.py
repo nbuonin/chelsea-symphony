@@ -13,6 +13,7 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.dateparse import parse_date, parse_datetime
+from django.utils.html import linebreaks
 from django.utils.timezone import make_aware
 from wagtail.contrib.redirects.models import Redirect
 from wagtail.core.rich_text import RichText
@@ -253,7 +254,7 @@ class Command(BaseCommand):
         concert = Concert(
             title=c['title'],
             promo_copy=c['promo_copy'],
-            description=c['body'],
+            description=linebreaks(c['body'], autoescape=True),
             venue=venue,
             legacy_id=c['nid']
         )
@@ -304,7 +305,7 @@ class Command(BaseCommand):
             person = Person(
                 first_name=p['first_name'],
                 last_name=p['last_name'],
-                biography=p['biography'],
+                biography=linebreaks(p['biography'], autoescape=True),
                 active_roster=active_roster,
                 legacy_id=p['uid']
             )
@@ -340,7 +341,9 @@ class Command(BaseCommand):
                 title=post['title'],
                 legacy_id=post['nid'],
                 promo_copy=post['promo_copy'],
-                body=[('paragraph', RichText(post['body']))],
+                body=[('paragraph',
+                       RichText(linebreaks(post['body'], autoescape=True))
+                       )],
                 author=author,
                 date=parse_date(post['post_date'])
             )
