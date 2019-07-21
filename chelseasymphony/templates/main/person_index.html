@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+{% load responsive_image %}
+
+{% block content %}
+<main role="main">
+    <div class="container">
+        <div class="page-header">
+           <h1>Musicians</h1>  
+        </div>
+        <section id="roster-listing">
+            {% for instrument, musicians in roster.items  %}
+            <div class="instrument">
+                <h3>{{ instrument }}</h3>
+                <ul>
+                {% for musician in musicians %}
+                    <li>{{ musician.title }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </section>
+    </div>
+</main>
+{% endblock %}

@@ -1,5 +1,4 @@
-.view-musicians .view-content {
-
+#roster-listing {
   @include respond-to(medium) {
     columns: 2;
     column-gap: 8em;
@@ -10,9 +9,18 @@
     column-gap: 8em;
   }
 
-  .item-list {
+  .instrument {
     margin-bottom: 1em;
     break-inside: avoid;
+    @extend %border-bottom;
+    &:last-child {
+      border-bottom: none;
+    }
+
+    h3 {
+      @extend %caps-sans;
+      margin-bottom: $small3;
+    }
   }
 
   ol, ul {
@@ -20,24 +28,8 @@
 
     li {
       margin-left: 0;
+      @extend %sans;
+      @extend %small-sans-sizing;
     }
-  }
-}
-
-//section#roster {
-div.view-musicians {
-  .item-list {
-    @extend %border-bottom;
-    h3 {
-      @extend %caps-sans;
-      margin-bottom: $small3;
-    }
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-  ul li .field-content {
-    @extend %sans;
-    @extend %small-sans-sizing;
   }
 }

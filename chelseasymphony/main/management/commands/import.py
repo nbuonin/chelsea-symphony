@@ -306,6 +306,7 @@ class Command(BaseCommand):
                 first_name=p['first_name'],
                 last_name=p['last_name'],
                 biography=linebreaks(p['biography'], autoescape=True),
+                position=p['orchestra_admin_position'],
                 active_roster=active_roster,
                 legacy_id=p['uid']
             )

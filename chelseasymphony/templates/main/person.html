@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+{% load responsive_image %}
+
+{% block content %}
+<main role="main">
+    <div class="container">
+        <article id="profile">
+            <div class="profile-headshot">
+                <div class="profile-headshot-container">
+                {% responsiveimage page.headshot fill-311x473 srcset="fill-255x387 255w, fill-311x473 311w" sizes="258px, 315px" %}
+                </div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-info-container">
+                    <h1 class="name">{{ page.title }}</h1>
+                    {% for i in page.instrument.all %}
+                    <div class="instrument">{{ i }}</div>
+                    {% endfor %}
+                    {% if page.position %}
+                    <div class="position">{{ page.position }}</div>
+                    {% endif %}
+                    <div class="profile-bio">
+                        {{ page.biography | richtext }}
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</main>
+{% endblock %}

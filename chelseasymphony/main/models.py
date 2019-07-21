@@ -6,6 +6,7 @@ from django.db.models import Max
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.utils.timezone import make_aware
 from django.shortcuts import get_object_or_404
 
@@ -522,7 +523,11 @@ class Person(Page):
     biography = RichTextField(
         blank=True,
     )
-    active_roster= models.BooleanField()
+    active_roster = models.BooleanField()
+    position = models.CharField(
+        blank=True,
+        max_length=255
+    )
     headshot = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
@@ -584,17 +589,22 @@ class Person(Page):
 
 
 class PersonIndex(Page):
-    # The roster page will go here
     parent_page_types = ['Home']
     subpage_types = ['Person']
 
     def get_context(self, request):
         context = super().get_context(request)
-        context['roster'] = []
         # For each instrument that is show on roster, get each musician that
         # is on the active roster
+        roster = dict()
+        instruments = InstrumentModel.objects.filter(show_on_roster=True)
+        for i in instruments:
+            musicians = Person.objects.filter(
+                instrument__pk=i.pk, active_roster=True)\
+                .order_by('last_name', 'first_name')
+            roster[i.instrument] = [m for m in musicians]
+        context['roster'] = roster
         return context
-
 
 
 @register_snippet
