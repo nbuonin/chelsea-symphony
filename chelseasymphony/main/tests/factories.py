@@ -147,6 +147,7 @@ class PerformanceFactory(PageFactory):
         else:
             concert_date = self.get_parent().concert_date.first()
             self.performance_date.add(concert_date)
+            self.save_revision().publish()
 
     class Meta:
         model = Performance
@@ -186,6 +187,7 @@ class ConcertFactory(PageFactory):
                 self.roster.add(
                     ActiveRosterMusician.objects.order_by('?').first()
                 )
+                self.save_revision().publish()
             else:
                 for p in range(25):
                     PersonFactory()
@@ -193,11 +195,13 @@ class ConcertFactory(PageFactory):
                 self.roster.add(
                     ActiveRosterMusician.objects.order_by('?').first()
                 )
+                self.save_revision().publish()
         else:
             return
         if extracted:
             for i in extracted:
                 self.roster.add(i)
+                self.save_revision().publish()
 
     @post_generation
     def create_performances(self, create, extracted, **kwargs):
