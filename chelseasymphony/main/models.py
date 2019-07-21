@@ -23,6 +23,9 @@ from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
+# For Menus
+from wagtailmenus.models import MenuPageMixin
+from wagtailmenus.panels import menupage_panel
 
 from wagtailautocomplete.edit_handlers import AutocompletePanel
 
@@ -77,11 +80,15 @@ class Home(Page):
     ]
 
 
-class BasicPage(Page):
+class BasicPage(Page, MenuPageMixin):
     body = RichTextField()
 
     content_panels = Page.content_panels + [
         FieldPanel('body')
+    ]
+
+    settings_panels = [
+        menupage_panel
     ]
 
     class Meta:
@@ -476,7 +483,7 @@ class Performer(Orderable):
         related_name='+'
     )
 
-    content_panels = [
+    panels = [
         PageChooserPanel('person'),
         SnippetChooserPanel('instrument')
     ]
@@ -498,7 +505,7 @@ class Composition(models.Model):
     def __str__(self):
         return unescape(strip_tags(self.title))
 
-    content_panels = [
+    panels = [
         SnippetChooserPanel('composer')
     ]
 
@@ -638,11 +645,7 @@ class BlogPost(Page):
     promo_copy = RichTextField(
         blank=True
     )
-    body = StreamField([
-        ('heading', blocks.CharBlock(classname="full title")),
-        ('paragraph', blocks.RichTextBlock()),
-        ('image', ImageChooserBlock()),
-    ])
+    body = RichTextField()
     legacy_id = models.IntegerField(
         null=True,
         blank=True,
@@ -654,7 +657,7 @@ class BlogPost(Page):
         FieldPanel('date'),
         ImageChooserPanel('blog_image'),
         FieldPanel('promo_copy'),
-        StreamFieldPanel('body'),
+        FieldPanel('body'),
     ]
 
     def get_context(self, request):

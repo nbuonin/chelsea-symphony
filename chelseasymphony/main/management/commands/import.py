@@ -81,6 +81,11 @@ class Command(BaseCommand):
             IMPORT_BASE_URL + '/api/blogpost-image').json()['nodes']
         self.blog_posts_images = [b['node'] for b in bp_img]
 
+    def escape_markup(self, text):
+        text = linebreaks(text, autoescape=True)
+        text = re.sub(r'<br>', '</p><p>', text)
+        return re.sub(r'\\n', '', text)
+
     def get_concert_dates(self, cid):
         """Gets concert dates by concert ID"""
         print('cid: ' + str(cid))
@@ -254,7 +259,7 @@ class Command(BaseCommand):
         concert = Concert(
             title=c['title'],
             promo_copy=c['promo_copy'],
-            description=linebreaks(c['body'], autoescape=True),
+            description=self.escape_markup(c['body']),
             venue=venue,
             legacy_id=c['nid']
         )
@@ -305,7 +310,7 @@ class Command(BaseCommand):
             person = Person(
                 first_name=p['first_name'],
                 last_name=p['last_name'],
-                biography=linebreaks(p['biography'], autoescape=True),
+                biography=self.escape_markup(p['biography']),
                 position=p['orchestra_admin_position'],
                 active_roster=active_roster,
                 legacy_id=p['uid']
@@ -342,9 +347,7 @@ class Command(BaseCommand):
                 title=post['title'],
                 legacy_id=post['nid'],
                 promo_copy=post['promo_copy'],
-                body=[('paragraph',
-                       RichText(linebreaks(post['body'], autoescape=True))
-                       )],
+                body=self.escape_markup(post['body']),
                 author=author,
                 date=parse_date(post['post_date'])
             )
@@ -365,7 +368,7 @@ class Command(BaseCommand):
                 blog_image.focal_point_width = blog_img['crop_area_width']
                 blog_image.focal_point_height = blog_img['crop_area_height']
                 blog_post.blog_image = blog_image
-                blog_post.save()
+                blog_post.save_revision().publish()
 
     def handle(self, *args, **kwargs):
         self.fetch_data()
