@@ -1,3 +1,26 @@
+#donation-form-container {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+
+    form {
+        width: 400px;
+        display: flex;
+        flex-flow: column nowrap;
+
+        input[type="submit"] {
+            width: fit-content;
+            align-self: center;
+        }
+    }
+
+    fieldset, .donation-row {
+        margin-bottom: 1em;
+    }
+    .donation-row {
+        margin-bottom: 1.75em;
+    }
+}
 #recurring-donation {
     display: none,
 }
@@ -21,4 +44,5 @@
     padding: 0.5em;
     border: solid black 1px;
     border-radius: 1em;
+    margin-right: 0.75em;
 }
