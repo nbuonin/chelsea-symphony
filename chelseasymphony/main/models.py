@@ -15,8 +15,10 @@ from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
-from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, \
-    InlinePanel, StreamFieldPanel, PageChooserPanel
+from wagtail.admin.edit_handlers import (
+    FieldPanel, MultiFieldPanel, InlinePanel,
+    StreamFieldPanel, PageChooserPanel, FieldRowPanel
+)
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.blocks import SnippetChooserBlock
@@ -28,6 +30,8 @@ from wagtailmenus.models import MenuPageMixin
 from wagtailmenus.panels import menupage_panel
 
 from wagtailautocomplete.edit_handlers import AutocompletePanel
+from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
+from wagtail.contrib.forms.edit_handlers import FormSubmissionsPanel
 
 from modelcluster.models import ClusterableModel
 
@@ -76,7 +80,8 @@ class Home(Page):
         'PersonIndex',
         'BlogIndex',
         'BasicPage',
-        'Donate'
+        'Donate',
+        'FormPage'
     ]
 
 
@@ -97,7 +102,11 @@ class BasicPage(Page, MenuPageMixin):
     def __str__(self):
         return self.title
 
-    parent_page_types = ['Home']
+    parent_page_types = [
+        'Home',
+        'BasicPage',
+        'FormPage',
+    ]
 
 
 class ConcertDate(models.Model):
@@ -760,3 +769,28 @@ class Donate(Page):
             "recurring_donation_amounts": recurring_donation_amounts,
         }
         return render(request, "main/donate.html", context)
+
+
+class FormField(AbstractFormField):
+        page = ParentalKey('FormPage',
+                           on_delete=models.CASCADE,
+                           related_name='form_fields')
+
+
+class FormPage(AbstractEmailForm):
+    body = RichTextField(blank=True)
+    thank_you_text = RichTextField(blank=True)
+
+    content_panels = AbstractEmailForm.content_panels + [
+        FormSubmissionsPanel(),
+        FieldPanel('body', classname='full'),
+        FieldPanel('thank_you_text', classname='full'),
+        InlinePanel('form_fields', label="Form fields"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('from_address', classname="col6"),
+                FieldPanel('to_address', classname="col6"),
+            ]),
+            FieldPanel('subject'),
+        ], "Email")
+    ]
