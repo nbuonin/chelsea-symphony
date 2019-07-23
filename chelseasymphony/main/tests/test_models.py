@@ -11,7 +11,7 @@ from chelseasymphony.main.models import (
     Home, BasicPage, ConcertDate, ConcertIndex, Concert,
     Performance, Performer, Composition, Person, PersonIndex,
     InstrumentModel, BlogPost, BlogIndex, ActiveRosterMusician,
-    Donate
+    Donate, FormPage
 )
 from chelseasymphony.main.tests.factories import (
     PersonFactory, ConcertFactory, BlogPostFactory
@@ -130,7 +130,7 @@ class HomeTest(WagtailPageTests):
     def test_subpage_types(self):
         self.assertAllowedSubpageTypes(
             Home,
-            {ConcertIndex, PersonIndex, BlogIndex, BasicPage, Donate}
+            {ConcertIndex, PersonIndex, BlogIndex, BasicPage, Donate, FormPage}
         )
 
     def test_context(self):
@@ -213,7 +213,7 @@ class BasicPageTest(WagtailPageTests):
     def test_parent_page_types(self):
         self.assertAllowedParentPageTypes(
             BasicPage,
-            {Home}
+            {Home, BasicPage, FormPage}
         )
 
 
