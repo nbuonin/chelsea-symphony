@@ -690,7 +690,6 @@ class BlogIndex(Page):
         return context
 
 
-
 class ActiveRosterMusicianManager(PageManager):
     def get_queryset(self):
         return super().get_queryset().filter(active_roster=True)\
@@ -699,22 +698,34 @@ class ActiveRosterMusicianManager(PageManager):
 
 class ActiveRosterMusician(Person):
     objects = ActiveRosterMusicianManager()
+
     class Meta:
         proxy = True
 
 
-class Donate(Page):
+class Donate(RoutablePageMixin, Page):
     body = StreamField([
-        ('heading', blocks.CharBlock(classname="full title")),
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
     ])
 
+    thank_you_text = RichTextField(
+        blank=True,
+    )
+
     content_panels = Page.content_panels + [
         StreamFieldPanel('body'),
+        FieldPanel('thank_you_text'),
     ]
 
-    def serve(self, request):
+    @route(r'thank-you/$')
+    def thank_you(self, request):
+        context = self.get_context(request)
+        return render(request, "main/donate_thank_you.html", context)
+
+    @route(r'^$')
+    def donation_form(self, request):
+        context = self.get_context(request)
         single_donation_amounts = [
             '50.00',
             '100.00',
@@ -736,10 +747,11 @@ class Donate(Page):
         paypal_dict_single = {
             "cmd": "_donations",
             "business": "info@chelseasymphony.org",
-            "amount": "15.00",
+            "amount": "",
             "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
-            # "return": request.build_absolute_uri(reverse('your-return-view')),
-            # "cancel_return": request.build_absolute_uri(reverse('your-cancel-view')),
+            "return": self.full_url + 'thank-you/',
+            "cancel_return": self.full_url,
+            "rm": "1"
         }
 
         paypal_dict_recurring = {
@@ -753,14 +765,17 @@ class Donate(Page):
             "no_note": "1",
             "no_shipping": "2",
             "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
-            # "return": request.build_absolute_uri(reverse('your-return-view')),
-            # "cancel_return": request.build_absolute_uri(reverse('your-cancel-view')),
-            # "custom": "premium_plan",  # Custom command to correlate to some function later (optional)
+            "return": self.full_url + 'thank-you/',
+            "cancel_return": self.full_url,
+            "rm": "1"
         }
 
-        # Create the forms.
-        form_single = PayPalPaymentsForm(initial=paypal_dict_single, button_type='donate')
-        form_recurring = PayPalPaymentsForm(initial=paypal_dict_recurring, button_type='donate')
+        form_single = PayPalPaymentsForm(
+            initial=paypal_dict_single,
+            button_type='donate')
+        form_recurring = PayPalPaymentsForm(
+            initial=paypal_dict_recurring,
+            button_type='donate')
         context = {
             "page": self,
             "single": form_single,
