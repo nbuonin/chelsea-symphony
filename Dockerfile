@@ -3,6 +3,7 @@ LABEL maintainer="nick@buonincontri.org"
 
 ENV PYTHONUNBUFFERED 1
 ENV PIPENV_VENV_IN_PROJECT 1
+ENV DJANGO_SETTINGS_MODULE 'chelseasymphony.settings.production'
 EXPOSE 8000
 
 RUN pip3 install pipenv
