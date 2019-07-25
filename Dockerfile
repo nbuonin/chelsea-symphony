@@ -16,6 +16,6 @@ RUN set -ex && \
 
 USER wagtail
 
-CMD pipenv run ./manage.py collectstatic --settings=chelseasymphony.settings.production && \
+CMD pipenv run ./manage.py collectstatic --noinput --settings=chelseasymphony.settings.production && \
     pipenv run ./manage.py migrate --settings=chelseasymphony.settings.production && \
     pipenv run gunicorn --bind 0.0.0.0:8000 --workers 3 --forwarded-allow-ips="*" chelseasymphony.wsgi:application
