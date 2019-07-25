@@ -23,7 +23,7 @@ WagtailImage = get_image_model()
 ContentType = apps.get_model('contenttypes.ContentType')
 
 
-IMPORT_BASE_URL = 'http://localhost:8080'
+IMPORT_BASE_URL = 'https://chelseasymphony.org'
 
 
 class Command(BaseCommand):

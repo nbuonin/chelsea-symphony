@@ -1,6 +1,7 @@
 from datetime import datetime, date
 from html import unescape
 from django import forms
+from django.conf import settings
 from django.db import models
 from django.db.models import Max
 from django.template.response import TemplateResponse
@@ -744,9 +745,12 @@ class Donate(RoutablePageMixin, Page):
             '125.00'
         ]
 
+        email = 'info-facilitator@chelseasymphony.org' if settings.PAYPAL_TEST\
+            else 'info@chelseasymphony.org'
+
         paypal_dict_single = {
             "cmd": "_donations",
-            "business": "info@chelseasymphony.org",
+            "business": email,
             "amount": "",
             "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
             "return": self.full_url + 'thank-you/',
@@ -756,7 +760,7 @@ class Donate(RoutablePageMixin, Page):
 
         paypal_dict_recurring = {
             "cmd": "_xclick-subscriptions",
-            "business": "info@chelseasymphony.org",
+            "business": email,
             "src": "1",
             "srt": "24",
             "p3": "1",
