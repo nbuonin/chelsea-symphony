@@ -213,7 +213,8 @@
       list-style: none;
       display: flex;
       justify-content: center;
-      background: url(/static/images/border.png);
+      // This needed to be inlined for collectstatic
+      //background: url(/static/images/border.png);
       background-position: 50% 60%;
       background-repeat: no-repeat;
       background-size: contain;
