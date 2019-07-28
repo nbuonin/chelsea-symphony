@@ -214,7 +214,8 @@
       display: flex;
       justify-content: center;
       // This needed to be inlined for collectstatic
-      //background: url(/static/images/border.png);
+      // but inlining doesn't seem to work
+      background: url(https://chelseasymphony-prod-static.nyc3.digitaloceanspaces.com/chelseasymphony/images/border.png);
       background-position: 50% 60%;
       background-repeat: no-repeat;
       background-size: contain;
