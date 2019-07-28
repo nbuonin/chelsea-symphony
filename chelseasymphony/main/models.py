@@ -560,9 +560,11 @@ class Person(Page):
         max_length=255
     )
     last_name = models.CharField(max_length=255)
-    biography = RichTextField(
-        blank=True,
-    )
+    biography = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ], blank=True)
+
     active_roster = models.BooleanField()
     position = models.CharField(
         blank=True,
@@ -617,7 +619,7 @@ class Person(Page):
     content_panels = [
         FieldPanel('first_name'),
         FieldPanel('last_name'),
-        FieldPanel('biography'),
+        StreamFieldPanel('biography'),
         FieldPanel('active_roster'),
         ImageChooserPanel('headshot'),
         # # below may need to be a FieldPanel
