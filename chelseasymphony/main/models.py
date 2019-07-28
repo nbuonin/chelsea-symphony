@@ -680,7 +680,10 @@ class BlogPost(Page):
     promo_copy = RichTextField(
         blank=True
     )
-    body = RichTextField()
+    body = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ])
     legacy_id = models.IntegerField(
         null=True,
         blank=True,
@@ -692,7 +695,7 @@ class BlogPost(Page):
         FieldPanel('date'),
         ImageChooserPanel('blog_image'),
         FieldPanel('promo_copy'),
-        FieldPanel('body'),
+        StreamFieldPanel('body'),
     ]
 
     def get_context(self, request):
