@@ -87,10 +87,13 @@ class Home(Page):
 
 
 class BasicPage(Page, MenuPageMixin):
-    body = RichTextField()
+    body = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ])
 
     content_panels = Page.content_panels + [
-        FieldPanel('body')
+        StreamFieldPanel('body')
     ]
 
     settings_panels = [
@@ -212,7 +215,10 @@ class Concert(Page):
     promo_copy = RichTextField(
         blank=True
     )
-    description = RichTextField()
+    description = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ])
     venue = RichTextField()
     concert_image = models.ForeignKey(
         'wagtailimages.Image',
@@ -383,7 +389,7 @@ class Concert(Page):
 
     content_panels = Page.content_panels + [
         FieldPanel('promo_copy'),
-        FieldPanel('description'),
+        StreamFieldPanel('description'),
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
         InlinePanel('concert_date', label="Concert Dates", min_num=1),
