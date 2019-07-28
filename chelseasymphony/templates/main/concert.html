@@ -43,7 +43,7 @@
                     </p>
                 </div>  
                 <div class="concert-copy">
-                    {{ page.description | richtext }}
+                    {% include_block page.description %}
                     <div class="concert-conductors">
                         {% for c in conductors %}
                         <span><a href="{{ c.url }}">{{ c.name }}</a></span>
@@ -94,7 +94,11 @@
                             </p>
                         </div>
                         <div class="concert-soloist-bio">
-                            {{ performer.bio | richtext | truncatewords_html:80 }}
+                            {% for block in performer.bio %}
+                                {% if forloop.first %}
+                                    {{ block.value | truncatewords_html:80 }}
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
                 </section>
