@@ -738,13 +738,14 @@ class Donate(RoutablePageMixin, Page):
         ('image', ImageChooserBlock()),
     ])
 
-    thank_you_text = RichTextField(
-        blank=True,
-    )
+    thank_you_text = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ], blank=True)
 
     content_panels = Page.content_panels + [
         StreamFieldPanel('body'),
-        FieldPanel('thank_you_text'),
+        StreamFieldPanel('thank_you_text'),
     ]
 
     @route(r'thank-you/$')
@@ -825,13 +826,19 @@ class FormField(AbstractFormField):
 
 
 class FormPage(AbstractEmailForm):
-    body = RichTextField(blank=True)
-    thank_you_text = RichTextField(blank=True)
+    body = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ], blank=True)
+    thank_you_text = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ], blank=True)
 
     content_panels = AbstractEmailForm.content_panels + [
         FormSubmissionsPanel(),
-        FieldPanel('body', classname='full'),
-        FieldPanel('thank_you_text', classname='full'),
+        StreamFieldPanel('body', classname='full'),
+        StreamFieldPanel('thank_you_text', classname='full'),
         InlinePanel('form_fields', label="Form fields"),
         MultiFieldPanel([
             FieldRowPanel([
