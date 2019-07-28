@@ -277,6 +277,7 @@ class Concert(Page):
             program.append({
                 'composer': p.specific.composition.composer.title,
                 'composition': p.specific.composition.title,
+                'supplemental_text': p.specific.supplemental_text,
                 'performers': performers
             })
         context['program'] = program
@@ -339,6 +340,7 @@ class Concert(Page):
                 performances.append({
                     'composer': p.specific.composition.composer.title,
                     'composition': p.specific.composition.title,
+                    'supplemental_text': p.specific.supplemental_text,
                     'performers': performers
                 })
 
@@ -423,6 +425,10 @@ class Performance(Page):
         on_delete=models.PROTECT,
         related_name='+'
     )
+    supplemental_text = RichTextField(
+        blank=True,
+        features=['bold', 'italic']
+    )
     conductor = models.ForeignKey(
         'Person',
         null=True,
@@ -457,6 +463,7 @@ class Performance(Page):
 
     content_panels = [
         SnippetChooserPanel('composition'),
+        FieldPanel('supplemental_text'),
         InlinePanel('performer', label='Performers'),
         PageChooserPanel('conductor'),
         FieldPanel(
