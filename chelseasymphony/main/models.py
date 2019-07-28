@@ -462,7 +462,10 @@ class Performance(Page):
         return self.get_parent().get_url_parts(request)
 
     content_panels = [
-        SnippetChooserPanel('composition'),
+        AutocompletePanel(
+            'composition',
+            target_model='main.Composition'
+        ),
         FieldPanel('supplemental_text'),
         InlinePanel('performer', label='Performers'),
         PageChooserPanel('conductor'),
@@ -520,7 +523,13 @@ class Composition(models.Model):
     )
 
     def __str__(self):
-        return unescape(strip_tags(self.title))
+        return "{} - {}".format(
+            unescape(strip_tags(self.title)),
+            self.composer
+        )
+
+    def autocomplete_label(self):
+        return self.__str__()
 
     panels = [
         FieldPanel('title'),
