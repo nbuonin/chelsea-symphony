@@ -516,7 +516,8 @@ class Composition(models.Model):
         return unescape(strip_tags(self.title))
 
     panels = [
-        SnippetChooserPanel('composer')
+        FieldPanel('title'),
+        PageChooserPanel('composer')
     ]
 
 
