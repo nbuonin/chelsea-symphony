@@ -26,6 +26,7 @@ from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
+from wagtail.search import index
 # For Menus
 from wagtailmenus.models import MenuPageMixin
 from wagtailmenus.panels import menupage_panel
@@ -517,7 +518,7 @@ class Performer(Orderable):
 
 
 @register_snippet
-class Composition(models.Model):
+class Composition(index.Indexed, models.Model):
     # Note: calling unescape on the title below is only ok because the input is
     # being sanitized by the RichTextField.
     title = RichTextField(features=['bold', 'italic'])
@@ -541,6 +542,14 @@ class Composition(models.Model):
     panels = [
         FieldPanel('title'),
         PageChooserPanel('composer')
+    ]
+
+    search_fields = [
+        index.SearchField('title', partial_match=True),
+        index.RelatedFields('composer', [
+            index.FilterField('first_name', partial_match=True),
+            index.FilterField('last_name', partial_match=True),
+        ]),
     ]
 
 
