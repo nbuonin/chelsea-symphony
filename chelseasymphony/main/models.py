@@ -258,14 +258,15 @@ class Concert(Page):
                 'performance__composition')
 
         # Conductors
-        conductors = list()
+        conductors = dict()
         for p in performances:
-            conductors.append({
-                'name': p.specific.conductor.title,
+            name = p.specific.conductor.title
+            conductors[name] = {
+                'name': name,
                 'url': p.specific.conductor.url
-            })
+            }
 
-        context['conductors'] = conductors
+        context['conductors'] = conductors.values()
 
         # Program
         program = list()
@@ -523,7 +524,7 @@ class Composition(models.Model):
     composer = models.ForeignKey(
         'Person',
         null=True,
-        blank=True,
+        blank=False,
         on_delete=models.SET_NULL,
         related_name='+'
     )
