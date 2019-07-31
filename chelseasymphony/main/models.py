@@ -532,12 +532,12 @@ class ConcertPerformer(Orderable):
     """
     concert = ParentalKey(
         'Concert',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name='performer',
     )
     person = models.ForeignKey(
         'Person',
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name='+',
     )
 
