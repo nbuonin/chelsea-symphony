@@ -82,7 +82,9 @@
                         <div class="concert-program-listing">
                             <p class="concert-program-piece-soloist">
                                 <a href="{{ performer.url }}">{{ performer.name }}</a><br>
-                                {{ performer.instrument }}
+                                {% for i in performer.instrument %}
+                                {{ i }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
                             </p>
                             {% for performance in performer.performances %}
                             <p class="concert-program-date">
@@ -98,6 +100,34 @@
                         </div>
                         <div class="concert-soloist-bio">
                             {% for block in performer.bio %}
+                                {% if forloop.first %}
+                                    {{ block.value | truncatewords_html:80 }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+                {% endfor %}
+            </div>
+            <div class="concert-soloists">
+                <h2>Conductors</h2>
+                {% for conductor in conductors %} 
+                <section class="concert-soloist">
+                    <div class="concert-soloist-image">
+                        <div class="concer-soloist-image-container">
+                            <a href="{{ conductor.url }}">
+                                {% responsiveimage conductor.headshot fill-833x1038 srcset="fill-833x1038 833w, fill-582x726 582w, fill-455x567 455w" sizes="833px, 582px, 833px" %}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="solist-program-listing-container">
+                        <div class="concert-program-listing">
+                            <p class="concert-program-piece-soloist">
+                                <a href="{{ conductor.url }}">{{ conductor.name }}</a><br>
+                            </p>
+                        </div>
+                        <div class="concert-soloist-bio">
+                            {% for block in conductor.bio %}
                                 {% if forloop.first %}
                                     {{ block.value | truncatewords_html:80 }}
                                 {% endif %}

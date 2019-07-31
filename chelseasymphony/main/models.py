@@ -220,12 +220,14 @@ class ConcertAdminForm(WagtailAdminPageForm):
         if self.instance:
             perfs = Performance.objects.live().descendant_of(self.instance)
             performers = Performer.objects.filter(performance__in=perfs)
+            p_ids = [p.person.id for p in performers]
+            people = Person.objects.filter(pk__in=p_ids)
             # Set the queryset for new Concert Performers
             self.formsets['performer'].form.\
-                base_fields['performer'].queryset = performers
+                base_fields['person'].queryset = people
             # Set the queryset for existing Concert Performers
             for form in self.formsets['performer']:
-                form.fields['performer'].queryset = performers
+                form.fields['person'].queryset = people
 
 
 class Concert(Page):
@@ -281,10 +283,14 @@ class Concert(Page):
             name = p.specific.conductor.title
             conductors[name] = {
                 'name': name,
-                'url': p.specific.conductor.url
+                'last_name': p.specific.conductor.last_name,
+                'url': p.specific.conductor.url,
+                'headshot': p.specific.conductor.headshot,
+                'bio': p.specific.conductor.biography,
             }
 
-        context['conductors'] = conductors.values()
+        context['conductors'] = sorted(
+            conductors.values(), key=lambda x: x['last_name'])
 
         # Program
         program = list()
@@ -311,29 +317,31 @@ class Concert(Page):
         # This needs to display the performer, the work they are performing,
         # and the date they are performing it.
         performers = list()
-        for soloist in (p.performer for p
+        for soloist in (p.person for p
                         in self.performer.all().order_by('sort_order')):
             # Select performances that have this soloist as a performer
             perfs = Performance.objects.live().descendant_of(self).\
-                filter(performer__person__id=soloist.person.id)
+                filter(performer__person__id=soloist.id)
 
-            # for each perf, build up a dict containing:
-            #  composer, work, dates
+            # Build up an aggregation of solo performances
             solo_perfs = list()
+            solo_instrument = set()
             for p in perfs:
                 solo_perfs.append({
                     'composer': p.composition.composer.title,
                     'work': p.composition.title,
                     'dates': [d.date for d in p.performance_date.all()]
                 })
+                s = p.performer.get(person__id=soloist.id)
+                solo_instrument.add(s.instrument)
 
             performers.append({
-                'name': soloist.person.title,
-                'url': soloist.person.url,
-                'headshot': soloist.person.headshot,
-                'instrument': soloist.instrument.instrument,
+                'name': soloist.title,
+                'url': soloist.url,
+                'headshot': soloist.headshot,
+                'instrument': list(solo_instrument),
                 'performances': solo_perfs,
-                'bio': soloist.person.biography
+                'bio': soloist.biography
             })
 
         context['performers'] = performers
@@ -526,8 +534,8 @@ class ConcertPerformer(Orderable):
         on_delete=models.PROTECT,
         related_name='performer',
     )
-    performer = models.ForeignKey(
-        'Performer',
+    person = models.ForeignKey(
+        'Person',
         on_delete=models.PROTECT,
         related_name='+',
     )
@@ -535,7 +543,7 @@ class ConcertPerformer(Orderable):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['concert', 'performer'],
+                fields=['concert', 'person'],
                 name='unique concert performer'
             )
         ]
@@ -576,14 +584,12 @@ class Performer(Orderable):
         # If not saved as a concert performer already, then
         # create a concert performer
         concert = self.performance.get_parent().specific
-        # TODO: refactor this into a try block
         if not ConcertPerformer.objects.filter(
-                concert__pk=concert.id, performer=self.id).exists():
+                concert__pk=concert.id, person=self.person).exists():
             ConcertPerformer.objects.create(
                 concert=concert,
-                performer=self
+                person=self.person
             )
-        print(self)
 
     def delete(self, *args, **kwargs):
         # Before deleting, check if other siblings list this person as a
@@ -596,21 +602,20 @@ class Performer(Orderable):
 
         found = False
         for perf in sibling_perfs:
-            if perf.performer.all().filter(pk=self.id):
-                found = True
-                break
+            for person in perf.performer.all():
+                if person.id == self.person.id:
+                    found = True
+                    break
 
         if not found:
             try:
                 ConcertPerformer.objects.get(
-                    concert__pk=concert.id, performer=self.id
+                    concert__pk=concert.id, person=self.person
                 ).delete()
             except ConcertPerformer.DoesNotExist:
                 pass
 
         super().delete(*args, **kwargs)
-        print("deleting: ")
-        print(self)
 
     panels = [
         PageChooserPanel('person'),
