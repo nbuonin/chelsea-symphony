@@ -1,7 +1,0 @@
-input[type="submit"] {
-    border: solid 1px black;
-    @extend %serif-display;
-     &:hover {
-         cursor: pointer;
-     }
-}
