@@ -217,7 +217,8 @@ class ConcertAdminForm(WagtailAdminPageForm):
         super().__init__(data, files, *args, **kwargs)
         # Limit performer choices to those listed as performers in
         # child Performance pages
-        if self.instance:
+        instance = kwargs.get('instance')
+        if instance.id:
             perfs = Performance.objects.live().descendant_of(self.instance)
             performers = Performer.objects.filter(performance__in=perfs)
             p_ids = [p.person.id for p in performers]
