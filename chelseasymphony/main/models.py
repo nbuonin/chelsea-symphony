@@ -739,8 +739,10 @@ class Person(Page):
         StreamFieldPanel('biography'),
         FieldPanel('active_roster'),
         ImageChooserPanel('headshot'),
-        # # below may need to be a FieldPanel
-        # SnippetChooserPanel('instrument')
+        FieldPanel(
+            'instrument',
+            widget=forms.CheckboxSelectMultiple
+        )
     ]
 
     parent_page_types = ['PersonIndex']
