@@ -7,8 +7,8 @@ from django.db.models import Max
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from django.utils import timezone
-from django.utils.html import strip_tags
-from django.utils.timezone import make_aware
+from django.utils.html import strip_tags, format_html
+from django.utils.timezone import make_aware, localtime
 from django.shortcuts import get_object_or_404
 
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
@@ -271,6 +271,21 @@ class Concert(Page):
             return "{}-{}".format(date.year, date.year + 1)
         else:
             return "{}-{}".format(date.year - 1, date.year)
+
+    def admin_title(self):
+        return format_html(
+            '<h2><a href="/admin/pages/{}/">{}</a></h2>',
+            self.id,
+            self.title,
+        )
+
+    def concert_dates(self):
+        # Used for the admin listing, don't use this for real
+        dates = ConcertDate.objects.\
+            filter(concert=self.id).order_by('date')
+
+        return ', '.join(
+            [localtime(d.date).strftime('%a %b %d %-I:%M %p') for d in dates])
 
     def get_context(self, request):
         context = super().get_context(request)
@@ -638,13 +653,16 @@ class Composition(index.Indexed, models.Model):
     )
 
     def __str__(self):
+        return unescape(strip_tags(self.title))
+
+    def display_title(self):
+        return str(self)
+
+    def autocomplete_label(self):
         return "{} - {}".format(
             unescape(strip_tags(self.title)),
             self.composer
         )
-
-    def autocomplete_label(self):
-        return self.__str__()
 
     panels = [
         FieldPanel('title'),
