@@ -7,8 +7,8 @@ from django.db.models import Max
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from django.utils import timezone
-from django.utils.html import strip_tags
-from django.utils.timezone import make_aware
+from django.utils.html import strip_tags, format_html
+from django.utils.timezone import make_aware, localtime
 from django.shortcuts import get_object_or_404
 
 from modelcluster.fields import ParentalKey, ParentalManyToManyField
@@ -26,6 +26,7 @@ from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
+from wagtail.search import index
 # For Menus
 from wagtailmenus.models import MenuPageMixin
 from wagtailmenus.panels import menupage_panel
@@ -211,7 +212,27 @@ class ConcertQuerySet(PageQuerySet):
 ConcertManager = PageManager.from_queryset(ConcertQuerySet)
 
 
+class ConcertAdminForm(WagtailAdminPageForm):
+    def __init__(self, data=None, files=None, parent_page=None, *args, **kwargs):
+        super().__init__(data, files, *args, **kwargs)
+        # Limit performer choices to those listed as performers in
+        # child Performance pages
+        instance = kwargs.get('instance')
+        if instance.id:
+            perfs = Performance.objects.live().descendant_of(self.instance)
+            performers = Performer.objects.filter(performance__in=perfs)
+            p_ids = [p.person.id for p in performers]
+            people = Person.objects.filter(pk__in=p_ids)
+            # Set the queryset for new Concert Performers
+            self.formsets['performer'].form.\
+                base_fields['person'].queryset = people
+            # Set the queryset for existing Concert Performers
+            for form in self.formsets['performer']:
+                form.fields['person'].queryset = people
+
+
 class Concert(Page):
+    base_form_class = ConcertAdminForm
     promo_copy = RichTextField(
         blank=True
     )
@@ -251,6 +272,21 @@ class Concert(Page):
         else:
             return "{}-{}".format(date.year - 1, date.year)
 
+    def admin_title(self):
+        return format_html(
+            '<h2><a href="/admin/pages/{}/">{}</a></h2>',
+            self.id,
+            self.title,
+        )
+
+    def concert_dates(self):
+        # Used for the admin listing, don't use this for real
+        dates = ConcertDate.objects.\
+            filter(concert=self.id).order_by('date')
+
+        return ', '.join(
+            [localtime(d.date).strftime('%a %b %d %-I:%M %p') for d in dates])
+
     def get_context(self, request):
         context = super().get_context(request)
         performances = self.get_descendants().select_related(
@@ -258,14 +294,19 @@ class Concert(Page):
                 'performance__composition')
 
         # Conductors
-        conductors = list()
+        conductors = dict()
         for p in performances:
-            conductors.append({
-                'name': p.specific.conductor.title,
-                'url': p.specific.conductor.url
-            })
+            name = p.specific.conductor.title
+            conductors[name] = {
+                'name': name,
+                'last_name': p.specific.conductor.last_name,
+                'url': p.specific.conductor.url,
+                'headshot': p.specific.conductor.headshot,
+                'bio': p.specific.conductor.biography,
+            }
 
-        context['conductors'] = conductors
+        context['conductors'] = sorted(
+            conductors.values(), key=lambda x: x['last_name'])
 
         # Program
         program = list()
@@ -292,19 +333,32 @@ class Concert(Page):
         # This needs to display the performer, the work they are performing,
         # and the date they are performing it.
         performers = list()
-        for p in performances:
-            soloists = p.specific.performer.all()
-            for s in soloists:
-                performers.append({
-                    'name': s.person.title,
-                    'url': s.person.url,
-                    'headshot': s.person.headshot,
-                    'instrument': s.instrument.instrument,
-                    'composer': p.specific.composition.composer.title,
-                    'work': p.specific.composition.title,
-                    'dates': [d.date for d in p.specific.performance_date.all()],
-                    'bio': s.person.biography
+        for soloist in (p.person for p
+                        in self.performer.all().order_by('sort_order')):
+            # Select performances that have this soloist as a performer
+            perfs = Performance.objects.live().descendant_of(self).\
+                filter(performer__person__id=soloist.id)
+
+            # Build up an aggregation of solo performances
+            solo_perfs = list()
+            solo_instrument = set()
+            for p in perfs:
+                solo_perfs.append({
+                    'composer': p.composition.composer.title,
+                    'work': p.composition.title,
+                    'dates': [d.date for d in p.performance_date.all()]
                 })
+                s = p.performer.get(person__id=soloist.id)
+                solo_instrument.add(s.instrument)
+
+            performers.append({
+                'name': soloist.title,
+                'url': soloist.url,
+                'headshot': soloist.headshot,
+                'instrument': list(solo_instrument),
+                'performances': solo_perfs,
+                'bio': soloist.biography
+            })
 
         context['performers'] = performers
         return context
@@ -393,7 +447,9 @@ class Concert(Page):
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
         InlinePanel('concert_date', label="Concert Dates", min_num=1),
-        FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
+        InlinePanel('performer', label='Concert Performers'),
+        # Save for future use
+        # FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
 
     objects = ConcertManager()
@@ -485,6 +541,31 @@ class Performance(Page):
     subpage_types = []
 
 
+class ConcertPerformer(Orderable):
+    """
+    This is another representation of a performer, but for ordering
+    on a per concert basis
+    """
+    concert = ParentalKey(
+        'Concert',
+        on_delete=models.CASCADE,
+        related_name='performer',
+    )
+    person = models.ForeignKey(
+        'Person',
+        on_delete=models.CASCADE,
+        related_name='+',
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['concert', 'person'],
+                name='unique concert performer'
+            )
+        ]
+
+
 class Performer(Orderable):
     """
     This is a performer in the sense of an instance of a performance.
@@ -509,6 +590,50 @@ class Performer(Orderable):
         related_name='+'
     )
 
+    def __str__(self):
+        return "{} - {}".format(
+            self.person.title,
+            self.instrument,
+        )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # If not saved as a concert performer already, then
+        # create a concert performer
+        concert = self.performance.get_parent().specific
+        if not ConcertPerformer.objects.filter(
+                concert__pk=concert.id, person=self.person).exists():
+            ConcertPerformer.objects.create(
+                concert=concert,
+                person=self.person
+            )
+
+    def delete(self, *args, **kwargs):
+        # Before deleting, check if other siblings list this person as a
+        # performer, if so, than delete this particular performer, but leave
+        # the concert performer alone.
+        # If not, then delete the concert performer first, then delete
+        concert = self.performance.get_parent().specific
+        sibling_perfs = [
+            p.specific for p in self.performance.get_siblings(inclusive=False)]
+
+        found = False
+        for perf in sibling_perfs:
+            for person in perf.performer.all():
+                if person.id == self.person.id:
+                    found = True
+                    break
+
+        if not found:
+            try:
+                ConcertPerformer.objects.get(
+                    concert__pk=concert.id, person=self.person
+                ).delete()
+            except ConcertPerformer.DoesNotExist:
+                pass
+
+        super().delete(*args, **kwargs)
+
     panels = [
         PageChooserPanel('person'),
         SnippetChooserPanel('instrument')
@@ -516,30 +641,41 @@ class Performer(Orderable):
 
 
 @register_snippet
-class Composition(models.Model):
+class Composition(index.Indexed, models.Model):
     # Note: calling unescape on the title below is only ok because the input is
     # being sanitized by the RichTextField.
     title = RichTextField(features=['bold', 'italic'])
     composer = models.ForeignKey(
         'Person',
         null=True,
-        blank=True,
+        blank=False,
         on_delete=models.SET_NULL,
         related_name='+'
     )
 
     def __str__(self):
+        return unescape(strip_tags(self.title))
+
+    def display_title(self):
+        return str(self)
+
+    def autocomplete_label(self):
         return "{} - {}".format(
             unescape(strip_tags(self.title)),
             self.composer
         )
 
-    def autocomplete_label(self):
-        return self.__str__()
-
     panels = [
         FieldPanel('title'),
         PageChooserPanel('composer')
+    ]
+
+    search_fields = [
+        index.SearchField('title', partial_match=True),
+        index.RelatedFields('composer', [
+            index.FilterField('first_name', partial_match=True),
+            index.FilterField('last_name', partial_match=True),
+        ]),
     ]
 
 
@@ -580,6 +716,8 @@ class Person(Page):
     instrument = ParentalManyToManyField(
         'InstrumentModel',
         related_name='person_instrument',
+        null=True,
+        blank=True,
     )
     legacy_id = models.IntegerField(
         null=True,
@@ -622,8 +760,10 @@ class Person(Page):
         StreamFieldPanel('biography'),
         FieldPanel('active_roster'),
         ImageChooserPanel('headshot'),
-        # # below may need to be a FieldPanel
-        # SnippetChooserPanel('instrument')
+        FieldPanel(
+            'instrument',
+            widget=forms.CheckboxSelectMultiple
+        )
     ]
 
     parent_page_types = ['PersonIndex']
