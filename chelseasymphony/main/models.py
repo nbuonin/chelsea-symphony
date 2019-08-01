@@ -448,7 +448,8 @@ class Concert(Page):
         ImageChooserPanel('concert_image'),
         InlinePanel('concert_date', label="Concert Dates", min_num=1),
         InlinePanel('performer', label='Concert Performers'),
-        FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
+        # Save for future use
+        # FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
 
     objects = ConcertManager()
@@ -715,6 +716,8 @@ class Person(Page):
     instrument = ParentalManyToManyField(
         'InstrumentModel',
         related_name='person_instrument',
+        null=True,
+        blank=True,
     )
     legacy_id = models.IntegerField(
         null=True,
