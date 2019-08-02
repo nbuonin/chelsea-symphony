@@ -22,7 +22,7 @@
                     <div class="position">{{ page.position }}</div>
                     {% endif %}
                     <div class="profile-bio">
-                        {{ page.biography | richtext }}
+                        {% include_block page.biography %}
                     </div>
                 </div>
             </div>

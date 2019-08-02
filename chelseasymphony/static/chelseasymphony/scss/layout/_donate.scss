@@ -1,0 +1,48 @@
+#donation-form-container {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+
+    form {
+        width: 400px;
+        display: flex;
+        flex-flow: column nowrap;
+
+        input[type="submit"] {
+            width: fit-content;
+            align-self: center;
+        }
+    }
+
+    fieldset, .donation-row {
+        margin-bottom: 1em;
+    }
+    .donation-row {
+        margin-bottom: 1.75em;
+    }
+}
+#recurring-donation {
+    display: none,
+}
+
+#single-donation-form, #recurring-donation-form {
+    display: none;
+}
+
+.proxy-input {
+    display: none;
+    &+label {
+        background-color: rgba(226, 226, 226, 0.95);
+    }
+    &:checked+label {
+        background-color: #128cf4;
+        color: white;
+    }
+}
+
+.proxy-label {
+    padding: 0.5em;
+    border: solid black 1px;
+    border-radius: 1em;
+    margin-right: 0.75em;
+}

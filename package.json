@@ -5,8 +5,8 @@
   "license": "GPL-2.0+",
   "scripts": {
     "test": "mocha",
-    "build-scss": "node-sass --output chelseasymphony/static/css chelseasymphony/static/scss/styles.scss --output-style compressed --source-map true",
-    "watch-scss": "nodemon --watch chelseasymphony/static/scss --verbose -e scss -x 'npm run build-scss'"
+    "build-scss": "node-sass --output chelseasymphony/static/chelseasymphony/css chelseasymphony/static/chelseasymphony/scss/styles.scss --output-style compressed --source-map true",
+    "watch-scss": "nodemon --watch chelseasymphony/static/chelseasymphony/scss --verbose -e scss -x 'npm run build-scss'"
   },
   "devDependencies": {
     "eslint": "~5.0.0",

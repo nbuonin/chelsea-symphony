@@ -213,7 +213,9 @@
       list-style: none;
       display: flex;
       justify-content: center;
-      background: url(/static/images/border.png);
+      // This needed to be inlined for collectstatic
+      // but inlining doesn't seem to work
+      background: url(https://chelseasymphony-prod-static.nyc3.digitaloceanspaces.com/chelseasymphony/images/border.png);
       background-position: 50% 60%;
       background-repeat: no-repeat;
       background-size: contain;

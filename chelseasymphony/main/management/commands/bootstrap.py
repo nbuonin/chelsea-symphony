@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 ['Oboe', True],
                 ['Clarinet', True],
                 ['Bassoon', True],
-                ['French Horn', True],
+                ['Horn', True],
                 ['Trumpet', True],
                 ['Trombone', True],
                 ['Tuba', True],

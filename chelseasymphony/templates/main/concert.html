@@ -43,20 +43,20 @@
                     </p>
                 </div>  
                 <div class="concert-copy">
-                    {{ page.description | richtext }}
+                    {% include_block page.description %}
                     <div class="concert-conductors">
                         {% for c in conductors %}
-                        <span><a href="{{ c.url }}">{{ c.name }}</a></span>
+                        <span><a href="{{ c.url }}">{{ c.name }}</a></span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </div>
                 </div>
             </div>
             <div class="concert-program">
-                <h2>The Program</h2>
+                <h2>Program</h2>
                 {% for performance in program %}
                 <div class="concert-program-listing">
                     <div class="concert-program-piece">
-                        <span class="concert-program-piece-composer">{{ performance.composer }}</span>{{ performance.composition | richtext }}
+                        <span class="concert-program-piece-composer">{{ performance.composer }}</span>{{ performance.composition | richtext }} {{ performance.supplemental_text | richtext }}
                     </div>
                     {% for performer in performance.performers %} 
                     <div class="concert-program-piece-soloist">
@@ -82,19 +82,56 @@
                         <div class="concert-program-listing">
                             <p class="concert-program-piece-soloist">
                                 <a href="{{ performer.url }}">{{ performer.name }}</a><br>
-                                {{ performer.instrument }}
+                                {% for i in performer.instrument %}
+                                {{ i }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
                             </p>
+                            {% for performance in performer.performances %}
                             <p class="concert-program-date">
-                                {% for date in performer.dates %}   
-                                {{ date | date:"l, n.j" }},
+                                {% for date in performance.dates %}   
+                                {{ date | date:"l, n.j" }}{% if not forloop.last%}, {% endif %}
                                 {% endfor %}
                             </p>
                             <p class="concert-program-piece">
-                                <span class="concert-program-piece-composer">{{ performer.composer }}: </span>{{ performer.work | striptags }}
+                                <span class="concert-program-piece-composer">{{ performance.composer }}: </span>{{ performance.work | striptags }}
+                            </p>
+                            <br>
+                            {% endfor %}
+                        </div>
+                        <div class="concert-soloist-bio">
+                            {% for block in performer.bio %}
+                                {% if forloop.first %}
+                                    {{ block.value | truncatewords_html:80 }}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+                {% endfor %}
+            </div>
+            <div class="concert-soloists">
+                <h2>Conductors</h2>
+                {% for conductor in conductors %} 
+                <section class="concert-soloist">
+                    <div class="concert-soloist-image">
+                        <div class="concer-soloist-image-container">
+                            <a href="{{ conductor.url }}">
+                                {% responsiveimage conductor.headshot fill-833x1038 srcset="fill-833x1038 833w, fill-582x726 582w, fill-455x567 455w" sizes="833px, 582px, 833px" %}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="solist-program-listing-container">
+                        <div class="concert-program-listing">
+                            <p class="concert-program-piece-soloist">
+                                <a href="{{ conductor.url }}">{{ conductor.name }}</a><br>
                             </p>
                         </div>
                         <div class="concert-soloist-bio">
-                            {{ performer.bio | richtext | truncatewords_html:80 }}
+                            {% for block in conductor.bio %}
+                                {% if forloop.first %}
+                                    {{ block.value | truncatewords_html:80 }}
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
                 </section>
