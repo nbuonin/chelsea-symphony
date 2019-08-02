@@ -965,7 +965,7 @@ class FormField(AbstractFormField):
                            related_name='form_fields')
 
 
-class FormPage(AbstractEmailForm):
+class FormPage(AbstractEmailForm, MenuPageMixin):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
@@ -986,5 +986,6 @@ class FormPage(AbstractEmailForm):
                 FieldPanel('to_address', classname="col6"),
             ]),
             FieldPanel('subject'),
-        ], "Email")
+        ], "Email"),
+        menupage_panel,
     ]
