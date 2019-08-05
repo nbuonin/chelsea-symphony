@@ -837,7 +837,7 @@ class BlogPost(Page):
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel('author'),
+        AutocompletePanel('author', target_model='main.Person'),
         FieldPanel('date'),
         ImageChooserPanel('blog_image'),
         FieldPanel('promo_copy'),
