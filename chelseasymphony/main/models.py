@@ -241,7 +241,9 @@ class Concert(Page):
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
     ])
-    venue = RichTextField()
+    venue = RichTextField(
+        default='ST. PAUL\'S CHURCH, 315 WEST 22ND STREET'
+    )
     concert_image = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
