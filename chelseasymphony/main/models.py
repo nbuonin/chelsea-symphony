@@ -233,7 +233,8 @@ class ConcertAdminForm(WagtailAdminPageForm):
 class Concert(Page):
     base_form_class = ConcertAdminForm
     promo_copy = RichTextField(
-        blank=True
+        blank=True,
+        features=['bold', 'italic'],
     )
     description = StreamField([
         ('paragraph', blocks.RichTextBlock()),
@@ -819,7 +820,8 @@ class BlogPost(Page):
         related_name='+'
     )
     promo_copy = RichTextField(
-        blank=True
+        blank=True,
+        features=['bold', 'italic'],
     )
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
