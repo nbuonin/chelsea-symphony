@@ -1,3 +1,4 @@
+"""Chelsea Symphony Models"""
 from datetime import datetime
 from html import unescape
 from django import forms
