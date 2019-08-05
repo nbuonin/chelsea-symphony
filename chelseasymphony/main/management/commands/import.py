@@ -276,6 +276,7 @@ class Command(BaseCommand):
             concert_image.focal_point_y = c_img['crop_area_Y_offset']
             concert_image.focal_point_width = c_img['crop_area_width']
             concert_image.focal_point_height = c_img['crop_area_height']
+            concert_image.save()
             concert.concert_image = concert_image
             concert.save()
 
@@ -330,6 +331,7 @@ class Command(BaseCommand):
                 headshot.focal_point_y = h_img['crop_area_Y_offset']
                 headshot.focal_point_width = h_img['crop_area_width']
                 headshot.focal_point_height = h_img['crop_area_height']
+                headshot.save()
                 person.headshot = headshot
                 person.save()
 
@@ -367,6 +369,7 @@ class Command(BaseCommand):
                 blog_image.focal_point_y = blog_img['crop_area_Y_offset']
                 blog_image.focal_point_width = blog_img['crop_area_width']
                 blog_image.focal_point_height = blog_img['crop_area_height']
+                blog_image.save()
                 blog_post.blog_image = blog_image
                 blog_post.save_revision().publish()
 
