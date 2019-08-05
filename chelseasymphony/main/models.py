@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 from html import unescape
 from django import forms
 from django.conf import settings
@@ -22,7 +22,6 @@ from wagtail.admin.edit_handlers import (
 )
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
-from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.models import register_snippet
@@ -35,8 +34,6 @@ from wagtailautocomplete.edit_handlers import AutocompletePanel
 from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
 from wagtail.contrib.forms.edit_handlers import FormSubmissionsPanel
 
-from modelcluster.models import ClusterableModel
-
 # For PayPal
 from django.urls import reverse
 from django.shortcuts import render
@@ -44,6 +41,7 @@ from paypal.standard.forms import PayPalPaymentsForm
 
 
 class Home(Page):
+    """Home Page Model"""
     banner_image = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
@@ -213,7 +211,8 @@ ConcertManager = PageManager.from_queryset(ConcertQuerySet)
 
 
 class ConcertAdminForm(WagtailAdminPageForm):
-    def __init__(self, data=None, files=None, parent_page=None, *args, **kwargs):
+    def __init__(
+            self, data=None, files=None, parent_page=None, *args, **kwargs):
         super().__init__(data, files, *args, **kwargs)
         # Limit performer choices to those listed as performers in
         # child Performance pages
@@ -290,8 +289,8 @@ class Concert(Page):
     def get_context(self, request):
         context = super().get_context(request)
         performances = self.get_descendants().select_related(
-                'performance__conductor',
-                'performance__composition')
+            'performance__conductor',
+            'performance__composition')
 
         # Conductors
         conductors = dict()
@@ -461,7 +460,8 @@ class Concert(Page):
 # form
 # TODO: write a test that verifies that 'default-slug' doesn't persist
 class PerformanceAdminForm(WagtailAdminPageForm):
-    def __init__(self, data=None, files=None, parent_page=None, *args, **kwargs):
+    def __init__(
+            self, data=None, files=None, parent_page=None, *args, **kwargs):
         super().__init__(data, files, *args, **kwargs)
         # Set the dates from the parent page dates
         self.parent_page = parent_page
@@ -681,7 +681,8 @@ class Composition(index.Indexed, models.Model):
 
 # TODO: write a test that verifies that 'default-slug' doesn't persist
 class PersonAdminForm(WagtailAdminPageForm):
-    def __init__(self, data=None, files=None, parent_page=None, *args, **kwargs):
+    def __init__(
+            self, data=None, files=None, parent_page=None, *args, **kwargs):
         super().__init__(data, files, *args, **kwargs)
         # Set a default value for the slug
         instance = kwargs.get('instance')
@@ -960,9 +961,9 @@ class Donate(RoutablePageMixin, Page):
 
 
 class FormField(AbstractFormField):
-        page = ParentalKey('FormPage',
-                           on_delete=models.CASCADE,
-                           related_name='form_fields')
+    page = ParentalKey('FormPage',
+                       on_delete=models.CASCADE,
+                       related_name='form_fields')
 
 
 class FormPage(AbstractEmailForm, MenuPageMixin):
