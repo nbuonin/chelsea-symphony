@@ -60,3 +60,19 @@
     }
   }
 }
+
+.pager {
+    @extend %serif-display;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    a, span {
+        margin-right: .3em;
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+    span {
+        border-bottom: solid #000000;
+    }
+}
