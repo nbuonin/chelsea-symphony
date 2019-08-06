@@ -45,6 +45,7 @@
                 <div class="concert-copy">
                     {% include_block page.description %}
                     <div class="concert-conductors">
+                        Conductors:&nbsp;
                         {% for c in conductors %}
                         <span><a href="{{ c.url }}">{{ c.name }}</a></span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}

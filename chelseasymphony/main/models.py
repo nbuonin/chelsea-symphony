@@ -248,6 +248,10 @@ class Concert(Page):
     description = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
+        ('button', blocks.StructBlock([
+            ('button_text', blocks.CharBlock(required=True)),
+            ('button_link', blocks.URLBlock(required=True))
+        ], template='main/blocks/button_block.html'))
     ])
     venue = RichTextField(
         default='ST. PAUL\'S CHURCH, 315 WEST 22ND STREET'

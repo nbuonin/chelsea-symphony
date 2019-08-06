@@ -1,0 +1,15 @@
+.streamfield-button-link {
+    display: flex;
+    flexflow: column nowrap;
+    justify-content: center;
+    padding: 2em 0;
+    a {
+        @extend %sans-reg;
+        @extend %caps;
+        display: block;
+        padding: 1em;
+        border: solid black 1px;  
+        color: #FFFFFF;
+        background-color: #000000;
+    }
+}
