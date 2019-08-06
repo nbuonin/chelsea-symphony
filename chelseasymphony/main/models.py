@@ -1,5 +1,5 @@
 """Chelsea Symphony Models"""
-from datetime import datetime
+from datetime import datetime, timedelta
 from html import unescape
 from django import forms
 from django.conf import settings
@@ -113,6 +113,13 @@ class BasicPage(Page, MenuPageMixin):
     ]
 
 
+def default_concert_time():
+    start = datetime.now()
+    start = start.replace(hour=20, minute=0, second=0, microsecond=0)
+    start = make_aware(start)
+    return start if start > timezone.now() else start + timedelta(days=1)
+
+
 class ConcertDate(models.Model):
     concert = ParentalKey(
         'Concert',
@@ -120,6 +127,7 @@ class ConcertDate(models.Model):
         related_name='concert_date'
     )
     date = models.DateTimeField(
+        default=default_concert_time,
         null=False,
         blank=False
     )
