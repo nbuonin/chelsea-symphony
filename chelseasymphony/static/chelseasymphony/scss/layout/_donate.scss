@@ -44,7 +44,7 @@
         background-color: rgba(226, 226, 226, 0.95);
     }
     &:checked+label {
-        background-color: #128cf4;
+        background-color: $tcs-primary;
         color: white;
     }
 }
