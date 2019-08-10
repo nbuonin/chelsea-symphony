@@ -1,14 +1,24 @@
 """Implements hooks"""
+import logging
+from django.core.mail import send_mail
 from django.db.models import Min
 from django.http import HttpResponseRedirect
+from django.template.loader import get_template
+from django.template import Context
+from django.conf import settings
 from wagtail.core import hooks
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin, modeladmin_register
 )
 from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
+from paypal.standard.models import ST_PP_COMPLETED
+from paypal.standard.ipn.signals import (
+    valid_ipn_received, invalid_ipn_received
+)
 from .models import (
     Person, Composition, InstrumentModel, Concert, ConcertIndex
 )
+logger = logging.getLogger('django.server')
 
 
 class ConcertAdmin(ModelAdmin):
@@ -126,7 +136,32 @@ def redirect_pages_to_admin_edit(request, page):
     return HttpResponseRedirect('/admin/main/person/')
 
 
+def handle_donation(sender, **kwargs):
+    ipn_obj = sender
+    if ipn_obj.payment_status == ST_PP_COMPLETED:
+        if ipn_obj.receiver_email != settings.PAYPAL_ACCT_EMAIL:
+            plaintext = get_template('main/email/donation_confirmation.txt')
+            ctx = {
+                'first_name': ipn_obj.first_name,
+                'last_name': ipn_obj.last_name,
+                'email_address': ipn_obj.payer_email,
+                'amount': ipn_obj.amount
+            }
+            send_mail(
+                'Thank you for your donation',
+                plaintext.render(ctx),
+                settings.DONATION_EMAIL_ADDR,
+                [ipn_obj.payer_email],
+            )
+
+
+def handle_invalid_donation(sender, **kwargs):
+    logger.info('An invalid IPN request was made')
+
+
 modeladmin_register(ConcertAdmin)
 modeladmin_register(PersonAdmin)
 modeladmin_register(CompositionAdmin)
 modeladmin_register(InstrumentAdmin)
+valid_ipn_received.connect(handle_donation)
+invalid_ipn_received.connect(handle_invalid_donation)

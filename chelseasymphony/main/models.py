@@ -932,12 +932,9 @@ class Donate(RoutablePageMixin, Page):
             '125.00'
         ]
 
-        email = 'info-facilitator@chelseasymphony.org' if settings.PAYPAL_TEST\
-            else 'info@chelseasymphony.org'
-
         paypal_dict_single = {
             "cmd": "_donations",
-            "business": email,
+            "business": settings.PAYPAL_ACCT_EMAIL,
             "amount": "",
             "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
             "return": self.full_url + 'thank-you/',
@@ -947,7 +944,7 @@ class Donate(RoutablePageMixin, Page):
 
         paypal_dict_recurring = {
             "cmd": "_xclick-subscriptions",
-            "business": email,
+            "business": settings.PAYPAL_ACCT_EMAIL,
             "src": "1",
             "srt": "24",
             "p3": "1",
