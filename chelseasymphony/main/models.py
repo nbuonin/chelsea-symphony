@@ -733,7 +733,6 @@ class Person(Page):
     instrument = ParentalManyToManyField(
         'InstrumentModel',
         related_name='person_instrument',
-        null=True,
         blank=True,
     )
     legacy_id = models.IntegerField(
