@@ -140,19 +140,22 @@ def handle_donation(sender, **kwargs):
     ipn_obj = sender
     if ipn_obj.payment_status == ST_PP_COMPLETED:
         if ipn_obj.receiver_email != settings.PAYPAL_ACCT_EMAIL:
-            plaintext = get_template('main/email/donation_confirmation.txt')
-            ctx = {
-                'first_name': ipn_obj.first_name,
-                'last_name': ipn_obj.last_name,
-                'email_address': ipn_obj.payer_email,
-                'amount': ipn_obj.amount
-            }
-            send_mail(
-                'Thank you for your donation',
-                plaintext.render(ctx),
-                settings.DONATION_EMAIL_ADDR,
-                [ipn_obj.payer_email],
-            )
+            logger.info('An invalid payment request was made')
+            return
+
+        plaintext = get_template('main/email/donation_confirmation.txt')
+        ctx = {
+            'first_name': ipn_obj.first_name,
+            'last_name': ipn_obj.last_name,
+            'email_address': ipn_obj.payer_email,
+            'amount': ipn_obj.payment_gross
+        }
+        send_mail(
+            'Thank you for your donation',
+            plaintext.render(ctx),
+            settings.DONATION_EMAIL_ADDR,
+            [ipn_obj.payer_email],
+        )
 
 
 def handle_invalid_donation(sender, **kwargs):

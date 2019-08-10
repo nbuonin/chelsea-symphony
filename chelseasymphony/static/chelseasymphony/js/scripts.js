@@ -88,7 +88,7 @@ $(document).ready(function() {
         } else if (donationType === 'recurring') {
             let val = $('input[type=radio][name=recurring_donation]:checked').val();
             let donationAmount = val ? val : '0.00';
-            $('#recurring-donation-form form input[name=amount]').attr('value', donationAmount);
+            $('#recurring-donation-form form input[name=a3]').attr('value', donationAmount);
             $('#recurring-donation-form form').submit();
         }
     });
