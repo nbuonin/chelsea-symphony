@@ -51,6 +51,7 @@ $(document).ready(function() {
     //}
 
     // Donation Page
+    // Toggle the single and recurring forms
     $("#donation-type-recurring").on("click", function () {
         $("#single-donation").hide();
         $("#recurring-donation").show();
@@ -61,6 +62,15 @@ $(document).ready(function() {
         $("#recurring-donation").hide();
     });
 
+    // Handle cases when someone hits back from PayPal and the recurring
+    // donation field is selected - this ensures the recurring form values
+    // are visible to the user.
+    if ($("#donation-type-recurring")[0].checked) {
+        $("#single-donation").hide();
+        $("#recurring-donation").show();
+    }
+
+    // Set the 'other' amounts
     $('input[name=single_other_amount]').on('focus', function (e) {
         $('#single-other').attr('checked', true);
     });

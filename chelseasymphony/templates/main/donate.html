@@ -20,14 +20,14 @@
         <form id="proxy-form" action="#">
             <fieldset id="donation-type">
                 <input type="radio" name="donation_type" id="donation-type-single" value="single" checked/>
-                <label for="single">Single</label>
+                <label for="donation-type-single">Single</label>
                 <input type="radio" name="donation_type" id="donation-type-recurring" value="recurring"/>
-                <label for="recurring">Recurring</label>
+                <label for="donation-type-recurring">Recurring</label>
             </fieldset>
             <fieldset id="single-donation">
                 <div class="donation-row">
                     {% for val in single_donation_amounts %}
-                    <input type="radio" class="proxy-input" name="single_donation" id="single-{{ forloop.counter0 }}" value="{{ val }}" />
+                    <input type="radio" class="proxy-input" name="single_donation" id="single-{{ forloop.counter0 }}" value="{{ val }}" {% if forloop.first %}checked{% endif %}/>
                     <label class="proxy-label" for="single-{{ forloop.counter0 }}">${{ val }}</label>
                     {% if forloop.counter0 == 3%}
                     </div>
@@ -43,7 +43,7 @@
             <fieldset id="recurring-donation">
                 <div class="donation-row">
                 {% for val in recurring_donation_amounts %}
-                    <input type="radio" class="proxy-input" name="recurring_donation" id="recurring-{{ forloop.counter0 }}" value="{{ val }}" />
+                    <input type="radio" class="proxy-input" name="recurring_donation" id="recurring-{{ forloop.counter0 }}" value="{{ val }}" {% if forloop.first %}checked{% endif %}/>
                     <label class="proxy-label" for="recurring-{{ forloop.counter0 }}">${{ val }}</label>
                     {% if forloop.counter0 == 3%}
                     </div>
