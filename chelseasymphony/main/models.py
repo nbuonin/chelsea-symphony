@@ -96,7 +96,7 @@ class BasicPage(Page, MenuPageMixin):
         StreamFieldPanel('body')
     ]
 
-    settings_panels = [
+    settings_panels = Page.settings_panels + [
         menupage_panel
     ]
 
@@ -1005,5 +1005,8 @@ class FormPage(AbstractEmailForm, MenuPageMixin):
             ]),
             FieldPanel('subject'),
         ], "Email"),
+    ]
+
+    settings_panels = AbstractEmailForm.settings_panels + [
         menupage_panel,
     ]
