@@ -70,9 +70,26 @@ $(document).ready(function() {
         $("#recurring-donation").show();
     }
 
+    // Clear an invalid 'other' amount if another field is clicked
+    $('.proxy-input').each(function(idx, el){
+        var single = $('#single-other-amount')[0];
+        var recurring = $('#recurring-other-amount')[0];
+
+        if ((el.id !== 'single-other') && (el.id !== 'recurring-other')) {
+            $(el).on('click', function(e){
+                if (!single.checkValidity()) {
+                    single.value = "";
+                }
+                if (!recurring.checkValidity()) {
+                    recurring.value = "";
+                }
+            });
+        }
+    });
+
     // Set the 'other' amounts
     $('input[name=single_other_amount]').on('focus', function (e) {
-        $('#single-other').attr('checked', true);
+        $('#single-other').prop('checked', true);
     });
 
     $('input[name=single_other_amount]').on('blur', function (e) {
@@ -80,7 +97,7 @@ $(document).ready(function() {
     });
 
     $('input[name=recurring_other_amount]').on('focus', function (e) {
-        $('#recurring-other').attr('checked', true);
+        $('#recurring-other').prop('checked', true);
     });
 
     $('input[name=recurring_other_amount]').on('blur', function (e) {
