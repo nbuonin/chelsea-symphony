@@ -16,7 +16,7 @@
         </div>
     </div>
     <div id="donation-form-container" class="container">
-        <h1>Donate</h1>
+        <h2>Donate</h2>
         <form id="proxy-form" action="#">
             <fieldset id="donation-type">
                 <input type="radio" name="donation_type" id="donation-type-single" value="single" checked/>
@@ -35,7 +35,7 @@
                     {% endif %}
                     {% endfor %}
                     <input type="radio" class="proxy-input" name="single_donation" id="single-other" value="" />
-                    <label class="proxy-label" for="single-other">
+                    <label class="proxy-label proxy-label-other" for="single-other">
                         $<input type="number" name="single_other_amount" placeholder="Other amount" id="single-other-amount" min="0.01" step="any" value="" />
                     </label>
                 </div>
@@ -51,12 +51,12 @@
                     {% endif %}
                     {% endfor %}
                     <input type="radio" class="proxy-input" name="recurring_donation" id="recurring-other" value="" />
-                    <label class="proxy-label" for="recurring-other">
+                    <label class="proxy-label proxy-lable-other" for="recurring-other">
                         $<input type="number" name="recurring_other_amount" placeholder="Other amount" id="recurring-other-amount" min="0.01" step="any" value="" />
                     </label>
                 </div>
             </fieldset>
-            <input type="submit" name="Donate" id="Donate" value="Donate" />
+            <input type="submit" name="Donate" id="proxy-form-donate-sumbit" value="Donate" />
         </form>
         <div id="single-donation-form" class="donation-form">
             {{ single.render }} 

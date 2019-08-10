@@ -11,14 +11,23 @@
         input[type="submit"] {
             width: fit-content;
             align-self: center;
+            @extend %sans-reg;
+            @extend %big;
+            padding: 0.5em;
+            border: solid black 1px;
+            border-radius: 1em;
+            color: #FFFFFF;
+            background-color: $tcs-primary;
         }
     }
 
     fieldset, .donation-row {
-        margin-bottom: 1em;
+        margin: 0 auto 1em;
     }
     .donation-row {
-        margin-bottom: 1.75em;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
     }
 }
 #recurring-donation {
@@ -45,4 +54,8 @@
     border: solid black 1px;
     border-radius: 1em;
     margin-right: 0.75em;
+}
+
+.proxy-label-other {
+    display: inline-block;
 }
