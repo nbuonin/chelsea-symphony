@@ -7,6 +7,7 @@
 <main>
     <div class="container">
         <article id="concert">
+            {% if page.concert_image %}
             <p class="concert-tag">
                 {% with cd=page.concert_date.all %}
                 {% if cd|length_is:"1" %}
@@ -18,6 +19,7 @@
                 {% endif %}
                 {% endwith %}
             </p>
+            {% endif %}
             <div class="concert-image">
                 <div class="concert-image-container">
                     {% responsiveimage page.concert_image fill-1470x542 srcset="fill-833x306 833w, fill-1208x446 1208w, fill-1470x542 1470w" sizes="555px, 1208px, 630px" %}
@@ -44,12 +46,14 @@
                 </div>  
                 <div class="concert-copy">
                     {% include_block page.description %}
+                    {% if conductors %}
                     <div class="concert-conductors">
                         Conductors:&nbsp;
                         {% for c in conductors %}
                         <span><a href="{{ c.url }}">{{ c.name }}</a></span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="concert-program">
@@ -68,6 +72,7 @@
                 </div>
                 {% endfor %}
             </div>
+            {% if performers %}
             <div class="concert-soloists">
                 <h2>Featured Artists</h2>
                 {% for performer in performers %} 
@@ -110,6 +115,8 @@
                 </section>
                 {% endfor %}
             </div>
+            {% endif %}
+            {% if conductors %}
             <div class="concert-soloists">
                 <h2>Conductors</h2>
                 {% for conductor in conductors %} 
@@ -138,6 +145,7 @@
                 </section>
                 {% endfor %}
             </div>
+            {% endif %}
         </article>
     </div>
 </main>
