@@ -33,16 +33,16 @@
             </div>
             <div class="concert-copy-container">
                 <div class="concert-date-location">
-                    <p class="concert-date">
+                    <div class="concert-date">
                         {% with cd=page.concert_date.all %}
                             {% for d in cd %}
                             <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="{{ d.date|date:"c" }}">{{ d.date|date:"l | n.j.y | "  }}{{d.date|time:"g:i A"}}</span><br>
                             {% endfor %}
                         {% endwith %}
-                    </p>
-                    <p class="concert-location">
+                    </div>
+                    <div class="concert-location">
                         {{ page.venue | richtext }}
-                    </p>
+                    </div>
                 </div>  
                 <div class="concert-copy">
                     {% include_block page.description %}
