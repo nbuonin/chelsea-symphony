@@ -254,7 +254,7 @@ class Concert(Page):
         ], template='main/blocks/button_block.html'))
     ])
     venue = RichTextField(
-        default='ST. PAUL\'S CHURCH, 315 WEST 22ND STREET'
+        default='St. Paul\'S Church, 315 West 22nd Street'
     )
     concert_image = models.ForeignKey(
         'wagtailimages.Image',
