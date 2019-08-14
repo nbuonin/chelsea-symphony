@@ -62,13 +62,7 @@ class Home(Page):
             live().public().order_by('-date')[:2]
         return context
 
-    # TODO: you don't need this:
-    # see
-    # https://docs.wagtail.io/en/v2.5.1/reference/pages/model_reference.html#wagtail.core.models.Page.max_count
-    @classmethod
-    def can_create_at(cls, parent):
-        # Only one of these may be created
-        return super().can_create_at(parent) and not cls.objects.exists()
+    max_count = 1
 
     class Meta:
         verbose_name = "Homepage"
@@ -147,11 +141,7 @@ class ConcertDate(models.Model):
 
 
 class ConcertIndex(RoutablePageMixin, Page):
-    # TODO: pull this
-    @classmethod
-    def can_create_at(cls, parent):
-        # Only one of these may be created
-        return super().can_create_at(parent) and not cls.objects.exists()
+    max_count = 1
 
     @route(r'^$')
     def upcoming_concerts(self, request):
