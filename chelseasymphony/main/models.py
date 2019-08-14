@@ -5,6 +5,7 @@ from django import forms
 from django.conf import settings
 from django.db import models
 from django.db.models import Max
+from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from django.utils import timezone
@@ -54,10 +55,11 @@ class Home(Page):
 
     def get_context(self, request):
         context = super().get_context(request)
-        future_concerts = Concert.objects.future_concerts()
+        future_concerts = Concert.objects.future_concerts().live().public()
         context['featured_concert'] = future_concerts.first()
         context['upcoming_concerts'] = future_concerts[1:4]
-        context['recent_blog_posts'] = BlogPost.objects.all()[:2]
+        context['recent_blog_posts'] = BlogPost.objects.all().\
+            live().public().order_by('-date')[:2]
         return context
 
     # TODO: you don't need this:
@@ -155,27 +157,28 @@ class ConcertIndex(RoutablePageMixin, Page):
     def upcoming_concerts(self, request):
         context = self.get_context(request)
         context['seasons'] = Concert.objects.concert_seasons()
-        context['concerts'] = Concert.objects.future_concerts()
+        context['concerts'] = Concert.objects.future_concerts().live().public()
         return TemplateResponse(
             request,
             self.get_template(request),
             context
         )
 
-    # TODO: You're injecting 'season' from the URL into the context.
     @route(r'(?P<season>\d{4}-\d{4})/$')
     def concerts_by_season(self, request, season):
-        # Find the Season and raise 404 if it doesn't exist
+        seasons = Concert.objects.concert_seasons()
+        if season not in seasons:
+            raise Http404()
+
         context = self.get_context(request)
-        context['seasons'] = Concert.objects.concert_seasons()
+        context['seasons'] = seasons
         context['season'] = season
         context['concerts'] = Concert.objects.\
             annotate(last_date=Max('concert_date__date')).\
             filter(
                 season=season,
-                live=True,
                 concert_date__date__isnull=False).distinct().\
-            order_by('last_date')
+            order_by('last_date').live().public()
         return TemplateResponse(
             request,
             self.get_template(request),
@@ -189,6 +192,12 @@ class ConcertIndex(RoutablePageMixin, Page):
             season=season,
             slug=slug
         )
+        if not concert_page.live:
+            raise Http404()
+
+        if concert_page.get_view_restrictions():
+            raise Http404()
+
         return concert_page.serve(request)
 
     parent_page_types = ['Home']
@@ -306,21 +315,24 @@ class Concert(Page):
 
     def get_context(self, request):
         context = super().get_context(request)
-        performances = self.get_descendants().select_related(
+        performances = self.get_descendants().live().public().select_related(
             'performance__conductor',
             'performance__composition')
 
         # Conductors
+        # TODO: test that conductor exists, is live, and is public
         conductors = dict()
         for p in performances:
-            name = p.specific.conductor.title
-            conductors[name] = {
-                'name': name,
-                'last_name': p.specific.conductor.last_name,
-                'url': p.specific.conductor.url,
-                'headshot': p.specific.conductor.headshot,
-                'bio': p.specific.conductor.biography,
-            }
+            conductor = p.specific.conductor
+            if (conductor and conductor.is_live_public()):
+                name = conductor.title
+                conductors[name] = {
+                    'name': name,
+                    'last_name': p.specific.conductor.last_name,
+                    'url': p.specific.conductor.url,
+                    'headshot': p.specific.conductor.headshot,
+                    'bio': p.specific.conductor.biography,
+                }
 
         context['conductors'] = sorted(
             conductors.values(), key=lambda x: x['last_name'])
@@ -330,7 +342,9 @@ class Concert(Page):
         for p in performances:
             # First make a set of all performers for a given performance
             performers = list()
-            for performer in p.specific.performer.all():
+            # TODO: test that performer is live, is public()
+            perfs = (p for p in p.specific.performer.all() if p.person.is_live_public())
+            for performer in perfs:
                 performers.append({
                     'name': performer.person.title,
                     'url': performer.person.url,
@@ -338,11 +352,16 @@ class Concert(Page):
                 })
 
             # Then assemble with composer and composition
+            cmpsr = p.specific.composition.composer
+            composer = None
+            if cmpsr.is_live_public():
+                composer = cmpsr
+
             program.append({
-                'composer': p.specific.composition.composer.title,
+                'composer': composer.title if composer else 'Anon.',
                 'composition': p.specific.composition.title,
                 'supplemental_text': p.specific.supplemental_text,
-                'performers': performers
+                'performers': performers  # TODO: what happens if performers is null?
             })
         context['program'] = program
 
@@ -351,17 +370,23 @@ class Concert(Page):
         # and the date they are performing it.
         performers = list()
         for soloist in (p.person for p
-                        in self.performer.all().order_by('sort_order')):
+                        in self.performer.all().order_by('sort_order')
+                        if p.person.is_live_public()):
             # Select performances that have this soloist as a performer
-            perfs = Performance.objects.live().descendant_of(self).\
-                filter(performer__person__id=soloist.id)
+            perfs = Performance.objects.descendant_of(self).\
+                filter(performer__person__id=soloist.id).live().public()
 
             # Build up an aggregation of solo performances
             solo_perfs = list()
             solo_instrument = set()
             for p in perfs:
+                cmpsr = p.composition.composer
+                composer = None
+                if cmpsr.is_live_public():
+                    composer = cmpsr
+
                 solo_perfs.append({
-                    'composer': p.composition.composer.title,
+                    'composer': composer.title if composer else 'Anon.',
                     'work': p.composition.title,
                     'dates': [d.date for d in p.performance_date.all()]
                 })
@@ -402,11 +427,14 @@ class Concert(Page):
         performances_by_date = list()
         for cd in concert_dates:
             performances = list()
-            ps = cd.performance_set.all()
+            ps = cd.performance_set.all().live().public()
             for p in ps:
                 # First make a set of all performers for a given performance
                 performers = list()
-                for performer in p.specific.performer.all():
+                live_public_performers = (
+                    perf for perf in p.specific.performer.all()
+                    if perf.person.is_live_public())
+                for performer in live_public_performers:
                     performers.append({
                         'name': performer.person.title,
                         'url': performer.person.url,
@@ -414,8 +442,10 @@ class Concert(Page):
                     })
 
                 # Then assemble with composer and composition
+                cmpsr = p.specific.composition.composer
+                composer = cmpsr if cmpsr.is_live_public() else 'Anon.'
                 performances.append({
-                    'composer': p.specific.composition.composer.title,
+                    'composer': composer,
                     'composition': p.specific.composition.title,
                     'supplemental_text': p.specific.supplemental_text,
                     'performers': performers
@@ -569,6 +599,15 @@ class ConcertPerformer(Orderable):
         related_name='+',
     )
 
+    def is_performer_live_public(self):
+        return self.person.live and not self.person.get_view_restrictions()
+
+    def get_performer(self):
+        if (self.person.live and not self.person.get_view_restrictions()):
+            return self.person
+
+        return None
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -601,6 +640,16 @@ class Performer(Orderable):
         on_delete=models.PROTECT,
         related_name='+'
     )
+
+    def is_performer_live_public(self):
+        return self.person.live and not self.person.get_view_restrictions()
+
+    def get_performer(self):
+        if (self.person.live and not self.person.get_view_restrictions()):
+            return self.person
+
+        return None
+
 
     def __str__(self):
         return "{} - {}".format(
@@ -726,6 +775,9 @@ class Person(Page):
         unique=True
     )
 
+    def is_live_public(self):
+        return self.live and not self.get_view_restrictions()
+
     def __str__(self):
         return "{} {}".format(
             self.first_name,
@@ -779,7 +831,7 @@ class PersonIndex(Page):
         for i in instruments:
             musicians = Person.objects.filter(
                 instrument__pk=i.pk, active_roster=True)\
-                .order_by('last_name', 'first_name')
+                .live().public().order_by('last_name', 'first_name')
             roster[i.instrument] = [m for m in musicians]
         context['roster'] = roster
         return context
@@ -842,7 +894,7 @@ class BlogPost(Page):
 
     def get_context(self, request):
         context = super().get_context(request)
-        context['recent_blog_posts'] = BlogPost.objects.live()\
+        context['recent_blog_posts'] = BlogPost.objects.live().public()\
             .order_by('-date')[:5]
         return context
 
@@ -856,7 +908,7 @@ class BlogIndex(Page):
 
     def get_context(self, request):
         context = super().get_context(request)
-        context['blog_posts'] = BlogPost.objects.live()\
+        context['blog_posts'] = BlogPost.objects.live().public()\
             .order_by('-date')
         return context
 
