@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
+from wagtail.admin.action_menu import ActionMenuItem
 from wagtail.core import hooks
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin, modeladmin_register
@@ -31,6 +32,12 @@ class ConcertAdmin(ModelAdmin):
     list_display = ('admin_title', 'concert_dates')
     list_filter = ('season',)
     search_fields = ('title', 'description')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            first_date=Min('concert_date__date')).\
+            order_by('-first_date')
 
 
 class PersonAdmin(ThumbnailMixin, ModelAdmin):
@@ -134,6 +141,30 @@ def redirect_pages_to_admin_edit(request, page):
         return HttpResponseRedirect('/admin/pages/{}/'.format(page.id))
 
     return HttpResponseRedirect('/admin/main/person/')
+
+
+class EditChildrenMenuItem(ActionMenuItem):
+    name = 'edit-children'
+    label = 'Edit Children'
+
+    def is_shown(self, request, context):
+        if context['view'] == 'create':
+            return False
+
+        if not isinstance(context['page'], Concert):
+            return False
+
+        return True
+
+    def get_url(self, request, context):
+        page = context['page']
+        _, base_url, _ = page.get_url_parts()
+        return '{}/admin/pages/{}/'.format(base_url, page.id)
+
+
+@hooks.register('register_page_action_menu_item')
+def edit_children():
+    return EditChildrenMenuItem(order=100)
 
 
 def handle_donation(sender, **kwargs):
