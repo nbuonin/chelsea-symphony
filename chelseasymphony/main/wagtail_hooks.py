@@ -5,6 +5,7 @@ from django.db.models import Min
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.timezone import localtime
 from django.conf import settings
 from wagtail.admin.action_menu import ActionMenuItem
 from wagtail.core import hooks
@@ -17,7 +18,8 @@ from paypal.standard.ipn.signals import (
     valid_ipn_received, invalid_ipn_received
 )
 from .models import (
-    Person, Composition, InstrumentModel, Concert, ConcertIndex
+    Person, Composition, InstrumentModel, Concert, ConcertIndex,
+    ConcertDate
 )
 logger = logging.getLogger('django.server')
 
@@ -39,6 +41,14 @@ class ConcertAdmin(ModelAdmin):
             first_date=Min('concert_date__date')).\
             order_by('-first_date')
 
+    def concert_dates(self, obj):
+        dates = ConcertDate.objects.\
+            filter(concert=obj.id).order_by('date')
+
+        return '; '.join(
+            [localtime(d.date).
+             strftime('%a, %b %d, %-I:%M %p') for d in dates])
+
 
 class PersonAdmin(ThumbnailMixin, ModelAdmin):
     """Creates admin page for people"""
@@ -47,11 +57,18 @@ class PersonAdmin(ThumbnailMixin, ModelAdmin):
     menu_icon = 'group'
     menu_order = 205
     exclude_from_explorer = True
-    list_display = ('admin_thumb', 'first_name', 'last_name')
+    list_display = (
+        'admin_thumb', 'first_name', 'last_name', 'instrument_list')
     list_display_add_buttons = 'first_name'
     thumb_image_field_name = 'headshot'
-    list_filter = ('active_roster',)
+    list_filter = ('active_roster', 'instrument')
     search_fields = ('first_name', 'last_name')
+    ordering = ('last_name',)
+
+    def instrument_list(self, obj):
+        return ', '.join([i.instrument for i in obj.instrument.all()])
+
+    instrument_list.short_description = 'Instrument'
 
 
 class CompositionAdmin(ModelAdmin):

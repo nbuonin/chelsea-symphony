@@ -133,7 +133,7 @@ class ConcertDate(models.Model):
         ordering = ['date']
 
     def __str__(self):
-        return localtime(self.date).strftime('%a, %b. %d, %-I:%M %p')
+        return localtime(self.date).strftime('%a, %b %d, %-I:%M %p')
 
     panels = [
         FieldPanel('date')
@@ -294,15 +294,6 @@ class Concert(Page):
             self.id,
             self.title,
         )
-
-    def concert_dates(self):
-        # Used for the admin listing, don't use this for real
-        dates = ConcertDate.objects.\
-            filter(concert=self.id).order_by('date')
-
-        return ', '.join(
-            [localtime(d.date).
-             strftime('%a, %b. %d, %-I:%M %p') for d in dates])
 
     def get_context(self, request):
         context = super().get_context(request)
