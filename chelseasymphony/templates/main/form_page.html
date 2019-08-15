@@ -13,10 +13,10 @@
             {% if page.body %}
                 {% include_block page.body %}
             {% endif %}
-            <form action="{% pageurl page %}" method="POST">
+            <form id="content-form" action="{% pageurl page %}" method="POST">
                 {% csrf_token %}
                 {{ form.as_p  }}
-                <input type="submit">
+                <input id="content-form-submit" type="submit">
             </form>
         </div>
     </div>
