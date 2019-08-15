@@ -725,8 +725,8 @@ class Composition(index.Indexed, models.Model):
     search_fields = [
         index.SearchField('title', partial_match=True),
         index.RelatedFields('composer', [
-            index.FilterField('first_name', partial_match=True),
-            index.FilterField('last_name', partial_match=True),
+            index.SearchField('first_name', partial_match=True),
+            index.SearchField('last_name', partial_match=True),
         ]),
     ]
 

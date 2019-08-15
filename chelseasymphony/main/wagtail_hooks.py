@@ -62,8 +62,7 @@ class CompositionAdmin(ModelAdmin):
     menu_order = 210
     exclude_from_explorer = True
     list_display = ('display_title', 'composer')
-    list_filter = ('composer',)
-    search_fields = ('title',)
+    search_fields = ('title', 'composer__title')
 
 
 class InstrumentAdmin(ModelAdmin):
