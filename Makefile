@@ -40,7 +40,7 @@ docker-image:
 	docker build -t nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"` .
 
 docker-test:
-	docker run --rm nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"` pipenv run python manage.py test
+	cd docker && docker-compose up --build --abort-on-container-exit
 
 docker-push:
 	docker push nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"`
