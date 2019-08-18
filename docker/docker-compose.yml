@@ -4,6 +4,8 @@ services:
     image: postgres:11-alpine  
   web:
     build: ../
+    depends_on:
+      - db
     ports:
       - "8000:8000"
     environment:
