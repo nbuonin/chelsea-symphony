@@ -5,6 +5,7 @@ jobs:
     steps:
       - checkout
       - run: |
+          make docker-image
           make docker-test
 
       - run: |
