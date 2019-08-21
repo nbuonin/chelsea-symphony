@@ -42,6 +42,9 @@ from django.urls import reverse
 from django.shortcuts import render
 from paypal.standard.forms import PayPalPaymentsForm
 
+# For Wagtail Metadata
+from wagtailmetadata.models import MetadataPageMixin
+
 
 class Home(Page):
     """Home Page Model"""
@@ -239,7 +242,7 @@ class ConcertAdminForm(WagtailAdminPageForm):
                 form.fields['person'].queryset = people
 
 
-class Concert(Page):
+class Concert(MetadataPageMixin, Page):
     base_form_class = ConcertAdminForm
     promo_copy = RichTextField(
         blank=True,
@@ -294,6 +297,12 @@ class Concert(Page):
             self.id,
             self.title,
         )
+
+    def get_meta_description(self):
+        return self.search_description or self.promo_copy
+
+    def get_meta_image(self):
+        return self.search_image or self.concert_image
 
     def get_context(self, request):
         context = super().get_context(request)

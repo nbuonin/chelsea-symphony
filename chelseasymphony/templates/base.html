@@ -36,6 +36,10 @@
         {% block extra_css %}
             {# Override this in templates to add extra stylesheets #}
         {% endblock %}
+
+        {% block seo_tags %}
+            {# Use this block to add the 'meta_tags' tag #}
+        {% endblock %}
     </head>
 
     <body class="html {% block body_class %}{% endblock %}" >

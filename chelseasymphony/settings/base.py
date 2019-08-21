@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'taggit',
     'el_pagination',
     'wagtailmenus',
+    'wagtailmetadata',
 
     'django.contrib.admin',
     'django.contrib.auth',
