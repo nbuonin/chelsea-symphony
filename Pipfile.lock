@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "523679b173a1437807d86b525bf6ef34d0134f47f4fc646fdcc04db1882df24c"
+            "sha256": "46aeb1620c3361f4416cca14aa15d6714be7b6a9e90b212b7ccd6b435242a6dc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -33,18 +33,18 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:0cd4a3e158f40eedb54b36b3fbe60d135db74a245f0ca8eead1af2eb6d46a649",
-                "sha256:68e9eba6f846cf8e01973ec565afdb1adfb9612b531c15bb5c5524394db4df5b"
+                "sha256:1a228661611cb99c3c54f5bdbdc29d9d7ef5341676a644d2508eeeff7b8b2fe3",
+                "sha256:c25d1089676213bda140c5b6faacd008b93203d27f1707cf0efc827d46cd719d"
             ],
             "index": "pypi",
-            "version": "==1.9.199"
+            "version": "==1.9.212"
         },
         "botocore": {
             "hashes": [
-                "sha256:91d1deb7d09a27122820a3a99d22f45dbadc039c1d5cf6270eb245b95071e7ba",
-                "sha256:e4678f5072bd8a429ea27243004964986db5dfda911084d47a9f18de5c8d75d7"
+                "sha256:123b1d703ee3445850f00969e07e276f949834c43048b6a9a0e5e7966a523108",
+                "sha256:bebd21f9c8badcb895fb735743d2a8df8289162314b9346879cb74a1d698e075"
             ],
-            "version": "==1.12.201"
+            "version": "==1.12.212"
         },
         "certifi": {
             "hashes": [
@@ -126,11 +126,11 @@
         },
         "docutils": {
             "hashes": [
-                "sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6",
-                "sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274",
-                "sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6"
+                "sha256:6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0",
+                "sha256:9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827",
+                "sha256:a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"
             ],
-            "version": "==0.14"
+            "version": "==0.15.2"
         },
         "draftjs-exporter": {
             "hashes": [
