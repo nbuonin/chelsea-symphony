@@ -46,7 +46,7 @@ from paypal.standard.forms import PayPalPaymentsForm
 from wagtailmetadata.models import MetadataPageMixin
 
 
-class Home(Page):
+class Home(MetadataPageMixin, Page):
     """Home Page Model"""
     banner_image = models.ForeignKey(
         'wagtailimages.Image',
@@ -86,7 +86,7 @@ class Home(Page):
     ]
 
 
-class BasicPage(Page, MenuPageMixin):
+class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
@@ -490,6 +490,20 @@ class Concert(MetadataPageMixin, Page):
         # FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
 
+    promote_panels = [
+        MultiFieldPanel([
+            FieldPanel('slug'),
+            FieldPanel('seo_title'),
+            FieldPanel('show_in_menus'),
+            FieldPanel(
+                'search_description',
+                help_text=(
+                    'Use this field for short descriptions on social media '
+                    'sites. Otherwise the promo text will be used.')),
+            ImageChooserPanel('search_image'),
+        ], ugettext_lazy('Common page configuration')),
+    ]
+
     objects = ConcertManager()
     parent_page_types = ['ConcertIndex']
     subpage_types = ['Performance']
@@ -731,7 +745,7 @@ class Composition(index.Indexed, models.Model):
     ]
 
 
-class Person(Page):
+class Person(MetadataPageMixin, Page):
     # base_form_class = PersonAdminForm
     first_name = models.CharField(
         blank=True,
@@ -769,6 +783,9 @@ class Person(Page):
     def is_live_public(self):
         return self.live and not self.get_view_restrictions()
 
+    def get_meta_image(self):
+        return self.search_image or self.headshot
+
     def __str__(self):
         return "{} {}".format(
             self.first_name,
@@ -802,6 +819,11 @@ class Person(Page):
             FieldPanel('seo_title'),
             FieldPanel('show_in_menus'),
             FieldPanel('search_description'),
+            ImageChooserPanel(
+                'search_image',
+                help_text=(
+                    'Select an image to be used for social media sites. '
+                    'Otherwise, the headshot image will be used.')),
         ], ugettext_lazy('Common page configuration')),
     ]
 
@@ -845,7 +867,7 @@ class InstrumentModel(models.Model):
         verbose_name = "Instrument"
 
 
-class BlogPost(Page):
+class BlogPost(MetadataPageMixin, Page):
     author = models.ForeignKey(
         'Person',
         null=True,
@@ -882,6 +904,28 @@ class BlogPost(Page):
         FieldPanel('promo_copy'),
         StreamFieldPanel('body'),
     ]
+
+    promote_panels = [
+        MultiFieldPanel([
+            FieldPanel('slug'),
+            FieldPanel('seo_title'),
+            FieldPanel('show_in_menus'),
+            FieldPanel(
+                'search_description',
+                help_text=('Description to be used for social media sites. '
+                           'Otherwise, the promo text will be used.')),
+            ImageChooserPanel(
+                'search_image',
+                help_text=('Image to be used for social media sites. '
+                           'Otherwise, the blog image will be used.')),
+        ], ugettext_lazy('Common page configuration')),
+    ]
+
+    def get_meta_description(self):
+        return self.search_description or self.promo_copy
+
+    def get_meta_image(self):
+        return self.search_image or self.blog_image
 
     def get_context(self, request):
         context = super().get_context(request)

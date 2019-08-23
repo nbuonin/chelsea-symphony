@@ -15,7 +15,6 @@
                 {% endwith %}
             {% endblock %}
         </title>
-        <meta name="description" content="" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <link rel="shortcut icon" href="{% static 'chelseasymphony/images/TCSlogo-red.png' %}">
@@ -38,7 +37,8 @@
         {% endblock %}
 
         {% block seo_tags %}
-            {# Use this block to add the 'meta_tags' tag #}
+        {# Use this block to add the 'meta_tags' tag. Otherwise it defaults to the stock search description field. #}
+        <meta name="description" content="{{ self.search_description }}" />
         {% endblock %}
     </head>
 

@@ -2,6 +2,11 @@
 {% load wagtailcore_tags %}
 {% load wagtailimages_tags %}
 {% load responsive_image %}
+{% load wagtailmetadata_tags %}
+
+{% block seo_tags %}
+    {% meta_tags %}
+{% endblock %}
 
 {% block content %}
 <main id="node-" class=" clearfix">
