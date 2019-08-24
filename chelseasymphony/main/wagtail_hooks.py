@@ -9,7 +9,9 @@ from django.utils.timezone import localtime
 from django.conf import settings
 from wagtail.admin.action_menu import ActionMenuItem
 from wagtail.core import hooks
-from wagtail.contrib.modeladmin.helpers import PermissionHelper
+from wagtail.contrib.modeladmin.helpers import (
+    PermissionHelper, PageButtonHelper
+)
 from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin, modeladmin_register
@@ -26,8 +28,34 @@ from .models import (
 logger = logging.getLogger('django.server')
 
 
+class ConcertButtonHelper(PageButtonHelper):
+    """Override to add 'View Live' and 'Explore' buttons"""
+    def get_buttons_for_obj(self, obj, exclude=None, classnames_add=None,
+                            classnames_exclude=None):
+        btns = super().get_buttons_for_obj(
+            obj, exclude, classnames_add, classnames_exclude)
+
+        extra_btns = [
+            {
+                'url': obj.get_url(),
+                'label': 'View Live',
+                'classname': 'button button-small button-secondary',
+                'title': 'View Live'
+            },
+            {
+                'url': '/admin/pages/{}/'.format(obj.id),
+                'label': 'Explore',
+                'classname': 'button button-small button-secondary',
+                'title': 'Explore'
+            }
+        ]
+        return extra_btns + btns
+
+
 class ConcertAdmin(ModelAdmin):
     """Creates admin page for concerts"""
+    button_helper_class = ConcertButtonHelper
+
     model = Concert
     menu_label = 'Concerts'
     menu_icon = 'date'

@@ -293,7 +293,7 @@ class Concert(MetadataPageMixin, Page):
 
     def admin_title(self):
         return format_html(
-            '<h2><a href="/admin/pages/{}/">{}</a></h2>',
+            '<a href="/admin/pages/{}/edit/">{}</a>',
             self.id,
             self.title,
         )
