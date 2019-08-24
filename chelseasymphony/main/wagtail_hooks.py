@@ -9,14 +9,16 @@ from django.utils.timezone import localtime
 from django.conf import settings
 from wagtail.admin.action_menu import ActionMenuItem
 from wagtail.core import hooks
+from wagtail.contrib.modeladmin.helpers import PermissionHelper
+from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
 from wagtail.contrib.modeladmin.options import (
     ModelAdmin, modeladmin_register
 )
-from wagtail.contrib.modeladmin.mixins import ThumbnailMixin
 from paypal.standard.models import ST_PP_COMPLETED
 from paypal.standard.ipn.signals import (
     valid_ipn_received, invalid_ipn_received
 )
+from paypal.standard.ipn.models import PayPalIPN
 from .models import (
     Person, Composition, InstrumentModel, Concert, ConcertIndex,
     ConcertDate
@@ -195,7 +197,7 @@ def handle_donation(sender, **kwargs):
             'first_name': ipn_obj.first_name,
             'last_name': ipn_obj.last_name,
             'email_address': ipn_obj.payer_email,
-            'amount': ipn_obj.payment_gross
+            'amount': ipn_obj.mc_gross
         }
         send_mail(
             'Thank you for your donation',
@@ -209,9 +211,39 @@ def handle_invalid_donation(sender, **kwargs):
     logger.info('An invalid IPN request was made')
 
 
+class DonationPermissionHelper(PermissionHelper):
+    def user_can_create(self, user):
+        return False
+
+    def user_can_edit_obj(self, user, obj):
+        return False
+
+    def user_can_delete_obj(self, user, obj):
+        return False
+
+
+class DonationAdmin(ModelAdmin):
+    permission_helper_class = DonationPermissionHelper
+    model = PayPalIPN
+    menu_label = 'Donations'
+    menu_icon = 'form'
+    menu_order = 230
+    list_display = (
+        'first_name', 'last_name', 'payer_email',
+        'recurring', 'mc_gross', 'payment_status'
+    )
+    list_filter = ('recurring', 'payment_status')
+    search_fields = ('first_name', 'last_name')
+    inspect_view_enabled = True
+
+    def recurring_donation(self, obj):
+        return True if obj.recurring else False
+
+
 modeladmin_register(ConcertAdmin)
 modeladmin_register(PersonAdmin)
 modeladmin_register(CompositionAdmin)
 modeladmin_register(InstrumentAdmin)
+modeladmin_register(DonationAdmin)
 valid_ipn_received.connect(handle_donation)
 invalid_ipn_received.connect(handle_invalid_donation)
