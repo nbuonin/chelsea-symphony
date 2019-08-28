@@ -257,7 +257,7 @@ class Concert(MetadataPageMixin, Page):
         ], template='main/blocks/button_block.html'))
     ])
     venue = RichTextField(
-        default='St. Paul\'S Church, 315 West 22nd Street',
+        default='St. Paul\'s Church, 315 West 22nd Street',
         features=['bold'],
     )
     concert_image = models.ForeignKey(
