@@ -733,7 +733,9 @@ class Composition(index.Indexed, models.Model):
 
     panels = [
         FieldPanel('title'),
-        PageChooserPanel('composer')
+        AutocompletePanel(
+            'composer',
+            target_model='main.Person')
     ]
 
     search_fields = [
