@@ -241,6 +241,10 @@ class ConcertAdminForm(WagtailAdminPageForm):
             for form in self.formsets['performer']:
                 form.fields['person'].queryset = people
 
+        else:
+            self.formsets['performer'].form.\
+                base_fields['person'].queryset = Person.objects.none()
+
 
 class Concert(MetadataPageMixin, Page):
     base_form_class = ConcertAdminForm
@@ -485,7 +489,15 @@ class Concert(MetadataPageMixin, Page):
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
         InlinePanel('concert_date', label="Concert Dates", min_num=1),
-        InlinePanel('performer', label='Concert Performers'),
+        InlinePanel(
+            'performer',
+            label='Concert Performers',
+            help_text=(
+                'Performers listed on the concert can be managed here. '
+                'Create some performances to populate the drop down '
+                'menus with names.'
+            )
+        ),
         # Save for future use
         # FieldPanel('roster', widget=forms.CheckboxSelectMultiple)
     ]
