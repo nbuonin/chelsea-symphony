@@ -23,7 +23,7 @@ from paypal.standard.ipn.signals import (
 from paypal.standard.ipn.models import PayPalIPN
 from .models import (
     Person, Composition, InstrumentModel, Concert, ConcertIndex,
-    ConcertDate
+    ConcertDate, Performance
 )
 logger = logging.getLogger('django.server')
 
@@ -168,6 +168,10 @@ def redirect_pages_to_admin(request, page):
 
     Person pages DO get redirected to the parent 'listing' page.
     """
+    if isinstance(page, Performance):
+        return HttpResponseRedirect(
+            '/admin/pages/{}/'.format(page.get_parent().id))
+
     if not isinstance(page, Person):
         return HttpResponseRedirect('/admin/pages/{}/'.format(page.id))
 
@@ -183,6 +187,10 @@ def redirect_pages_to_admin_edit(request, page):
 
     Person pages DO get redirected to the parent 'listing' page.
     """
+    if isinstance(page, Performance):
+        return HttpResponseRedirect(
+            '/admin/pages/{}/'.format(page.get_parent().id))
+
     if not isinstance(page, Person):
         return HttpResponseRedirect('/admin/pages/{}/'.format(page.id))
 
