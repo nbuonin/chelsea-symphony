@@ -104,7 +104,7 @@
                                 {% endfor %}
                             </p>
                             <p class="concert-program-piece">
-                                <span class="concert-program-piece-composer">{{ performance.composer }}: </span>{{ performance.work | striptags }}
+                                <span class="concert-program-piece-composer">{{ performance.composer }}: </span>{{ performance.work | richtext }}
                             </p>
                             <br>
                             {% endfor %}

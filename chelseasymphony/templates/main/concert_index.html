@@ -62,7 +62,7 @@
                         {% for piece in performance.program %}
                         <div class="concert-program-listing">
                             <div class="concert-program-piece">
-                                <span class="concert-program-piece-composer">{{piece.composer  }} — </span>{{ piece.composition.title | striptags }} {{ piece.supplemental_text | striptags }}
+                                <span class="concert-program-piece-composer">{{piece.composer  }} — </span>{{ piece.composition | richtext }} {{ piece.supplemental_text | richtext }}
                             </div>
                             {% for performer in piece.performers %}
                             <div class="concert-program-piece-soloist">
