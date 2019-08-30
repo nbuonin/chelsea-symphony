@@ -1,0 +1,68 @@
+blockquote {
+  @extend %serif-display;
+  line-height: $big3;
+  @extend %big2;
+  color: $nav-color;
+  text-align: center;
+  width: 100%;
+  margin: 1em 0;
+  p {
+    display: inline-block;
+    line-height: $big3;
+    margin: 0 $big2;
+    @include respond-to(medium-plus) {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+    }
+
+    &:before {
+      display: inline-block;
+      content: "“ ";
+      margin-right: .1em;
+      line-height: $big3 / 2;
+      transform: translateY(25px);
+      font-size: 200%;
+      color: $tag-color;
+      @include respond-to(medium-plus) {
+        font-size: 300%;
+      }
+    }
+
+    &:after {
+      display: inline-block;
+      content: " ”";
+      margin-left: .1em;
+      font-size: 200%;
+      line-height:  $big3 / 2;
+      transform: translateY(25px);
+      color: $tag-color;
+      white-space: nowrap;
+      @include respond-to(medium-plus) {
+        display: none;
+      }
+    }
+  }
+
+  footer {
+    font-style: italic;
+    @extend %caps-sans;
+    &:before {
+      content: "—";
+    }
+  }
+  @include respond-to(medium-plus) {
+    width: 33%;
+    &.bc-left {
+      text-align: left;
+      float: left;
+      margin-right: 1em;
+    }
+    &.bc-right {
+      text-align: right;
+      float: right;
+      margin-left: 1em;
+    }
+  }
+}
+

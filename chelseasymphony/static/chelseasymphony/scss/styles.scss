@@ -24,9 +24,11 @@
 @import 'layout/page-program-notes';
 
 // Components
+@import 'components/block_quote';
 @import 'components/button_block';
-@import 'components/highlight_link';
 @import 'components/forms';
+@import 'components/highlight_link';
+@import 'components/personnel';
 
 // Debugging
 //* {

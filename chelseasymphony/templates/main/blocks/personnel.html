@@ -1,0 +1,40 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="personnel">
+    <table class="personnel-list"><caption>{{ value.left_caption }}</caption>
+        <tbody>
+            {% for block in value.left_block %}
+            <tr>
+                <th>{{ block.role }}</th>
+                <td>
+                    {% for p in block.people %}
+                        {% if p.link %}
+                        <a href="{{ p.link }}">{{ p.name }}</a>
+                        {% else %}
+                        <span>{{ p.name }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <table class="personnel-list"><caption>{{ value.right_caption }}</caption>
+        <tbody>
+            {% for block in value.right_block %}
+            <tr>
+                <th>{{ block.role }}</th>
+                <td>
+                    {% for p in block.people %}
+                        {% if p.link %}
+                        <a href="{{ p.link }}">{{ p.name }}</a>
+                        {% else %}
+                        <span>{{ p.name }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

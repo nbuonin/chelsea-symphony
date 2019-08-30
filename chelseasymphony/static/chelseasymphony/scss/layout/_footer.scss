@@ -1,3 +1,7 @@
+body > footer {
+    clear: both;
+}
+
 body > footer > .container {
   	border-top: $border;
 	padding-top: $big2;

@@ -90,13 +90,49 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
-        ('block_quote', blocks.BlockQuoteBlock()),
+        ('block_quote', blocks.StructBlock([
+            ('quote', blocks.RichTextBlock(
+                required=True,
+                features=['italic'],
+            )),
+            ('footer', blocks.CharBlock()),
+            ('alignment', blocks.ChoiceBlock(
+                required=True,
+                choices=[('bc-left', 'Left'), ('bc-right', 'Right')]
+            ))
+        ], template='main/blocks/block_quote.html', icon='openquote')),
         ('highlight_link', blocks.StructBlock([
             ('heading', blocks.CharBlock(required=True)),
             ('sub_heading', blocks.CharBlock(required=True)),
-            ('image', ImageChooserBlock()),
-            ('page', blocks.PageChooserBlock())
-        ], template='main/blocks/highlight_link.html'))
+            ('image', ImageChooserBlock(required=True)),
+            ('page', blocks.PageChooserBlock(required=True))
+        ], template='main/blocks/highlight_link.html', icon='link')),
+        ('personnel', blocks.StructBlock([
+            ('left_caption', blocks.CharBlock()),
+            ('left_block', blocks.ListBlock(
+                blocks.StructBlock([
+                    ('role', blocks.CharBlock()),
+                    ('people', blocks.ListBlock(
+                        blocks.StructBlock([
+                            ('name', blocks.CharBlock()),
+                            ('link', blocks.URLBlock(required=False))
+                        ])
+                    ))
+                ])
+            )),
+            ('right_caption', blocks.CharBlock()),
+            ('right_block', blocks.ListBlock(
+                blocks.StructBlock([
+                    ('role', blocks.CharBlock()),
+                    ('people', blocks.ListBlock(
+                        blocks.StructBlock([
+                            ('name', blocks.CharBlock()),
+                            ('link', blocks.URLBlock(required=False))
+                        ])
+                    ))
+                ])
+            )),
+        ], template='main/blocks/personnel.html', icon='user'))
     ])
 
     content_panels = Page.content_panels + [

@@ -1,0 +1,8 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<blockquote class="{{ value.alignment }}">
+    {% include_block value.quote %}
+    <footer>
+        {{ value.footer }}
+    </footer>
+</blockquote>
