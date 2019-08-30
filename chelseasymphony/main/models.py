@@ -90,6 +90,13 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
+        ('block_quote', blocks.BlockQuoteBlock()),
+        ('highlight_link', blocks.StructBlock([
+            ('heading', blocks.CharBlock(required=True)),
+            ('sub_heading', blocks.CharBlock(required=True)),
+            ('image', ImageChooserBlock()),
+            ('page', blocks.PageChooserBlock())
+        ], template='main/blocks/highlight_link.html'))
     ])
 
     content_panels = Page.content_panels + [

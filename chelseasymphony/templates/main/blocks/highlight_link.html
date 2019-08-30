@@ -1,0 +1,27 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+{% image value.image fill-980x400 as background_img %}
+
+<div class="streamfield-highlight-link">
+    <div class="highlight-link-text-container">
+        <div class="highlight-link-text">
+            <div class="highlight-link-heading">
+                <a class="hl-link" href="{{ value.page.url }}">
+                    {{ value.heading }}
+                </a>
+            </div>
+            <div class="highlight-link-sub-head">
+                <a class="hl-link" href="{{ value.page.url }}">
+                    {{ value.sub_heading }}
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="highlight-link-img-container">
+        <div class="highlight-link-img" style="background-image: url({{ background_img.url }})">
+            <div class="highlight-link-img-gradient">
+                <a href="{{ value.page.url }}"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
