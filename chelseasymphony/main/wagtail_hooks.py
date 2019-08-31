@@ -23,9 +23,20 @@ from paypal.standard.ipn.signals import (
 from paypal.standard.ipn.models import PayPalIPN
 from .models import (
     Person, Composition, InstrumentModel, Concert, ConcertIndex,
-    ConcertDate, Performance
+    ConcertDate, Performance, NewMemberRequest
 )
 logger = logging.getLogger('django.server')
+
+
+class ProtectModelPermissionHelper(PermissionHelper):
+    def user_can_create(self, user):
+        return False
+
+    def user_can_edit_obj(self, user, obj):
+        return False
+
+    def user_can_delete_obj(self, user, obj):
+        return False
 
 
 class ConcertButtonHelper(PageButtonHelper):
@@ -121,6 +132,21 @@ class InstrumentAdmin(ModelAdmin):
     exclude_from_explorer = True
     list_display = ('instrument',)
     list_filter = ('show_on_roster',)
+
+
+class NewMemberRequestAdmin(ModelAdmin):
+    """Creates an admin for new member submissions"""
+    permission_helper_class = ProtectModelPermissionHelper
+    model = NewMemberRequest
+    menu_label = 'New Member Requests'
+    menu_icon = 'user'
+    menu_order = 225
+    list_display = (
+        'created_at', 'first_name', 'last_name', 'email', 'instrument',
+        'resume', 'source', 'link', 'read_policies'
+    )
+    list_filter = ('instrument', 'source')
+    search_fields = ('first_name', 'last_name')
 
 
 @hooks.register('construct_main_menu')
@@ -247,19 +273,8 @@ def handle_invalid_donation(sender, **kwargs):
     logger.info('An invalid IPN request was made')
 
 
-class DonationPermissionHelper(PermissionHelper):
-    def user_can_create(self, user):
-        return False
-
-    def user_can_edit_obj(self, user, obj):
-        return False
-
-    def user_can_delete_obj(self, user, obj):
-        return False
-
-
 class DonationAdmin(ModelAdmin):
-    permission_helper_class = DonationPermissionHelper
+    permission_helper_class = ProtectModelPermissionHelper
     model = PayPalIPN
     menu_label = 'Donations'
     menu_icon = 'form'
@@ -281,5 +296,6 @@ modeladmin_register(PersonAdmin)
 modeladmin_register(CompositionAdmin)
 modeladmin_register(InstrumentAdmin)
 modeladmin_register(DonationAdmin)
+modeladmin_register(NewMemberRequestAdmin)
 valid_ipn_received.connect(handle_donation)
 invalid_ipn_received.connect(handle_invalid_donation)

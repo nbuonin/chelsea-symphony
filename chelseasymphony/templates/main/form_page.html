@@ -13,7 +13,7 @@
             {% if page.body %}
                 {% include_block page.body %}
             {% endif %}
-            <form id="content-form" action="{% pageurl page %}" method="POST">
+            <form id="content-form" enctype="multipart/form-data" action="{% pageurl page %}" method="POST">
                 {% csrf_token %}
                 {{ form.as_p  }}
                 <input id="content-form-submit" type="submit">

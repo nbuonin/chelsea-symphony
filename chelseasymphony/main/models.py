@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from html import unescape
 from django import forms
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import Max
 from django.http import Http404
@@ -82,7 +83,8 @@ class Home(MetadataPageMixin, Page):
         'BlogIndex',
         'BasicPage',
         'Donate',
-        'FormPage'
+        'FormPage',
+        'NewMemberRequestPage',
     ]
 
 
@@ -1139,3 +1141,112 @@ class FormPage(AbstractEmailForm, MenuPageMixin):
     settings_panels = AbstractEmailForm.settings_panels + [
         menupage_panel,
     ]
+
+
+class NewMemberRequest(models.Model):
+    VIOLIN = 'violin'
+    VIOLA = 'viola'
+    CELLO = 'cello'
+    BASS = 'bass'
+    HARP = 'harp'
+    FLUTE = 'flute'
+    OBOE = 'oboe'
+    CLARINET = 'clarinet'
+    BASSOON = 'bassoon'
+    HORN = 'horn'
+    TRUMPET = 'trumpet'
+    TROMBONE = 'trombone'
+    TUBA = 'tuba'
+    PERCUSSION = 'percussion'
+    PIANO = 'piano'
+    INSTRUMENT_CHOICES = [
+        (VIOLIN, 'Violin'),
+        (VIOLA, 'Viola'),
+        (CELLO, 'Cello'),
+        (BASS, 'Bass'),
+        (HARP, 'Harp'),
+        (FLUTE, 'Flute'),
+        (OBOE, 'Oboe'),
+        (CLARINET, 'Clarinet'),
+        (BASSOON, 'Bassoon'),
+        (HORN, 'Horn'),
+        (TRUMPET, 'Trumpet'),
+        (TROMBONE, 'Trombone'),
+        (TUBA, 'Tuba'),
+        (PERCUSSION, 'Percussion'),
+        (PIANO, 'Piano'),
+    ]
+
+    PERFORMANCE = 'performance'
+    MUSICIAN = 'musician'
+    SEARCH = 'search'
+    MITJ = 'mozart_in_the_jungle'
+    OTHER = 'other'
+    SOURCE_CHOICES = [
+        (PERFORMANCE, 'Attended a performance'),
+        (MUSICIAN, 'From a TCS musician'),
+        (SEARCH, 'Internet search'),
+        (MITJ, 'Mozart in the Jungle'),
+        (OTHER, 'Other'),
+    ]
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    first_name = models.CharField(max_length=254)
+    last_name = models.CharField(max_length=254)
+    email = models.EmailField()
+    instrument = models.CharField(
+        max_length=254,
+        choices=INSTRUMENT_CHOICES,
+    )
+    resume = models.FileField(
+        upload_to='resumes/',
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=['pdf', 'doc', 'docx', 'txt'])
+        ]
+    )
+    source = models.CharField(
+        max_length=254,
+        choices=SOURCE_CHOICES
+    )
+    link = models.URLField(blank=True)
+    read_policies = models.BooleanField()
+
+
+class NewMemberRequestPage(MetadataPageMixin, Page, MenuPageMixin):
+    body = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ])
+
+    thank_you_text = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('image', ImageChooserBlock()),
+    ])
+
+    content_panels = Page.content_panels + [
+        StreamFieldPanel('body'),
+        StreamFieldPanel('thank_you_text')
+    ]
+
+    settings_panels = Page.settings_panels + [
+        menupage_panel
+    ]
+
+    def serve(self, request):
+        from .forms import NewMemberRequestForm
+        if request.method == 'POST':
+            form = NewMemberRequestForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                return render(request, 'main/form_page_landing.html', {
+                    'page': self,
+                })
+
+        else:
+            form = NewMemberRequestForm()
+
+        return render(request, 'main/form_page.html', {
+            'page': self,
+            'form': form
+        })
