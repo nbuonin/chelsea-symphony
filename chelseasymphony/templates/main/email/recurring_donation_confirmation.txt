@@ -1,0 +1,10 @@
+Hi {{ first_name }}!
+
+For your records: Your recurring donation, number {{ txn_id }}, on {{ payment_date }} was ${{ amount }}.
+
+This letter may serve as a record of your donation. Our postal address is: The Chelsea Symphony, 245 Eighth Avenue, #134, New York, NY 10011. U.S. tax-exempt number: 20-5689445 
+
+Emily Wong
+Horn, President + Executive Director 
+The Chelsea Symphony
+Many employers will generously match employee contributions: please check with your employer to see if they have a corporate matching gift program.

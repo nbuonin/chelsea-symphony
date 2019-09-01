@@ -249,20 +249,46 @@ def edit_children():
 
 def handle_donation(sender, **kwargs):
     ipn_obj = sender
+    ctx = {
+        'first_name': ipn_obj.first_name,
+        'last_name': ipn_obj.last_name,
+        'email_address': ipn_obj.payer_email,
+        'amount': ipn_obj.mc_gross,
+        'payment_date': ipn_obj.payment_date,
+        'txn_id': ipn_obj.txn_id,
+    }
+
     if ipn_obj.payment_status == ST_PP_COMPLETED:
         if ipn_obj.receiver_email != settings.PAYPAL_ACCT_EMAIL:
             logger.info('An invalid payment request was made')
             return
 
-        plaintext = get_template('main/email/donation_confirmation.txt')
-        ctx = {
-            'first_name': ipn_obj.first_name,
-            'last_name': ipn_obj.last_name,
-            'email_address': ipn_obj.payer_email,
-            'amount': ipn_obj.mc_gross
-        }
+        # send email for one-time donation
+        if ipn_obj.transaction_type == 'web_accept':
+            plaintext = get_template('main/email/donation_confirmation.txt')
+            send_mail(
+                'Thank you for your donation',
+                plaintext.render(ctx),
+                settings.DONATION_EMAIL_ADDR,
+                [ipn_obj.payer_email],
+            )
+
+        # send mail for recurring donation
+        if ipn_obj.transaction_type == 'subscr_payment':
+            plaintext = get_template(
+                'main/email/recurring_donation_confirmation.txt')
+            send_mail(
+                'Thank you for your donation',
+                plaintext.render(ctx),
+                settings.DONATION_EMAIL_ADDR,
+                [ipn_obj.payer_email],
+            )
+
+    # send mail for new recurring donation signup
+    if ipn_obj.transaction_type == 'subscr_signup':
+        plaintext = get_template('main/email/recurring_donation_welcome.txt')
         send_mail(
-            'Thank you for your donation',
+            'Thank you for your recurring donation',
             plaintext.render(ctx),
             settings.DONATION_EMAIL_ADDR,
             [ipn_obj.payer_email],
@@ -280,8 +306,8 @@ class DonationAdmin(ModelAdmin):
     menu_icon = 'form'
     menu_order = 230
     list_display = (
-        'first_name', 'last_name', 'payer_email',
-        'recurring', 'mc_gross', 'payment_status'
+        'payment_date', 'first_name', 'last_name', 'payer_email',
+        'payment_type', 'mc_gross', 'payment_status'
     )
     list_filter = ('recurring', 'payment_status')
     search_fields = ('first_name', 'last_name')

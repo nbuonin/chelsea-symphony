@@ -1,6 +1,6 @@
 Hi {{ first_name }}!
 
-Among the many roles we all play in support of The Chelsea Symphony, I love that it’s my honor to thank you for your ${{ amount }} contribution to TCS.
+Among the many roles we all play in support of The Chelsea Symphony, I love that it’s my honor to thank you for your recurring ${{ amount }} contribution to TCS.
 
 The backbone of TCS is the commitment of individuals, like you, giving a little bit of themselves to keep the arts alive in America. Your contribution shows me that the spirit of our vision is alive and well.
 
@@ -19,6 +19,4 @@ Horn, President + Executive Director
 The Chelsea Symphony
 Many employers will generously match employee contributions: please check with your employer to see if they have a corporate matching gift program.
 
-For your records: Your donation, number {{ txn_id }}, on {{ payment_date }} was ${{ amount }}.
-
-This letter may serve as a record of your donation. Our postal address is: The Chelsea Symphony, 245 Eighth Avenue, #134, New York, NY 10011. U.S. tax-exempt number: 20-5689445 
+Please note, we will send you a seperate email as each recurring donation is processed. These may serve as a record of your donation. Our postal address is: The Chelsea Symphony, 245 Eighth Avenue, #134, New York, NY 10011. U.S. tax-exempt number: 20-5689445 
