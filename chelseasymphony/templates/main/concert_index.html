@@ -40,7 +40,7 @@
                         <a href="{% pageurl c %}">{{ c.title }}</a>
                     </h2>
                     <p class="concert-location">
-                        {{ c.venue | richtext }}
+                        {{ c.venue | richtext | striptags }}
                     </p>
                     <div class="concert-copy">
                         {{ c.promo_copy | richtext }}
