@@ -938,7 +938,8 @@ class PersonIndex(Page):
         # For each instrument that is show on roster, get each musician that
         # is on the active roster
         roster = dict()
-        instruments = InstrumentModel.objects.filter(show_on_roster=True)
+        instruments = InstrumentModel.objects\
+            .filter(show_on_roster=True).order_by('weight')
         for i in instruments:
             musicians = Person.objects.filter(
                 instrument__pk=i.pk, active_roster=True)\
@@ -952,6 +953,10 @@ class PersonIndex(Page):
 class InstrumentModel(models.Model):
     instrument = models.CharField(max_length=255)
     show_on_roster = models.BooleanField(default=False)
+    weight = models.PositiveSmallIntegerField(
+        null=True,
+        unique=True
+    )
 
     autocomplete_search_field = 'instrument'
 

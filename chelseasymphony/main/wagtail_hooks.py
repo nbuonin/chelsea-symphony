@@ -130,7 +130,8 @@ class InstrumentAdmin(ModelAdmin):
     menu_icon = 'pick'
     menu_order = 220
     exclude_from_explorer = True
-    list_display = ('instrument',)
+    list_display = ('instrument', 'weight')
+    ordering = ('weight',)
     list_filter = ('show_on_roster',)
 
 
