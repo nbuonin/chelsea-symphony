@@ -23,7 +23,7 @@ from paypal.standard.ipn.signals import (
 from paypal.standard.ipn.models import PayPalIPN
 from .models import (
     Person, Composition, InstrumentModel, Concert, ConcertIndex,
-    ConcertDate, Performance, NewMemberRequest
+    ConcertDate, Performance, NewMemberRequest, BlogPost
 )
 logger = logging.getLogger('django.server')
 
@@ -121,6 +121,18 @@ class CompositionAdmin(ModelAdmin):
     exclude_from_explorer = True
     list_display = ('display_title', 'composer')
     search_fields = ('title', 'composer__title')
+
+
+class BlogPostAdmin(ModelAdmin):
+    """Creates admin page for blog posts"""
+    model = BlogPost
+    menu_label = 'Blog Posts'
+    menu_icon = 'doc-full-inverse'
+    menu_order = 215
+    exclude_from_explorer = True
+    list_display = ('title', 'date', 'author')
+    search_fields = ('title', 'author', 'promo_copy', 'body')
+    ordering = ('-date', )
 
 
 class InstrumentAdmin(ModelAdmin):
@@ -321,6 +333,7 @@ class DonationAdmin(ModelAdmin):
 modeladmin_register(ConcertAdmin)
 modeladmin_register(PersonAdmin)
 modeladmin_register(CompositionAdmin)
+modeladmin_register(BlogPostAdmin)
 modeladmin_register(InstrumentAdmin)
 modeladmin_register(DonationAdmin)
 modeladmin_register(NewMemberRequestAdmin)
