@@ -210,14 +210,6 @@ class HomeTest(WagtailPageTests):
         # assert(len(upcoming_concerts) == 0)
 
 
-class BasicPageTest(WagtailPageTests):
-    def test_parent_page_types(self):
-        self.assertAllowedParentPageTypes(
-            BasicPage,
-            {Home, BasicPage, FormPage}
-        )
-
-
 class ConcertIndexTest(WagtailPageTests):
     @classmethod
     def setUpTestData(cls):

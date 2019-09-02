@@ -153,12 +153,6 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
     def __str__(self):
         return self.title
 
-    parent_page_types = [
-        'Home',
-        'BasicPage',
-        'FormPage',
-    ]
-
 
 def default_concert_time():
     start = datetime.now()
