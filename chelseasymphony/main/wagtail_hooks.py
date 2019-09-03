@@ -299,7 +299,7 @@ def handle_donation(sender, **kwargs):
             return
 
         # send email for one-time donation
-        if ipn_obj.transaction_type == 'web_accept':
+        if ipn_obj.txn_type == 'web_accept':
             plaintext = get_template('main/email/donation_confirmation.txt')
             send_mail(
                 'Thank you for your donation',
@@ -309,7 +309,7 @@ def handle_donation(sender, **kwargs):
             )
 
         # send mail for recurring donation
-        if ipn_obj.transaction_type == 'subscr_payment':
+        if ipn_obj.txn_type == 'subscr_payment':
             plaintext = get_template(
                 'main/email/recurring_donation_confirmation.txt')
             send_mail(
@@ -320,7 +320,7 @@ def handle_donation(sender, **kwargs):
             )
 
     # send mail for new recurring donation signup
-    if ipn_obj.transaction_type == 'subscr_signup':
+    if ipn_obj.txn_type == 'subscr_signup':
         plaintext = get_template('main/email/recurring_donation_welcome.txt')
         send_mail(
             'Thank you for your recurring donation',
