@@ -538,10 +538,11 @@ class Concert(MetadataPageMixin, Page):
             # then just use today's date to calculate the current season
             self.season = self.calculate_season(make_aware(datetime.now()))
 
-        self.url_path = self.url_path.replace(
-            self.slug,
-            self.season + '/' + self.slug
-        )
+        # Replace only the part of the path that contains the slug that needs
+        # to be updated.
+        path = self.url_path.split('/')
+        path[-2] = self.season + '/' + self.slug
+        self.url_path = '/'.join(path)
 
         return self.url_path
 
