@@ -950,6 +950,7 @@ class InstrumentModel(models.Model):
     show_on_roster = models.BooleanField(default=False)
     weight = models.PositiveSmallIntegerField(
         null=True,
+        blank=True,
         unique=True
     )
 
