@@ -367,13 +367,6 @@ class Concert(MetadataPageMixin, Page):
         else:
             return "{}-{}".format(date.year - 1, date.year)
 
-    def admin_title(self):
-        return format_html(
-            '<a href="/admin/pages/{}/edit/">{}</a>',
-            self.id,
-            self.title,
-        )
-
     def get_meta_description(self):
         return self.search_description or self.promo_copy
 

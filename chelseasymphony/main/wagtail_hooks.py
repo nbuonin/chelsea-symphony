@@ -72,7 +72,7 @@ class ConcertAdmin(ModelAdmin):
     menu_icon = 'date'
     menu_order = 200
     exclude_from_explorer = True
-    list_display = ('admin_title', 'concert_dates')
+    list_display = ('title', 'concert_dates', 'season')
     list_filter = ('season',)
     search_fields = ('title', 'description')
 
@@ -88,11 +88,31 @@ class ConcertAdmin(ModelAdmin):
 
         return '; '.join(
             [localtime(d.date).
-             strftime('%a, %b %d, %-I:%M %p') for d in dates])
+             strftime('%a, %b %d, %-I:%M %p, %Y') for d in dates])
+
+
+class ViewLiveButtonHelper(PageButtonHelper):
+    """Override to add 'View Live' button"""
+    def get_buttons_for_obj(self, obj, exclude=None, classnames_add=None,
+                            classnames_exclude=None):
+        btns = super().get_buttons_for_obj(
+            obj, exclude, classnames_add, classnames_exclude)
+
+        extra_btns = [
+            {
+                'url': obj.get_url(),
+                'label': 'View Live',
+                'classname': 'button button-small button-secondary',
+                'title': 'View Live'
+            },
+        ]
+        return extra_btns + btns
 
 
 class PersonAdmin(ThumbnailMixin, ModelAdmin):
     """Creates admin page for people"""
+    button_helper_class = ViewLiveButtonHelper
+
     model = Person
     menu_label = 'People'
     menu_icon = 'group'
@@ -125,6 +145,8 @@ class CompositionAdmin(ModelAdmin):
 
 class BlogPostAdmin(ModelAdmin):
     """Creates admin page for blog posts"""
+    button_helper_class = ViewLiveButtonHelper
+
     model = BlogPost
     menu_label = 'Blog Posts'
     menu_icon = 'doc-full-inverse'
