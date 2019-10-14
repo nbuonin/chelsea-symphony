@@ -182,6 +182,7 @@ class NewMemberRequestAdmin(ModelAdmin):
     )
     list_filter = ('instrument', 'source')
     search_fields = ('first_name', 'last_name')
+    inspect_view_enabled = True
 
 
 @hooks.register('construct_main_menu')
