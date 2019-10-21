@@ -1,4 +1,4 @@
-FROM python:3-slim
+FROM python:3.7-slim
 LABEL maintainer="nick@buonincontri.org"
 
 ENV PYTHONUNBUFFERED 1
