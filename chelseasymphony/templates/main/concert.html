@@ -48,6 +48,15 @@
                     <div class="concert-location">
                         {{ page.venue | richtext }}
                     </div>
+                    {% if page.program_notes %}
+                    <div class="concert-program-notes">
+                       <div class="btn">
+                           <a href="{{ page.program_notes.url  }}" target="_blank">
+                               Program Notes
+                           </a>
+                       </div>
+                    </div>
+                    {% endif %}
                 </div>  
                 <div class="concert-copy">
                     {% include_block page.description %}

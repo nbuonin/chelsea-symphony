@@ -22,6 +22,8 @@ from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
+from wagtail.documents.models import Document
+from wagtail.documents.edit_handlers import DocumentChooserPanel
 from wagtail.admin.edit_handlers import (
     FieldPanel, MultiFieldPanel, InlinePanel,
     StreamFieldPanel, PageChooserPanel, FieldRowPanel
@@ -343,6 +345,12 @@ class Concert(MetadataPageMixin, Page):
         on_delete=models.PROTECT,
         related_name='concert_image'
     )
+    program_notes = models.ForeignKey(
+        'wagtaildocs.Document',
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT
+    )
     roster = ParentalManyToManyField(
         'ActiveRosterMusician',
         blank=True
@@ -560,6 +568,7 @@ class Concert(MetadataPageMixin, Page):
         StreamFieldPanel('description'),
         FieldPanel('venue'),
         ImageChooserPanel('concert_image'),
+        DocumentChooserPanel('program_notes'),
         InlinePanel('concert_date', label="Concert Dates", min_num=1),
         InlinePanel(
             'performer',
