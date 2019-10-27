@@ -213,12 +213,16 @@
   border-bottom: none;
 }
 
-.past-seasons:hover {
+.past-seasons {
+    cursor: pointer;
     position: relative;
-  .concert-season-list {
-    display: block;
-    width: 170px;
-  }
+
+    &.active {
+        .concert-season-list {
+            display: block;
+            width: 170px;
+        }
+    }
 }
 
 .concert-season-list {

@@ -4,6 +4,10 @@ $(document).ready(function() {
         $('nav').toggleClass('active');
     });
 
+    $('.past-seasons').on('click', function(event) {
+        $('.past-seasons').toggleClass('active');
+    });
+
     //Creates accordion toggle for email signup form
     $( ".email-subscribe" ).accordion({
         active: false,
