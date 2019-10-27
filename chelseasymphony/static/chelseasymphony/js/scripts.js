@@ -69,7 +69,8 @@ $(document).ready(function() {
     // Handle cases when someone hits back from PayPal and the recurring
     // donation field is selected - this ensures the recurring form values
     // are visible to the user.
-    if ($("#donation-type-recurring")[0].checked) {
+    if ($("#donation-type-recurring").length &&
+            $("#donation-type-recurring")[0].checked) {
         $("#single-donation").hide();
         $("#recurring-donation").show();
     }
