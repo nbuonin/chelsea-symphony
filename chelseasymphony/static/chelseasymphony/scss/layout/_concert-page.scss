@@ -49,9 +49,6 @@
     .concert-location{
       font-style: italic;
     }
-    .concert-program-notes .btn {
-        margin: 2em 0;
-    }
     @include respond-to(medium-plus) {
       margin-right: $big3;
     }
