@@ -1,0 +1,68 @@
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+{% load responsive_image %}
+
+<section class="concert-listings">
+    {% for c in concerts %}
+    <article class="concert">
+        <div class="concert-info-a">
+            <p class="concert-tag">
+                {% with cd=c.concert_date.all %}
+                {% if cd|length_is:"1" %}
+                    {{ cd.first.date|date:"F j" }}
+                {% elif cd.first.date|date:"nY" == cd.last.date|date:"nY" %} 
+                    {{ cd.first.date|date:"F j" }}-{{cd.last.date|date:"j"}}
+                {% else %}
+                    {{ cd.first.date|date:"F j" }} - {{cd.last.date|date:"F j"}}
+                {% endif %}
+                {% endwith %}
+            </p>
+            <h2 class="concert-name">
+                <a href="{% pageurl c %}">{{ c.title }}</a>
+            </h2>
+            <p class="concert-location">
+                {{ c.venue | richtext | striptags }}
+            </p>
+            <div class="concert-copy">
+                {{ c.promo_copy | richtext }}
+            </div>
+        </div><!-- end .concert-info-a -->
+        <div class="concert-info-b">
+            <div class="concert-image">
+                <div class="concert-image-container">
+                    <a href="{% pageurl c %}">
+                        {% responsiveimage c.concert_image fill-926x354 srcset="fill-833x306 833w, fill-1208x446 1208w, fill-962x354 945w" sizes="555px, 1208px, 630px" %}
+                    </a>
+                </div>
+            </div>
+            {% for performance in c.performances_by_date %}
+            <div class="concert-program">
+                <div class="concert-program-date">
+                    <span class="date-display-single" property="dc:date" datatype="xsd:dateTime" content="{{ performance.date | date:"c" }}">{{ performance.date | date:"l n.j.y" }}</span>
+                </div>
+                {% for piece in performance.program %}
+                <div class="concert-program-listing">
+                    <div class="concert-program-piece">
+                        <span class="concert-program-piece-composer">{{piece.composer  }} — </span>{{ piece.composition | richtext | striptags }} {{ piece.supplemental_text | richtext | striptags }}
+                    </div>
+                    {% for performer in piece.performers %}
+                    <div class="concert-program-piece-soloist">
+                        <div>
+                            <span class="performer">
+                                <a href="{{ performer.url }}">{{ performer.name }}</a> 
+                            </span>
+                            <span class="instrument">
+                                {{ performer.instrument }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div><!-- end .concert-info-b -->
+    </article>
+    {% endfor %}
+</section>
+

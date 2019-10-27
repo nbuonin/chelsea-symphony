@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
-from django.db.models import Max
+from django.db.models import Max, Min
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
@@ -194,6 +194,8 @@ class ConcertIndex(RoutablePageMixin, Page):
         context = self.get_context(request)
         context['seasons'] = Concert.objects.concert_seasons()
         context['concerts'] = Concert.objects.future_concerts().live().public()
+        context['previous_concerts'] = Concert.objects.\
+            past_concerts_current_season().live().public()
         return TemplateResponse(
             request,
             self.get_template(request),
@@ -267,12 +269,32 @@ class ConcertQuerySet(PageQuerySet):
             microsecond=0
         )
         return Concert.objects.\
+            annotate(first_date=Min('concert_date__date')).\
             annotate(last_date=Max('concert_date__date')).\
             filter(
                 last_date__gt=today,
                 live=True,
                 concert_date__date__isnull=False).distinct().\
-            order_by('last_date')
+            order_by('first_date')
+
+    def past_concerts_current_season(self):
+        today = timezone.now().replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+        print(today)
+        current_season = Concert.calculate_season(today)
+        return Concert.objects.\
+            annotate(first_date=Min('concert_date__date')).\
+            annotate(last_date=Max('concert_date__date')).\
+            filter(
+                last_date__lte=today,
+                season=current_season,
+                live=True,
+                concert_date__date__isnull=False).distinct().\
+            order_by('first_date')
 
 
 ConcertManager = PageManager.from_queryset(ConcertQuerySet)

@@ -16,7 +16,7 @@ div.page-header {
   }
 }
 
-#concert-listings article.concert {
+.concert-listings article.concert {
   display: flex;
   flex-flow: column nowrap;
 	margin-bottom: $big2;
@@ -27,7 +27,7 @@ div.page-header {
   }
 }
 
-#concert-listings article.concert .concert-info-a {
+.concert-listings article.concert .concert-info-a {
   flex: 1;
 
   @include respond-to(wide-plus) {
@@ -59,7 +59,7 @@ div.page-header {
   }
 }
 
-#concert-listings article.concert .concert-info-b {
+.concert-listings article.concert .concert-info-b {
   flex: 1;
   display: flex;
   flex-flow: column nowrap;
