@@ -173,9 +173,7 @@
   z-index: 950;
   @extend %sans-reg;
   @extend %caps;
-  //@extend %small1;
   font-size: 11px;
-  // for IE
 
   > ul {
     background: #fff;
@@ -188,8 +186,8 @@
   flex: none;
   display: none; // toggled with .nav-toggle-bar
 
-  > ul > li a.nolink:before {
-    // content: "\f101";
+  li {
+      margin-bottom: 1em;
   }
 
   > ul > li > ul {
@@ -206,8 +204,10 @@
   }
 
   @include respond-to(wide-plus) {
-   //@extend %nav-border;
     display: block;
+    li {
+        margin-bottom: 0;
+    }
 
     > ul {
       list-style: none;
