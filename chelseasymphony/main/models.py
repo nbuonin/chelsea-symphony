@@ -549,25 +549,17 @@ class Concert(MetadataPageMixin, Page):
 
         return performances_by_date
 
-    def set_url_path(self, parent):
-        super().set_url_path(parent=parent)
+    def get_url_parts(self, *args, **kwargs):
+        site_id, root_url, page_path = super().get_url_parts(*args, **kwargs)
 
-        if self.concert_date.exists():
-            first_concert_date = self.concert_date.first().date
-            self.season = self.calculate_season(first_concert_date)
-        elif not self.season:
-            # The implicit logic here is that a concert object may have its
-            # season set programatically from an import script. If its not set
-            # then just use today's date to calculate the current season
-            self.season = self.calculate_season(make_aware(datetime.now()))
+        # Insert season in second to last position in path
+        # Note: empty strings occupy the first and last positions
+        # after spliting
+        path = page_path.split('/')
+        path.insert(-2, self.season)
+        page_path = '/'.join(path)
 
-        # Replace only the part of the path that contains the slug that needs
-        # to be updated.
-        path = self.url_path.split('/')
-        path[-2] = self.season + '/' + self.slug
-        self.url_path = '/'.join(path)
-
-        return self.url_path
+        return (site_id, root_url, page_path)
 
     def full_clean(self, *args, **kwargs):
         if self.concert_date.exists():
@@ -677,8 +669,8 @@ class Performance(Page):
         super().clean()
 
     # Route requests to these pages to their parent
-    def get_url_parts(self, request=None):
-        return self.get_parent().get_url_parts(request)
+    def get_url_parts(self, *args, **kwargs):
+        return self.get_parent().specific.get_url_parts(*args, **kwargs)
 
     content_panels = [
         AutocompletePanel(

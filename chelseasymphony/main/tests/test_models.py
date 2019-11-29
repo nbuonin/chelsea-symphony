@@ -3,7 +3,6 @@ from datetime import (
 )
 from django.utils.timezone import get_current_timezone
 from django.apps import apps
-from django.test import Client
 from django.utils.text import slugify
 from wagtail.tests.utils import WagtailPageTests
 from wagtail.core.models import Page, Site
@@ -20,10 +19,10 @@ from chelseasymphony.main.tests.factories import (
 from faker import Factory
 faker = Factory.create()
 
-c = Client()
 TZ = get_current_timezone()
 
 ContentType = apps.get_model('contenttypes.ContentType')
+
 
 def create_base_site():
     """
@@ -151,7 +150,7 @@ class HomeTest(WagtailPageTests):
         b1 = BlogPostFactory(parent=self.b_idx)
         b2 = BlogPostFactory(parent=self.b_idx)
 
-        response = c.get(self.homepage.url)
+        response = self.client.get(self.homepage.url)
         self.assertEqual(response.status_code, 200)
         ctx = response.context
         featured_concert = ctx['featured_concert']
@@ -186,7 +185,7 @@ class HomeTest(WagtailPageTests):
         c1.delete()
         c2.delete()
 
-        response = c.get(self.homepage.url)
+        response = self.client.get(self.homepage.url)
         self.assertEqual(response.status_code, 200)
         ctx = response.context
         featured_concert = ctx['featured_concert']
@@ -200,7 +199,7 @@ class HomeTest(WagtailPageTests):
         c3.delete()
         c4.delete()
 
-        response = c.get(self.homepage.url)
+        response = self.client.get(self.homepage.url)
         self.assertEqual(response.status_code, 200)
         ctx = response.context
         featured_concert = ctx['featured_concert']
@@ -264,11 +263,8 @@ class ConcertTest(WagtailPageTests):
         assert(d2_season == '2018-2019')
 
     def test_get_context(self):
-        response = c.get(self.c1.get_url())
-        try:
-            self.assertEqual(response.status_code, 200)
-        except AssertionError:
-            __import__('pdb').set_trace()
+        response = self.client.get(self.c1.get_url())
+        self.assertEqual(response.status_code, 200)
         ctx = response.context
 
         # Get performances and check conductor names
@@ -323,6 +319,12 @@ class ConcertTest(WagtailPageTests):
         # test that the calculated_season value gets assigned to self.season
         c = ConcertFactory()
         assert(c.season)
+
+    def test_get_url_parts(self):
+        model_season = self.c1.season
+        _, _, path = self.c1.get_url_parts()
+        path_season = path.split('/')[-3]
+        self.assertEqual(model_season, path_season)
 
     def test_future_concerts(self):
         # test Concert.objects.future_concerts()
@@ -387,8 +389,8 @@ class PerformanceTest(WagtailPageTests):
     def test_get_url_parts(self):
         # Check that the url returned is that of the parent Concert instance
         self.assertEquals(
-            self.c1.get_url_parts(),
-            self.c1.get_descendants().first().specific.get_url_parts()
+            self.c2.get_url_parts(),
+            self.c2.get_descendants().first().specific.get_url_parts()
         )
 
 

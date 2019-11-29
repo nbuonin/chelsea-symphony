@@ -75,8 +75,13 @@ class PersonFactory(PageFactory):
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        # You may need to force these to use the PersonIdx as parent
-        # print('personfactory called')
+        # Because this factory is always called as a subfactory, its messy to
+        # pass the PersonIdx page to the called factory to be used as
+        # the parent page. Therefore, it's implicitly expected that
+        # a PersonIdx page already exists in the database before
+        # this factory can be called.
+        # This overrides the create method to add PersonIdx as the
+        # parent page for all calls to PersonFactory.
         try:
             parent = PersonIndex.objects.first()
         except PersonIndex.DoesNotExist as e:
@@ -86,45 +91,17 @@ class PersonFactory(PageFactory):
         kwargs['parent'] = parent
         return super()._create(model_class, *args, **kwargs)
 
-    # @post_generation
-    # def parent(self, create, extracted, **kwargs):
-        # """
-        # This is overriden from the MP_Factory base class in wagtail-factories.
-        # If no parent is passed, this assumes that a person index already
-        # exists, and that should be its parent.
-        # """
-        # if create:
-            # if extracted and kwargs:
-                # raise ValueError("Can't pass a parent instance and attributes")
-
-            # if kwargs:
-                # parent = self._parent_factory(**kwargs)
-            # else:
-                # if extracted:
-                    # parent = extracted
-                # else:
-                    # # If no parent is passed, try using the Person index
-                    # parent = PersonIndex.objects.first()
-
-            # if parent:
-                # parent.add_child(instance=self)
-                # self.save_revision().publish()
-            # else:
-                # type(self).add_root(instance=self)
-
-            # del self._parent_factory
-
     @post_generation
-    def add_instrument(self, create, extracted, **kwargs):
+    def add_instrument(obj, create, extracted, **kwargs):
         if not create:
             return
         if extracted:
             for e in extracted:
-                self.instrument.add(e)
-                self.save_revision().publish()
+                obj.instrument.add(e)
+                obj.save_revision().publish()
         else:
-            self.instrument.add(InstrumentModelFactory())
-            self.save_revision().publish()
+            obj.instrument.add(InstrumentModelFactory())
+            obj.save_revision().publish()
 
     class Meta:
         model = Person
@@ -153,14 +130,14 @@ class PerformanceFactory(PageFactory):
     performer = RelatedFactory(PerformerFactory, 'performance')
 
     @post_generation
-    def add_performance_date(self, create, extracted, **kwargs):
+    def add_performance_date(obj, create, extracted, **kwargs):
         if not create:
-            self.save_revision().publish()
+            obj.save_revision().publish()
             return
         else:
-            concert_date = self.get_parent().concert_date.first()
-            self.performance_date.add(concert_date)
-            self.save_revision().publish()
+            concert_date = obj.get_parent().concert_date.first()
+            obj.performance_date.add(concert_date)
+            obj.save_revision().publish()
 
     class Meta:
         model = Performance
@@ -182,50 +159,50 @@ class ConcertFactory(PageFactory):
     concert_image = SubFactory(ImageChooserBlockFactory)
 
     @post_generation
-    def dates(self, create, extracted, **kwargs):
+    def dates(obj, create, extracted, **kwargs):
         if create:
             if extracted:
                 for date in extracted:
-                    ConcertDateFactory(concert=self, date=date)
+                    ConcertDateFactory(concert=obj, date=date)
             else:
-                ConcertDateFactory(concert=self)
+                ConcertDateFactory(concert=obj)
 
-        self.save_revision().publish()
+        obj.save_revision().publish()
 
     @post_generation
-    def create_roster(self, create, extracted, **kwargs):
+    def create_roster(obj, create, extracted, **kwargs):
         if create:
             # Check if People exist, if not make some, else asign some
             if ActiveRosterMusician.objects.exists():
-                self.roster.add(
+                obj.roster.add(
                     ActiveRosterMusician.objects.order_by('?').first()
                 )
-                self.save_revision().publish()
+                obj.save_revision().publish()
             else:
                 for p in range(25):
                     PersonFactory()
 
-                self.roster.add(
+                obj.roster.add(
                     ActiveRosterMusician.objects.order_by('?').first()
                 )
-                self.save_revision().publish()
+                obj.save_revision().publish()
         else:
             return
         if extracted:
             for i in extracted:
-                self.roster.add(i)
-                self.save_revision().publish()
+                obj.roster.add(i)
+                obj.save_revision().publish()
 
     @post_generation
-    def create_performances(self, create, extracted, **kwargs):
+    def create_performances(obj, create, extracted, **kwargs):
         if not create:
             return
         else:
             # Create four performances for each concert
-            PerformanceFactory(parent=self)
-            PerformanceFactory(parent=self)
-            PerformanceFactory(parent=self)
-            PerformanceFactory(parent=self)
+            PerformanceFactory(parent=obj)
+            PerformanceFactory(parent=obj)
+            PerformanceFactory(parent=obj)
+            PerformanceFactory(parent=obj)
 
     class Meta:
         model = Concert
