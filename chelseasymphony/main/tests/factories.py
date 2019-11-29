@@ -73,38 +73,51 @@ class PersonFactory(PageFactory):
     active_roster = True
     headshot = SubFactory(ImageChooserBlockFactory)
 
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        # You may need to force these to use the PersonIdx as parent
+        # print('personfactory called')
+        try:
+            parent = PersonIndex.objects.first()
+        except PersonIndex.DoesNotExist as e:
+            print("PersonIndex page needs to exist in the database.")
+            raise e
+
+        kwargs['parent'] = parent
+        return super()._create(model_class, *args, **kwargs)
+
+    # @post_generation
+    # def parent(self, create, extracted, **kwargs):
+        # """
+        # This is overriden from the MP_Factory base class in wagtail-factories.
+        # If no parent is passed, this assumes that a person index already
+        # exists, and that should be its parent.
+        # """
+        # if create:
+            # if extracted and kwargs:
+                # raise ValueError("Can't pass a parent instance and attributes")
+
+            # if kwargs:
+                # parent = self._parent_factory(**kwargs)
+            # else:
+                # if extracted:
+                    # parent = extracted
+                # else:
+                    # # If no parent is passed, try using the Person index
+                    # parent = PersonIndex.objects.first()
+
+            # if parent:
+                # parent.add_child(instance=self)
+                # self.save_revision().publish()
+            # else:
+                # type(self).add_root(instance=self)
+
+            # del self._parent_factory
+
     @post_generation
-    def parent(self, create, extracted, **kwargs):
-        """
-        This is overriden from the MP_Factory base class in wagtail-factories.
-        If no parent is passed, this assumes that a person index already
-        exists, and that should be its parent.
-        """
-        if create:
-            if extracted and kwargs:
-                raise ValueError("Can't pass a parent instance and attributes")
-
-            if kwargs:
-                parent = self._parent_factory(**kwargs)
-            else:
-                if extracted:
-                    parent = extracted
-                else:
-                    # If no parent is passed, try using the Person index
-                    parent = PersonIndex.objects.first()
-
-            if parent:
-                parent.add_child(instance=self)
-                self.save_revision().publish()
-            else:
-                type(self).add_root(instance=self)
-
-            del self._parent_factory
-
-    @post_generation
-    def instrument(self, create, extracted, **kwargs):
+    def add_instrument(self, create, extracted, **kwargs):
         if not create:
-           return
+            return
         if extracted:
             for e in extracted:
                 self.instrument.add(e)
@@ -112,7 +125,6 @@ class PersonFactory(PageFactory):
         else:
             self.instrument.add(InstrumentModelFactory())
             self.save_revision().publish()
-
 
     class Meta:
         model = Person
@@ -141,8 +153,9 @@ class PerformanceFactory(PageFactory):
     performer = RelatedFactory(PerformerFactory, 'performance')
 
     @post_generation
-    def performance_date(self, create, extracted, **kwargs):
+    def add_performance_date(self, create, extracted, **kwargs):
         if not create:
+            self.save_revision().publish()
             return
         else:
             concert_date = self.get_parent().concert_date.first()
@@ -170,17 +183,17 @@ class ConcertFactory(PageFactory):
 
     @post_generation
     def dates(self, create, extracted, **kwargs):
-        if not create:
-            return
-        else:
+        if create:
             if extracted:
                 for date in extracted:
                     ConcertDateFactory(concert=self, date=date)
             else:
                 ConcertDateFactory(concert=self)
 
+        self.save_revision().publish()
+
     @post_generation
-    def roster(self, create, extracted, **kwargs):
+    def create_roster(self, create, extracted, **kwargs):
         if create:
             # Check if People exist, if not make some, else asign some
             if ActiveRosterMusician.objects.exists():
