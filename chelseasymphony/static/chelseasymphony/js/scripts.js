@@ -112,15 +112,20 @@ $(document).ready(function() {
     $("#proxy-form").on("submit", function (e) {
         e.preventDefault();
         let donationType = $('input[type=radio][name=donation_type]:checked').val();
+        let donationBenefitChoice = $('input[type=radio][name=donation_tax]:checked').val()
+        console.log(donationBenefitChoice);
+        let waiveDonationBenefit = donationBenefitChoice === 'yes' ? 'yes' : 'no';
         if (donationType === 'single') {
             let val = $('input[type=radio][name=single_donation]:checked').val();
             let donationAmount = val ? val : '0.00';
             $('#single-donation-form form input[name=amount]').attr('value', donationAmount);
+            $('#single-donation-form form input[name=custom]').attr('value', 'waive-donor-incentive=' + waiveDonationBenefit);
             $('#single-donation-form form').submit();
         } else if (donationType === 'recurring') {
             let val = $('input[type=radio][name=recurring_donation]:checked').val();
             let donationAmount = val ? val : '0.00';
             $('#recurring-donation-form form input[name=a3]').attr('value', donationAmount);
+            $('#recurring-donation-form form input[name=custom]').attr('value', 'waive-donor-incentive=' + waiveDonationBenefit);
             $('#recurring-donation-form form').submit();
         }
     });

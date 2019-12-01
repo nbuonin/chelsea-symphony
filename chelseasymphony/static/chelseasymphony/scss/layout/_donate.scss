@@ -29,9 +29,15 @@
         flex-flow: row nowrap;
         justify-content: center;
     }
+    .donation-tax-container {
+        margin-bottom: 1em;
+        &:last-of-type {
+            margin-bottom: 0em;
+        }
+    }
 }
 #recurring-donation {
-    display: none,
+    display: none;
 }
 
 #single-donation-form, #recurring-donation-form {

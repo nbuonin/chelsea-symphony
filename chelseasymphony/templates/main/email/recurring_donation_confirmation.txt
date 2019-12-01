@@ -2,6 +2,12 @@ Hi {{ first_name }}!
 
 For your records: Your recurring donation, number {{ txn_id }}, on {{ payment_date }} was ${{ amount }}.
 
+{% if waive_donor_incentive == True %}
+You have indicated that you would like to waive your donor incentive and make your gift fully tax deductible.
+{% elif waive_donor_incentive == False %}
+You have indicated that you would like your donor incentive, and that you understand this will affect the tax deductible amount of your gift.
+{% endif %}
+
 This letter may serve as a record of your donation. Our postal address is: The Chelsea Symphony, 245 Eighth Avenue, #134, New York, NY 10011. U.S. tax-exempt number: 20-5689445 
 
 Emily Wong

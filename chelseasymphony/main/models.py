@@ -1128,6 +1128,7 @@ class Donate(RoutablePageMixin, Page):
             "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
             "return": self.full_url + 'thank-you/',
             "cancel_return": self.full_url,
+            "custom": "",
             "rm": "1"
         }
 
@@ -1145,6 +1146,7 @@ class Donate(RoutablePageMixin, Page):
             "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
             "return": self.full_url + 'thank-you/',
             "cancel_return": self.full_url,
+            "custom": "",
             "rm": "1"
         }
 

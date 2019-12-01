@@ -285,6 +285,12 @@ def edit_children():
 
 def handle_donation(sender, **kwargs):
     ipn_obj = sender
+    waive_donor_incentive = None
+    if ipn_obj.custom == 'waive-donor-incentive=yes':
+        waive_donor_incentive = True
+    elif ipn_obj.custom == 'waive-donor-incentive=no':
+        waive_donor_incentive = False
+
     ctx = {
         'first_name': ipn_obj.first_name,
         'last_name': ipn_obj.last_name,
@@ -292,6 +298,7 @@ def handle_donation(sender, **kwargs):
         'amount': ipn_obj.mc_gross,
         'payment_date': ipn_obj.payment_date,
         'txn_id': ipn_obj.txn_id,
+        'waive_donor_incentive': waive_donor_incentive,
     }
 
     if ipn_obj.payment_status == ST_PP_COMPLETED:
