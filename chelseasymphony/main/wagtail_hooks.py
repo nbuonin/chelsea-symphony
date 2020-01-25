@@ -1,4 +1,5 @@
 """Implements hooks"""
+from bisect import bisect
 import logging
 from django.core.mail import send_mail
 from django.db.models import Min
@@ -291,14 +292,21 @@ def handle_donation(sender, **kwargs):
     elif ipn_obj.custom == 'waive-donor-incentive=no':
         waive_donor_incentive = False
 
+    amount = float(ipn_obj.mc_gross)
+
+    breakpoints = [0.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0, 30000.0]
+    adjustments = [0,   0,    50,    50,    100,   100,    100,    100]
+    adjusted_donation = adjustments[bisect(breakpoints, amount)]
+
     ctx = {
         'first_name': ipn_obj.first_name,
         'last_name': ipn_obj.last_name,
         'email_address': ipn_obj.payer_email,
-        'amount': ipn_obj.mc_gross,
+        'amount': amount,
         'payment_date': ipn_obj.payment_date,
         'txn_id': ipn_obj.txn_id,
         'waive_donor_incentive': waive_donor_incentive,
+        'adjusted_donation': adjusted_donation,
     }
 
     if ipn_obj.payment_status == ST_PP_COMPLETED:
