@@ -1,5 +1,6 @@
 """Implements hooks"""
 from bisect import bisect
+from decimal import Decimal, localcontext
 import logging
 from django.core.mail import send_mail
 from django.db.models import Min
@@ -284,6 +285,17 @@ def edit_children():
     return EditChildrenMenuItem(order=100)
 
 
+def get_adjusted_donation(amount: str) -> str:
+    amt = Decimal(amount)
+    breakpoints = [
+        Decimal('100'), Decimal('250'), Decimal('500'), Decimal('1000'),
+        Decimal('5000'), Decimal('30000')]
+    adjustments = [
+        Decimal('0'), Decimal('50'), Decimal('50'), Decimal('100'),
+        Decimal('100'), Decimal('700'), Decimal('1400')]
+    return str(amt - adjustments[bisect(breakpoints, amt)])
+
+
 def handle_donation(sender, **kwargs):
     ipn_obj = sender
     waive_donor_incentive = None
@@ -292,11 +304,8 @@ def handle_donation(sender, **kwargs):
     elif ipn_obj.custom == 'waive-donor-incentive=no':
         waive_donor_incentive = False
 
-    amount = float(ipn_obj.mc_gross)
-
-    breakpoints = [0.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0, 30000.0]
-    adjustments = [0,   0,    50,    50,    100,   100,    100,    100]
-    adjusted_donation = adjustments[bisect(breakpoints, amount)]
+    amount = ipn_obj.mc_gross
+    adjusted_donation = get_adjusted_donation(ipn_obj.mc_gross)
 
     ctx = {
         'first_name': ipn_obj.first_name,
@@ -323,6 +332,7 @@ def handle_donation(sender, **kwargs):
                 settings.DONATION_EMAIL_ADDR,
                 [ipn_obj.payer_email],
             )
+            return
 
         # send mail for recurring donation
         if ipn_obj.txn_type == 'subscr_payment':
@@ -334,6 +344,7 @@ def handle_donation(sender, **kwargs):
                 settings.DONATION_EMAIL_ADDR,
                 [ipn_obj.payer_email],
             )
+            return
 
     # send mail for new recurring donation signup
     if ipn_obj.txn_type == 'subscr_signup':
@@ -344,6 +355,7 @@ def handle_donation(sender, **kwargs):
             settings.DONATION_EMAIL_ADDR,
             [ipn_obj.payer_email],
         )
+        return
 
 
 def handle_invalid_donation(sender, **kwargs):
