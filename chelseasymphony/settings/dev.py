@@ -11,6 +11,8 @@ ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+PAYPAL_ACCT_EMAIL = 'info-facilitator@example.org'
+DONATION_EMAIL_ADDR = 'donations-test@example.org'
 
 try:
     from .local import *

@@ -40,7 +40,7 @@ docker-image:
 	docker build -t nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"` .
 
 docker-test:
-	cd docker && docker-compose up --build --abort-on-container-exit
+	cd docker && docker-compose up --build --abort-on-container-exit --remove-orphans
 
 docker-push:
 	docker push nbuonin/chelsea-symphony-wagtail:`git log -n 1 --pretty="%h"`
