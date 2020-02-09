@@ -720,7 +720,7 @@ class ConcertPerformer(Orderable):
 
         return None
 
-    class Meta:
+    class Meta(Orderable.Meta):
         constraints = [
             models.UniqueConstraint(
                 fields=['concert', 'person'],
