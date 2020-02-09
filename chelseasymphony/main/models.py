@@ -920,7 +920,8 @@ class Person(MetadataPageMixin, Page):
         FieldPanel(
             'instrument',
             widget=forms.CheckboxSelectMultiple
-        )
+        ),
+        FieldPanel('position'),
     ]
 
     promote_panels = [
