@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6ef22fcbd89ab5284cb8fffb2be3d0b82c325f53655d44f419c82798ffb877d8"
+            "sha256": "b9ef1adb94969f9885c81eaeb3b68b2eba0869e98e373f0ca1dd06c9695800c9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -524,11 +524,11 @@
         },
         "wagtail-metadata": {
             "hashes": [
-                "sha256:621773909a62767efcf012f4099ae1d45727cf9a681cae91f11a9a8d9526dea9",
-                "sha256:9fab09c6955f4adf169175c4be3886f1bddc3527c966aa13e3788f869ee5fcac"
+                "sha256:7525a80ab2c0134a1597c2201506ffacfe1a59d8ef8355ed243b3fc072e115d5",
+                "sha256:7af9d20b324f2769b24516f6206b183072a69fa5c8c239127072c747ba22bc88"
             ],
             "index": "pypi",
-            "version": "==3.0.0"
+            "version": "==3.1.0"
         },
         "wagtailmenus": {
             "hashes": [
