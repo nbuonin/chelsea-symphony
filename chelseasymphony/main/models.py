@@ -114,25 +114,25 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
             ('page', blocks.PageChooserBlock(required=True))
         ], template='main/blocks/highlight_link.html', icon='link')),
         ('personnel', blocks.StructBlock([
-            ('left_caption', blocks.CharBlock()),
+            ('left_caption', blocks.CharBlock(required=False)),
             ('left_block', blocks.ListBlock(
                 blocks.StructBlock([
-                    ('role', blocks.CharBlock()),
+                    ('role', blocks.CharBlock(required=False)),
                     ('people', blocks.ListBlock(
                         blocks.StructBlock([
-                            ('name', blocks.CharBlock()),
+                            ('name', blocks.CharBlock(required=False)),
                             ('link', blocks.URLBlock(required=False))
-                        ])
+                        ], required=False)
                     ))
-                ])
+                ], required=False)
             )),
-            ('right_caption', blocks.CharBlock()),
+            ('right_caption', blocks.CharBlock(required=False)),
             ('right_block', blocks.ListBlock(
                 blocks.StructBlock([
-                    ('role', blocks.CharBlock()),
+                    ('role', blocks.CharBlock(required=False)),
                     ('people', blocks.ListBlock(
                         blocks.StructBlock([
-                            ('name', blocks.CharBlock()),
+                            ('name', blocks.CharBlock(required=False)),
                             ('link', blocks.URLBlock(required=False))
                         ])
                     ))

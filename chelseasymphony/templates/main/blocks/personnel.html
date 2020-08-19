@@ -9,9 +9,9 @@
                 <td>
                     {% for p in block.people %}
                         {% if p.link %}
-                        <a href="{{ p.link }}">{{ p.name }}</a>
+                        <div><a href="{{ p.link }}">{{ p.name }}</a></div>
                         {% else %}
-                        <span>{{ p.name }}</span>
+                        <div>{{ p.name }}</div>
                         {% endif %}
                     {% endfor %}
                 </td>
@@ -27,9 +27,9 @@
                 <td>
                     {% for p in block.people %}
                         {% if p.link %}
-                        <a href="{{ p.link }}">{{ p.name }}</a>
+                        <div><a href="{{ p.link }}">{{ p.name }}</a></div>
                         {% else %}
-                        <span>{{ p.name }}</span>
+                        <div>{{ p.name }}</div>
                         {% endif %}
                     {% endfor %}
                 </td>
