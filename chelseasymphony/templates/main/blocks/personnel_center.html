@@ -1,0 +1,15 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="personnel">
+    <table class="personnel-list"><caption>{{ value.caption }}</caption>
+        <tbody>
+            <tr>
+                <td class="personnel-list-centered__names">
+                    {% for name in value.names %}
+                    <div>{{ name }}</div>
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

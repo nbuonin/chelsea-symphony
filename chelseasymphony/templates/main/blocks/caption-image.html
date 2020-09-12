@@ -1,0 +1,14 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="caption-img-container"{% if value.image_max_width %} style="max-width: {{ value.image_max_width }}px;"{% endif %}>
+    <div class="caption-img">
+        {% image value.image original as cap_image %}
+        <image src="{{ cap_image.url }}" alt="{{ cap_image.alt }}"></image>
+    </div>
+    {% if value.caption %}
+    <div class="caption-img-caption">
+        {% include_block value.caption %}
+    </div>
+    {% endif %}
+</div>
+

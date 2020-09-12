@@ -96,6 +96,11 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
+        ('caption_image', blocks.StructBlock([
+            ('image', ImageChooserBlock()),
+            ('image_max_width', blocks.IntegerBlock()),
+            ('caption', blocks.CharBlock(required=False)),
+        ], template='main/blocks/caption-image.html', icon='image')),  # noqa E501
         ('block_quote', blocks.StructBlock([
             ('quote', blocks.RichTextBlock(
                 required=True,
@@ -138,7 +143,13 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
                     ))
                 ])
             )),
-        ], template='main/blocks/personnel.html', icon='user'))
+        ], template='main/blocks/personnel.html', icon='user')),
+        ('personnel_center', blocks.StructBlock([
+            ('caption', blocks.CharBlock()),
+            ('names', blocks.ListBlock(
+                blocks.CharBlock(label='name')
+            ))
+        ], template='main/blocks/personnel_center.html', icon='user'))
     ])
 
     content_panels = Page.content_panels + [
