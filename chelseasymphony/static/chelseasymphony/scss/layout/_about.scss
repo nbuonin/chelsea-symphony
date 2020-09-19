@@ -1,3 +1,7 @@
+#basic-page {
+    @extend %copy;
+}
+
 #about-page {
   > div > div > p {
     @extend %copy;

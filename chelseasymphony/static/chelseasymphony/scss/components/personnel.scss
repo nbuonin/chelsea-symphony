@@ -1,28 +1,23 @@
-table.personnel-list {
-  @extend %copy;
-}
-
 .personnel {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  clear: both;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    clear: both;
 }
 .personnel-list {
-  margin-top: $big1;
-  caption {
-    @extend %small-heading;
-    margin-bottom: 1em;
-  }
-  td {
-    padding-bottom: 1em;
-    width: 50%;
-  }
-  th {
-    @extend .smcaps;
-    text-align: right;
-    padding-right: 1em;
-  }
+    margin-top: $big1;
+    caption {
+        @extend %small-heading;
+        margin-bottom: 1em;
+    }
+    td {
+        padding-bottom: 1em;
+        width: 50%;
+    }
+    th {
+        @extend .smcaps;
+        text-align: right;
+        padding-right: 1em;
+    }
 }
-

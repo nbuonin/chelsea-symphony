@@ -954,7 +954,7 @@ class Person(MetadataPageMixin, Page):
 
 class PersonIndex(Page):
     parent_page_types = ['Home']
-    subpage_types = ['Person']
+    subpage_types = ['Person', 'BasicPage']
 
     def get_context(self, request):
         context = super().get_context(request)

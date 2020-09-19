@@ -125,20 +125,20 @@ p {
 }
 %copy {
     @extend %base;
- 	 padding-bottom: $small1;
+    padding-bottom: $small1;
     color: $text-color;
     a {
-      color: $body-link-color;
-      &:hover {
         color: $link-color;
-        text-decoration: none;
-      }
+        text-decoration: underline;
+        &:hover {
+            color: $body-link-color;
+        }
     }
     @include respond-to(medium-plus) {
-      padding-bottom: $xsmall1;
+        padding-bottom: $xsmall1;
     }
     &:last-child {
-      padding-bottom:0;
+        padding-bottom:0;
     }
 }
 
