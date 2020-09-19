@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-wagtail = "==2.7.2"
+wagtail = "==2.7.4"
 wagtail-autocomplete = "==0.6"
 faker = "==4.0.0"
 factory-boy = "==2.12.0"
