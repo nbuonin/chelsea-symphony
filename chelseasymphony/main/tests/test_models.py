@@ -418,7 +418,7 @@ class PersonIndexTest(WagtailPageTests):
     def test_subpage_types(self):
         self.assertAllowedSubpageTypes(
             PersonIndex,
-            {Person}
+            {Person, BasicPage}
         )
 
 
