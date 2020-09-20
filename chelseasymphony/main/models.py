@@ -98,6 +98,9 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
         ('table', TableBlock()),
+        ('iframe_block', blocks.StructBlock([
+            ('url', blocks.URLBlock()),
+        ], template='main/blocks/iframe_block.html', icon='date')),
         ('caption_image', blocks.StructBlock([
             ('image', ImageChooserBlock()),
             ('image_max_width', blocks.IntegerBlock()),
