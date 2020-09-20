@@ -957,7 +957,7 @@ class Person(MetadataPageMixin, Page):
     subpage_types = []
 
 
-class PersonIndex(Page):
+class PersonIndex(Page, MenuPageMixin):
     parent_page_types = ['Home']
     subpage_types = ['Person', 'BasicPage']
 
@@ -975,6 +975,10 @@ class PersonIndex(Page):
             roster[i.instrument] = [m for m in musicians]
         context['roster'] = roster
         return context
+
+    settings_panels = AbstractEmailForm.settings_panels + [
+        menupage_panel,
+    ]
 
 
 @register_snippet
