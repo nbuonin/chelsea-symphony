@@ -22,6 +22,7 @@ from wagtail.core.models import Page, PageManager, Orderable, PageQuerySet
 from wagtail.core.fields import RichTextField, StreamField
 from wagtail.core import blocks
 from wagtail.contrib.routable_page.models import RoutablePageMixin, route
+from wagtail.contrib.table_block.blocks import TableBlock
 from wagtail.documents.models import Document
 from wagtail.documents.edit_handlers import DocumentChooserPanel
 from wagtail.admin.edit_handlers import (
@@ -96,6 +97,7 @@ class BasicPage(MetadataPageMixin, Page, MenuPageMixin):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
+        ('table', TableBlock()),
         ('caption_image', blocks.StructBlock([
             ('image', ImageChooserBlock()),
             ('image_max_width', blocks.IntegerBlock()),

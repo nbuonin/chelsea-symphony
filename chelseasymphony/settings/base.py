@@ -24,7 +24,6 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
-    # 'home',
     'chelseasymphony.search',
     'chelseasymphony.main',
 
@@ -33,6 +32,7 @@ INSTALLED_APPS = [
     'wagtail.contrib.routable_page',
     'wagtail.contrib.modeladmin',
     'wagtail.contrib.postgres_search',
+    'wagtail.contrib.table_block',
     'wagtail.embeds',
     'wagtail.sites',
     'wagtail.users',
@@ -166,6 +166,25 @@ MEDIA_URL = '/media/'
 
 WAGTAIL_SITE_NAME = "chelseasymphony"
 WAGTAILIMAGES_FEATURE_DETECTION_ENABLED = True
+
+# OEmbed settings
+soundcloud_provider = {
+    'endpoint': 'https://soundcloud.com/oembed',
+    'urls': [
+        '^http(?:s)?://(?:www\\.)?soundcloud\\.com/[^#?/]+/[^#?/]+/.+$',
+    ],
+    'options': {'show_comments': 'false', 'maxheight': '81'}
+}
+
+WAGTAILEMBEDS_FINDERS = [
+    {
+        'class': 'wagtail.embeds.finders.oembed',
+        'providers': [soundcloud_provider],
+    },
+    {
+        'class': 'wagtail.embeds.finders.oembed',
+    }
+]
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
