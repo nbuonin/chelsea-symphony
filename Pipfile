@@ -21,7 +21,7 @@ pylint = "==2.6.0"
 flake8 = "==3.8.3"
 pylint-django = "==2.3.0"
 wagtail-metadata = "==3.3.0"
-sentry-sdk = "==0.17.6"
+sentry-sdk = "==0.19.5"
 
 [dev-packages]
 
