@@ -34,7 +34,7 @@ $(document).ready(function() {
     // Uncomment for homepage popup
     let hpUrl = "https://" + document.domain + "/";
     let referrer = document.referrer;
-    if (hpUrl == document.URL && !referrer.startsWith($hpUrl)) {
+    if (hpUrl == document.URL && !referrer.startsWith(hpUrl)) {
         let popStyles = document.createElement('popup-style');
         popStyles.type = 'text/css';
         popStyles.innerHTML= '.mfp-iframe-holder .mfp-content { line-height: 0; width: 100%; max-width: 400px; }'
