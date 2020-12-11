@@ -32,27 +32,24 @@ $(document).ready(function() {
     $(window).resize(profilePage);
 
     // Uncomment for homepage popup
-    //let hpUrl = "https://" + document.domain + "/";
-    //let referrer = document.referrer;
-    //if (hpUrl == document.URL && !referrer.startsWith($hpUrl)) {
-        //let popStyles = document.createElement('popup-style');
-        //popStyles.type = 'text/css';
-        //popStyles.innerHTML= '.mfp-iframe-holder .mfp-content { line-height: 0; width: 100%; max-width: 400px; }'
-        //document.getElementsByTagName('head')[0].appendChild(popStyles);
-        //jQuery.magnificPopup.open({
-            //items: {
-                //src: $('<div style="background-color: white; margin: 0 auto;  max-width: 450px; padding: 2em; text-align: center;">' +
-                    //'Looking for The Chelsea Symphony\'s paperless program?<br/><br/>' +
-                    //'<a href="https://chelseasymphony.org/earth-day-2018"><button style="margin: 0 auto;">Click Here</button></a><br/>' +
-                    //'American Museum of Natural History<br/>' +
-                    //'Milstein Hall of Ocean Life<br/>' +
-                    //'EarthFest<br/><br/>' +
-                    //'Sunday, April 22 at 2pm<br/>')
-            //},
-            //showCloseBtn: false,
-            //type:'inline'
-        //}, 0);
-    //}
+    let hpUrl = "https://" + document.domain + "/";
+    let referrer = document.referrer;
+    if (hpUrl == document.URL && !referrer.startsWith($hpUrl)) {
+        let popStyles = document.createElement('popup-style');
+        popStyles.type = 'text/css';
+        popStyles.innerHTML= '.mfp-iframe-holder .mfp-content { line-height: 0; width: 100%; max-width: 400px; }'
+        document.getElementsByTagName('head')[0].appendChild(popStyles);
+        jQuery.magnificPopup.open({
+            items: {
+                src: $('<div style="background-color: white; margin: 0 auto;  max-width: 450px; padding: 2em; text-align: center;">' +
+                    'Make a direct impact on music in NYC now and when concert halls reopen - support The Chelsea Symphony!<br/><br/><br/>' +
+                    '<a href="https://chelseasymphony.org/donate/"><button style="margin: 0 auto;">Click Here To Donate</button></a><br/>' +
+                    '<br/>')
+            },
+            showCloseBtn: false,
+            type:'inline'
+        }, 0);
+    }
 
     // Donation Page
     // Toggle the single and recurring forms
@@ -113,7 +110,6 @@ $(document).ready(function() {
         e.preventDefault();
         let donationType = $('input[type=radio][name=donation_type]:checked').val();
         let donationBenefitChoice = $('input[type=radio][name=donation_tax]:checked').val()
-        console.log(donationBenefitChoice);
         let waiveDonationBenefit = donationBenefitChoice === 'yes' ? 'yes' : 'no';
         if (donationType === 'single') {
             let val = $('input[type=radio][name=single_donation]:checked').val();
