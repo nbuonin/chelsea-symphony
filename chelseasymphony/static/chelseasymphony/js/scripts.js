@@ -32,24 +32,24 @@ $(document).ready(function() {
     $(window).resize(profilePage);
 
     // Uncomment for homepage popup
-    let hpUrl = "https://" + document.domain + "/";
-    let referrer = document.referrer;
-    if (hpUrl == document.URL && !referrer.startsWith(hpUrl)) {
-        let popStyles = document.createElement('popup-style');
-        popStyles.type = 'text/css';
-        popStyles.innerHTML= '.mfp-iframe-holder .mfp-content { line-height: 0; width: 100%; max-width: 400px; }'
-        document.getElementsByTagName('head')[0].appendChild(popStyles);
-        jQuery.magnificPopup.open({
-            items: {
-                src: $('<div style="background-color: white; margin: 0 auto;  max-width: 450px; padding: 2em; text-align: center;">' +
-                    'Make a direct impact on music in NYC now and when concert halls reopen - support The Chelsea Symphony!<br/><br/><br/>' +
-                    '<a href="https://chelseasymphony.org/donate/"><button style="margin: 0 auto;">Click Here To Donate</button></a><br/>' +
-                    '<br/>')
-            },
-            showCloseBtn: false,
-            type:'inline'
-        }, 0);
-    }
+    //let hpUrl = "https://" + document.domain + "/";
+    //let referrer = document.referrer;
+    //if (hpUrl == document.URL && !referrer.startsWith(hpUrl)) {
+        //let popStyles = document.createElement('popup-style');
+        //popStyles.type = 'text/css';
+        //popStyles.innerHTML= '.mfp-iframe-holder .mfp-content { line-height: 0; width: 100%; max-width: 400px; }'
+        //document.getElementsByTagName('head')[0].appendChild(popStyles);
+        //jQuery.magnificPopup.open({
+            //items: {
+                //src: $('<div style="background-color: white; margin: 0 auto;  max-width: 450px; padding: 2em; text-align: center;">' +
+                    //'Make a direct impact on music in NYC now and when concert halls reopen - support The Chelsea Symphony!<br/><br/><br/>' +
+                    //'<a href="https://chelseasymphony.org/donate/"><button style="margin: 0 auto;">Click Here To Donate</button></a><br/>' +
+                    //'<br/>')
+            //},
+            //showCloseBtn: false,
+            //type:'inline'
+        //}, 0);
+    //}
 
     // Donation Page
     // Toggle the single and recurring forms
