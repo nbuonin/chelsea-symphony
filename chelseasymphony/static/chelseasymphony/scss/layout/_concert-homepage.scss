@@ -17,7 +17,7 @@
 }
 
 @mixin hp-section-copy {
-  @extend %copy;
+  @include copy;
   margin: 0 $small1;
   text-align: center;
   //width: 100%;
@@ -258,7 +258,7 @@
     }
 
       div.concert-copy > p {
-        @includ hp-section-copy;
+        @include hp-section-copy;
         text-align: center;
         //padding: 0 22px;
       }

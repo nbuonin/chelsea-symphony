@@ -4,9 +4,10 @@
   font-kerning: normal;
   font-feature-settings: "onum", "kern", "liga", "clig", "calt";
 }
-  $light: 400;
-  $normal: 500;
-  $heavy: 800;
+
+$light: 400;
+$normal: 500;
+$heavy: 800;
 
 %base {
   font-size: $base-size;
@@ -14,6 +15,14 @@
     font-size: $xbase-size;
   }
 }
+
+@mixin base {
+  font-size: $base-size;
+  @include respond-to(medium-plus) {
+    font-size: $xbase-size;
+  }
+}
+
 // replaces %small
 @mixin small {
   font-size: $small;
@@ -120,11 +129,30 @@ p {
   line-height: 21px;
   @include respond-to(medium-plus) {
     line-height: 23px;
-    margin-bottom: 0;
   }
 }
+
 %copy {
-    @extend %base;
+    @include base;
+    padding-bottom: $small1;
+    color: $text-color;
+    a {
+        color: $link-color;
+        text-decoration: underline;
+        &:hover {
+            color: $body-link-color;
+        }
+    }
+    @include respond-to(medium-plus) {
+        padding-bottom: $xsmall1;
+    }
+    &:last-child {
+        padding-bottom:0;
+    }
+}
+
+@mixin copy {
+    @include base;
     padding-bottom: $small1;
     color: $text-color;
     a {
