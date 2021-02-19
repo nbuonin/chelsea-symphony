@@ -31,6 +31,9 @@ $(document).ready(function() {
     $(document).ready(profilePage);
     $(window).resize(profilePage);
 
+    // Removes spacing from paragraph the immediately preceeds a ul
+    $('.block-paragraph p').next('ul').prev().css('padding-bottom', '0');
+
     // Uncomment for homepage popup
     //let hpUrl = "https://" + document.domain + "/";
     //let referrer = document.referrer;

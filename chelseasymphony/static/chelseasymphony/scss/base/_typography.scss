@@ -132,6 +132,8 @@ p {
   }
 }
 
+// TODO: check the call sites, it looks like its implied that this should only
+// be used with p tags, but that should be fixed
 %copy {
     @include base;
     padding-bottom: $small1;
@@ -148,6 +150,13 @@ p {
     }
     &:last-child {
         padding-bottom:0;
+    }
+    
+    & + ul {
+        padding-bottom: $small1;
+        @include respond-to(medium-plus) {
+            padding-bottom: $xsmall1;
+        }
     }
 }
 
@@ -167,6 +176,13 @@ p {
     }
     &:last-child {
         padding-bottom:0;
+    }
+    
+    & + ul {
+        padding-bottom: $small1;
+        @include respond-to(medium-plus) {
+            padding-bottom: $xsmall1;
+        }
     }
 }
 
