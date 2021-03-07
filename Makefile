@@ -21,6 +21,10 @@ runserver: $(PY_SENTINAL)
 migrate: $(PY_SENTINAL)
 	pipenv run ./manage.py migrate
 
+pre-deploy: $(PY_SENTINAL)
+	pipenv run ./manage.py collectstatic --noinput --settings=chelseasymphony.settings.local
+	pipenv run ./manage.py migrate --settings=chelseasymphony.settings.local
+
 makemigrations: $(PY_SENTINAL)
 	pipenv run ./manage.py makemigrations
 
