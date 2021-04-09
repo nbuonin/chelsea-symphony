@@ -19,7 +19,7 @@ boto3 = "==1.15.1"
 opencv-python-headless = "==4.2.0.34"
 pylint = "==2.6.0"
 flake8 = "==3.8.3"
-pylint-django = "==2.3.0"
+pylint-django = "==2.4.3"
 wagtail-metadata = "==3.3.0"
 sentry-sdk = "==0.17.6"
 
