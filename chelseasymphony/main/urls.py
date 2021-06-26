@@ -7,6 +7,7 @@ from wagtail.core import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 from chelseasymphony.search import views as search_views
+from chelseasymphony.main.views import NextEventView
 
 from wagtailautocomplete.urls.admin import urlpatterns as autocomplete_admin_urls
 
@@ -20,6 +21,8 @@ urlpatterns = [
     url(r'^search/$', search_views.search, name='search'),
 
     url(r'^paypal/', include('paypal.standard.ipn.urls')),
+
+    url(r'^whats-next/', NextEventView.as_view(), name='next-event-view'),
 
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's page serving mechanism. This should be the last pattern in

@@ -336,6 +336,27 @@ class ConcertTest(WagtailPageTests):
         assert(self.c4 == fc[3])
 
 
+class NextEventTest(WagtailPageTests):
+    @classmethod
+    def setUpTestData(cls):
+        cls.homepage, cls.c_idx, cls.p_idx, cls.b_idx = create_base_site()
+
+    def test_next_redirect(self):
+        c1, _, _, _ = create_future_concerts(self.c_idx)
+
+        r1 = self.client.get('/whats-next/')
+        self.assertRedirects(r1, c1.get_url())
+
+        r2 = self.client.get('/whats-next/?foo=bar')
+        self.assertRedirects(r2, c1.get_url() + '?foo=bar')
+
+    def test_no_future_event(self):
+        r1 = self.client.get('/whats-next/')
+        self.assertRedirects(r1, self.c_idx.get_url())
+
+        r2 = self.client.get('/whats-next/?foo=bar')
+        self.assertRedirects(r2, self.c_idx.get_url() + '?foo=bar')
+
 class PerformanceTest(WagtailPageTests):
     @classmethod
     def setUpTestData(cls):

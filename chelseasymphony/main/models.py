@@ -300,7 +300,6 @@ class ConcertQuerySet(PageQuerySet):
             second=0,
             microsecond=0
         )
-        print(today)
         current_season = Concert.calculate_season(today)
         return Concert.objects.\
             annotate(first_date=Min('concert_date__date')).\
