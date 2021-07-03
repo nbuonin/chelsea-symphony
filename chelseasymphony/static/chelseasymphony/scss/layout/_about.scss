@@ -1,12 +1,8 @@
-#basic-page p {
-    @extend %copy;
+#basic-page .block-paragraph > p {
+    @include copy;
 }
 
 #about-page {
-  > div > div > p {
-    @extend %copy;
-  }
-
   h2 {
     @extend %small-heading;
     padding-bottom: .3em;
