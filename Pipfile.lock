@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b80473faa883d5c411722aef3995dba44ff7e6ba6733f96bf4a44e035d2b0154"
+            "sha256": "85a20d606f1c9b64a956ccbd9841c1883159ddf52bb697af3db15507fa8d197e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -618,11 +618,11 @@
         },
         "wagtail-metadata": {
             "hashes": [
-                "sha256:1cdd2fc41eaa5dca58e611f209d6366abb4903e4001c03df816d4cc6589cbc90",
-                "sha256:3629e078385d4f04966db763425aeba18a8f4ca5eeac9739e3c0a6f28e3e6db5"
+                "sha256:4d94e3de715d5cb07cb05005f949428b8c68d33a5cd324b8eca10565ed5d0046",
+                "sha256:a17b1b545446f092ec4074a1c5734931a1af0c68a9a56be1732158753df36746"
             ],
             "index": "pypi",
-            "version": "==3.3.0"
+            "version": "==3.4.0"
         },
         "wagtailmenus": {
             "hashes": [
@@ -661,10 +661,10 @@
         },
         "xlsxwriter": {
             "hashes": [
-                "sha256:1a7fac99687020e76aa7dd0d7de4b9b576547ed748e5cd91a99d52a6df54ca16",
-                "sha256:641db6e7b4f4982fd407a3f372f45b878766098250d26963e95e50121168cbe2"
+                "sha256:15b65f02f7ecdcfb1f22794b1fcfed8e9a49e8b7414646f90347be5cbf464234",
+                "sha256:791567acccc485ba76e0b84bccced2651981171de5b47d541520416f2f9f93e3"
             ],
-            "version": "==1.4.3"
+            "version": "==1.4.4"
         },
         "xlwt": {
             "hashes": [
