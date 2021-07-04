@@ -1,4 +1,5 @@
 """Chelsea Symphony Models"""
+from chelseasymphony.main.blocks import YouTubeVideoBlock
 from datetime import datetime, timedelta
 from html import unescape
 from django import forms
@@ -1025,6 +1026,7 @@ class BlogPost(MetadataPageMixin, Page):
     body = StreamField([
         ('paragraph', blocks.RichTextBlock()),
         ('image', ImageChooserBlock()),
+        ('youtube_embed', YouTubeVideoBlock()),
     ])
     legacy_id = models.IntegerField(
         null=True,
