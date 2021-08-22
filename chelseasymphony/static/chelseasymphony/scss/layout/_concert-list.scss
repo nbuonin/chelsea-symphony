@@ -107,8 +107,8 @@ div.page-header {
       .concert-program-piece {
         padding: 0;
         font-style: italic;
-        .rich-text {
-            display: inline-block;
+        .rich-text p {
+            display: inline;
         }
       }
       .concert-program-piece-composer {
