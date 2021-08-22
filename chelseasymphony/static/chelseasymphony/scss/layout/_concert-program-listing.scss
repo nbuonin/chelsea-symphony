@@ -1,5 +1,9 @@
 .concert-program-listing {
-  .concert-program-piece { }
+  .concert-program-piece { 
+    .rich-text { 
+        display: inline-block;
+    }
+  }
   .concert-program-piece-composer {
     font-weight: 500;
   }
