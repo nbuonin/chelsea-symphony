@@ -48,9 +48,7 @@
                     {% for performer in piece.performers %}
                     <div class="concert-program-piece-soloist">
                         <div>
-                            <span class="performer">
-                                <a href="{{ performer.url }}">{{ performer.name }}</a> 
-                            </span>
+                            <span class="performer"><a href="{{ performer.url }}">{{ performer.name }}</a>, </span>
                             <span class="instrument">
                                 {{ performer.instrument }}
                             </span>
