@@ -398,6 +398,10 @@ class Concert(MetadataPageMixin, Page):
         null=True,
         blank=True
     )
+    ticketing_link = models.URLField(
+        null=True,
+        blank=True
+    )
     legacy_id = models.IntegerField(
         null=True,
         blank=True,
@@ -597,6 +601,7 @@ class Concert(MetadataPageMixin, Page):
         FieldPanel('promo_copy'),
         StreamFieldPanel('description'),
         FieldPanel('venue'),
+        FieldPanel('ticketing_link'),
         ImageChooserPanel('concert_image'),
         DocumentChooserPanel('program_notes'),
         InlinePanel('concert_date', label="Concert Dates", min_num=1),

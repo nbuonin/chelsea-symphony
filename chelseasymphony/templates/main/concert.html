@@ -68,6 +68,11 @@
                         {% endfor %}
                     </div>
                     {% endif %}
+                    {% if page.ticketing_link %}
+                    <div class="concert-ticketing-link">
+                        <a href="{{ page.ticketing_link }}">BUY TICKETS</a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="concert-program">

@@ -55,10 +55,14 @@
   }
   .concert-conductors {
     @include small;
+    margin-top: 1em;
     font-style: italic;
     a {
       color: $link-color; // set this as a default in base.scss
     }
+  }
+  .concert-ticketing-link {
+    @extend .btn;
   }
   .concert-copy {
       width: 100%;
