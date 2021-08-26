@@ -46,8 +46,9 @@ div.page-header {
    @extend %serif-display;
    // text-align: left;
   }
-  .concert-location {
+  .concert-location > p {
     @extend %caps-sans;
+    margin-bottom: 0em;
   }
   .concert-copy p {
     @extend %copy;
