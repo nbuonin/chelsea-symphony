@@ -5,10 +5,12 @@ from html import unescape
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import Max, Min
 from django.http import Http404
+from django.template.loader import get_template
 from django.template.response import TemplateResponse
 from django.utils.text import slugify
 from django.utils import timezone
@@ -1320,10 +1322,38 @@ class NewMemberRequestPage(MetadataPageMixin, Page, MenuPageMixin):
 
     def serve(self, request):
         from .forms import NewMemberRequestForm
+        PERSONEL_MGR_EMAIL = 'personnel@chelseasymphony.org'
         if request.method == 'POST':
             form = NewMemberRequestForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
+                # Send confirmation email to applicant
+                confirmation = get_template('main/email/new_member_request_confirmation.txt')
+                send_mail(
+                    'Thank you for your submission',
+                    confirmation.render(
+                        {'first_name': form.cleaned_data.get('first_name')}),
+                    PERSONEL_MGR_EMAIL,
+                    [form.cleaned_data.get('email')]
+                )
+
+                # Send confirmation email to personel manager
+                personel_ctx = {
+                    'first_name': form.cleaned_data['first_name'],
+                    'last_name': form.cleaned_data['last_name'],
+                    'email': form.cleaned_data['email'],
+                    'source': form.cleaned_data['source'],
+                    'instrument': form.cleaned_data['instrument'],
+                    'link': form.cleaned_data['link']
+                }
+                personel_email_template = get_template('main/email/new_member_submission_notification.txt')
+                send_mail(
+                    'A new member request has been submitted',
+                    personel_email_template.render(personel_ctx),
+                    PERSONEL_MGR_EMAIL,
+                    [PERSONEL_MGR_EMAIL]
+                )
+
                 return render(request, 'main/form_page_landing.html', {
                     'page': self,
                 })

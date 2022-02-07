@@ -1,0 +1,10 @@
+Hi {{ first_name }},
+
+Thank you for submitting your resume to The Chelsea Symphony. 
+
+When we have an opening in our orchestra, our personnel manager (personnel@chelseasymphony.org) will reach out to you via email.
+
+If you have any questions in the meantime, please don't hesitate to contact us at: info@chelseasymphony.org!
+
+Sincerely,
+Your friends at TCS

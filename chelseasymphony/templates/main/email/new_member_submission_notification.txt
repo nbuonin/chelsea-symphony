@@ -1,0 +1,8 @@
+A new member request has been submitted:
+
+First Name: {{ first_name }}
+Last Name: {{ last_name }}
+Email: {{ email }}
+Instrument: {{ instrument }}
+Source: {{ source }}
+Provided Link: {{ link }}
