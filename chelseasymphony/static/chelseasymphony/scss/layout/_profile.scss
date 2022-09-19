@@ -47,7 +47,7 @@
         content: " —";
       }
     }
-    .profile-bio p {
+    .profile-bio > * {
       @include copy;
     }
     
