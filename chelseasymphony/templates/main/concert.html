@@ -62,7 +62,7 @@
                     {% include_block page.description %}
                     {% if conductors %}
                     <div class="concert-conductors">
-                        Conductors:&nbsp;
+                        {% if conductors.length > 1 %}Conductors:&nbsp;{% else %}Conductor:&nbsp;{% endif %}
                         {% for c in conductors %}
                         <span><a href="{{ c.url }}">{{ c.name }}</a></span>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
@@ -137,7 +137,7 @@
             {% endif %}
             {% if conductors %}
             <div class="concert-soloists">
-                <h2>Conductors</h2>
+                {% if conductors.length > 1 %}<h2>Conductors</h2>{% else %}<h2>Conductor</h2>{% endif %}
                 {% for conductor in conductors %} 
                 <section class="concert-soloist">
                     <div class="concert-soloist-image">

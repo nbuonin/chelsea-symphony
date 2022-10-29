@@ -1,6 +1,8 @@
-#basic-page .block-paragraph > * {
-    @include copy;
-}
+#basic-page .block-paragraph {
+    p, ul, ol {
+        @include copy;
+    }
+} 
 
 #about-page {
   h2 {

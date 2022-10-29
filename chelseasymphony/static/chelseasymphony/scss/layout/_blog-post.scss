@@ -46,8 +46,10 @@
   }
 }
 
-#blog-post .blog-post-body  > * {
-    @extend %copy;
+#blog-post .blog-post-body {
+    p, ol, ul {
+        @extend %copy;
+    }
 }
 
 #blog-post-recent {

@@ -47,8 +47,10 @@
         content: " —";
       }
     }
-    .profile-bio > * {
-      @include copy;
+    .profile-bio {
+        p, ul, ol {
+            @include copy;
+        }
     }
     
   }
