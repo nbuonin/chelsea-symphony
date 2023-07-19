@@ -265,7 +265,7 @@ class EditChildrenMenuItem(ActionMenuItem):
     name = 'edit-children'
     label = 'Edit Children'
 
-    def is_shown(self, request, context):
+    def is_shown(self, context):
         if context['view'] == 'create':
             return False
 

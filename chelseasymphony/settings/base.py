@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'wagtail.contrib.redirects',
     'wagtail.contrib.routable_page',
     'wagtail.contrib.modeladmin',
-    'wagtail.contrib.postgres_search',
     'wagtail.contrib.table_block',
     'wagtail.embeds',
     'wagtail.sites',
@@ -74,6 +73,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'chelseasymphony.main.urls'
+
+WAGTAILSEARCH_BACKENDS = {
+    'default': {
+        'BACKEND': 'wagtail.search.backends.database',
+    }
+}
 
 TEMPLATES = [
     {
@@ -185,6 +190,8 @@ WAGTAILEMBEDS_FINDERS = [
         'class': 'wagtail.embeds.finders.oembed',
     }
 ]
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
