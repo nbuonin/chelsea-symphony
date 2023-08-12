@@ -15,11 +15,13 @@
   <div class="container">
 
 
+{% if page.banner_image %}
   <section id="season-banner">
     <div class="banner-image-container">
         {% responsiveimage page.banner_image width-1470 srcset="width-833 833w, width-1208 1208w, width-1470 1470w" sizes="555px, 805px, 980px" %}
     </div>
   </section>
+{% endif %}
 
 {% if page.supplimental_text %}
   <section id="supplimental">
