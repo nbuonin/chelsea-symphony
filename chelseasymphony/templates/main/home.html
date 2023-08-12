@@ -21,6 +21,36 @@
     </div>
   </section>
 
+{% if page.supplimental_text %}
+  <section id="supplimental">
+      <article class="supplimental-content">
+          <div class="supplimental-content-image">
+            <div class="supplimental-content-image-container">
+              <a href="{{ page.supplimental_link }}">
+                {% image page.supplimental_image fill-675x450 as supp_img_mobile %}
+                {% image page.supplimental_image fill-549x306 as supp_img_tablet %}
+                  <picture >
+                      <source srcset="{{ supp_img_mobile.url }}" media="(min-width: 0px) and (max-width: 599px)" />
+                      <source srcset="{{ supp_image_tablet.url  }}" media="(min-width: 600px) and (max-width: 849px)" />
+                      <source srcset="{{ supp_img_mobile.url }}" media="(min-width: 850px) and (max-width: 1039px)" />
+                      <source srcset="{{ supp_img_mobile.url }}" media="(min-width: 1040px)" />
+                      <img src="{{ supp_img_mobile.url }}" alt="" title="" />
+                  </picture>
+              </a>
+              </div>
+          </div>
+          <div class="supplimental-content-info">
+              <h2 class="supplimental-content-info-title">
+                  <a href="{{ page.supplimental_link }}">{{ page.supplimental_title }}</a>
+              </h2>
+              <div class="supplimental-content-info-copy">
+                {{ page.supplimental_text }}
+              </div>
+          </div>
+      </article>
+  </section>
+{% endif %}
+
 {% if featured_concert %}
   <section id="featured-concert">
       <article class="concert">
@@ -84,7 +114,8 @@
               <p class="blog-tag">
               </p>
               <h2 class="blog-name">
-                  <a href="{% pageurl post %}">{{ post.title }}</a>        </h2>
+                  <a href="{% pageurl post %}">{{ post.title }}</a>
+              </h2>
               <p class="blog-date">{{ post.date|date:"F j, Y" }}</p>
               <div class="blog-copy">
                   {{ post.promo_copy|richtext }}

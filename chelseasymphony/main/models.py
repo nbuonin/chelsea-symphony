@@ -65,6 +65,33 @@ class Home(MetadataPageMixin, Page):
         related_name='banner_image'
     )
 
+    supplimental_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name='supplimental_image'
+    )
+
+    supplimental_link = models.URLField(
+        null=True,
+        blank=True
+    )
+
+    supplimental_title = models.CharField(
+        max_length=48,
+        null=True,
+        blank=True
+    )
+
+    supplimental_text = StreamField([
+        ('paragraph', blocks.RichTextBlock()),
+        ('button', blocks.StructBlock([
+            ('button_text', blocks.CharBlock(required=True)),
+            ('button_link', blocks.URLBlock(required=True))
+        ], template='main/blocks/button_block.html'))
+    ], blank=True)
+
     def get_context(self, request):
         context = super().get_context(request)
         future_concerts = Concert.objects.future_concerts().live().public()
@@ -80,7 +107,11 @@ class Home(MetadataPageMixin, Page):
         verbose_name = "Homepage"
 
     content_panels = Page.content_panels + [
-        ImageChooserPanel('banner_image')
+        ImageChooserPanel('banner_image'),
+        ImageChooserPanel('supplimental_image'),
+        FieldPanel('supplimental_link'),
+        FieldPanel('supplimental_title'),
+        StreamFieldPanel('supplimental_text')
     ]
 
     parent_page_types = ['wagtailcore.Page']

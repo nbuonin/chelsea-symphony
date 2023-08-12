@@ -38,6 +38,67 @@
     }
   }
 }
+
+/////////////////////////////////////////
+// supplimental info block on homepage //
+/////////////////////////////////////////
+#supplimental {
+  display: flex;
+  flex-flow: column nowrap;
+
+  @include respond-to(medium-plus) {
+    flex-flow: row nowrap;
+  }
+}
+#supplimental > article.supplimental-content {
+  display: flex;
+  flex-flow: column nowrap;
+  flex: 1;
+  @extend %border-bottom;
+  div.supplimental-content-info {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    h2.supplimental-content-info-title {
+      @extend %hp-section-name;
+    }
+    div.supplimental-content-info-copy {
+      @includ hp-section-copy;
+      padding: 0 $container-margin;
+    }
+  } // end of div.blog-info
+
+  @include respond-to(medium-plus) {
+    @include border-bottom-dark;
+    flex-flow: row nowrap;
+    div.supplimental-content-image {
+      flex: 1;
+      .supplimental-content-image-container {
+        padding: 0 1em;
+        img {
+          width: 100%
+        }
+      }
+    }
+    div.supplimental-content-info {
+      flex: 1;
+      h2.supplimental-content-info-title {
+        padding: 0 1em;
+      }
+    } // end of div.blog-info
+  } // end of 'medium-plus'
+}
+@include respond-to(wide-plus) {
+    div.supplimental-content-image {
+      .supplimental-content-image-container {
+        padding: 0 1em;
+        img {
+          width: 100%
+        }
+      }
+    }
+}
+
 //////////////////////////////////
 // Featured concert on homepage //
 //////////////////////////////////

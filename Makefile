@@ -28,6 +28,9 @@ pre-deploy: $(PY_SENTINAL)
 makemigrations: $(PY_SENTINAL)
 	pipenv run ./manage.py makemigrations
 
+updateindex: $(PY_SENTINAL)
+	pipenv run ./manage.py update_index
+
 superuser: $(PY_SENTINAL)
 	pipenv run ./manage.py createsuperuser
 
